@@ -15,17 +15,18 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 
 #Change log todo/requests
 
-  - [ ] Add tagging field to group movies for movie trilogies like "batman", "james bond", "xmen"
+  - [ ] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
   - [x] build latest updates section
-  - [x]  fix season links to IMDB
-  - [ ]  build listing script for people to create .csv listing of movies to add.
-  - [ ]  build search functionality
+  - [ ] build listing script for people to create .csv listing of movies to add.
+  - [ ] build search functionality
       - [ ]  pagination
       - [ ]  filtering
   - [ ]  check for duplicate movies added
-  - [ ]  check if imdb metadata is old
+  - IMDB metadata specific
       - [ ]  check if metadata exists already before fetching from IMDB
-  - [ ]  add imdb ID field to insert/update form
+      - [ ]  check if imdb metadata is old
+      - [x]  fix season links to IMDB
+      - [ ]  add imdb ID field to insert/update form
       - [ ]  and build cross reference checks to imdb for metadata on movies that aren't labeled correctly
       - [ ]  build ajax response to populate values from IMDB to database
   - [ ]  visual bugs
