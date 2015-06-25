@@ -1,0 +1,16 @@
+.videoPoster
+{
+    width: 300px;
+    min-height: 400px;
+    margin-right: 2em;
+    float: left
+}
+
+p.hide { display: none }
+
+span.small { font-size: 80%}
+
+p.videoDetails { margin-top: -16px}
+ul.videoDetails li { list-style-type: none }
+ul.videoDetails { margin: 0 0 20px }
+div.videoDetailsContainer { overflow: hidden }
