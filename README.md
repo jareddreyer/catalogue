@@ -1,11 +1,11 @@
 # What is this?
-Catalogue is a movie and tv show catalogue website based upon the Silverstripe CMS framework.
+Catalogue is a movie and tv show catalogue listing website based upon the Silverstripe CMS framework.
 
 # Why?
-I found my friends and I were purchasing the same movies and so to stop from over purchasing tv and movies, I built a catalogue to house all of our library and thus everyone could look at a media title first to a) if someone owns it and b) whom owns it.
+I found my friends and I were purchasing the same movies and so to stop from over purchasing tv and movies, I built a catalogue to house all of our library and thus everyone could look at a media title first to find out a) if someone owns it and b) whom owns it.
 
 # How?
-Once signed into the Silverstripe framework, a user is given a simple form to fill out. This then saves the title to the database, of which then can be looked at further by connecting to the IMDB api. This pulls back a heap of metadata about the title.
+Once signed into the Silverstripe framework, a user is given a simple form to fill out. This then saves the title to the database, of which then can be looked at further by connecting to the IMDB api. This pulls back a metadata about the title.
 
 # Example SQL
 
