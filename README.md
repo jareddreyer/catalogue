@@ -1,5 +1,5 @@
 # What is this?
-Catalogue is a movie and tv show catalogue listing website based upon the Silverstripe CMS framework.
+Catalogue is a film and television show catalogue listing website based upon the Silverstripe 3.0 CMS framework.
 
 # Why?
 I found my friends and I were purchasing the same movies and so to stop from over purchasing tv and movies, I built a catalogue to house all of our library and thus everyone could look at a media title first to find out a) if someone owns it and b) whom owns it.
@@ -42,7 +42,7 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 	     - "Year" (release date of title from IMDB) - read/display only
 		 - "imdbID" - IMDBs ID, used on the OMDB API lookup
 		 - "Poster" - allows title to be saved as a file friendly name so can load poster locally instead of from API
-		 - "Keywords" - this allows for to search for titles that are part of trilogies or part of a canon-universe e.g. "James Bond", "Marvel" (Technically could be used for any type of tagging i.e. "Actors")
+		 - "Keywords" - this allows for searching on titles that are part of trilogies or part of a canon-universe e.g. "James Bond", "Marvel" (Up to user on how they want to tag i.e. users can tag via "Actor")
 		 - Added look up and saving of title posters on insert form
 		 - Comments now allow for multiple comments and contain a prefix of user and datetime
 		 - Video title is the only mandatory field, once filled out a look up to IMDB is made for metadata and also control of other fields i.e. Title=Star Wars, Type=Film, Source=Bluray/DVD/SCR/CAM/VOD/WEB
