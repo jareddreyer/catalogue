@@ -8,8 +8,8 @@ $databaseConfig = array(
 	"type" => 'MySQLDatabase',
 	"server" => 'localhost',
 	"username" => 'root',
-	"password" => 'inca',
-	"database" => 'ss_mysite',
+	"password" => '12345',
+	"database" => 'catalogue',
 	"path" => '',
 );
 SS_Log::add_writer(new SS_LogFileWriter('c:/inetpub/catalogue/logs/'), SS_Log::WARN, '<=');

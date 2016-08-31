@@ -14,3 +14,48 @@ p.videoDetails { margin-top: -16px}
 ul.videoDetails li { list-style-type: none }
 ul.videoDetails { margin: 0 0 20px }
 div.videoDetailsContainer { overflow: hidden }
+.comments { cursor: pointer}
+#films li img { float: left}
+.imageList { clear: both}
+.imageList li 
+{
+    list-style-type: none;
+    overflow: hidden;
+    padding: 1em 0 1em 1em;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+}
+.imageList img {
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 7px;
+}
+.imageList li p { float: left}
+.typography a:hover { border-bottom: 0}
+.imageList li:not(:last-child) { border-bottom: 1px dashed #ccc}
+
+.list--media-metadata { float: left}
+.list--media-maintenance
+{
+    margin: 0 2em;
+    height: 80px;
+    padding: 0 2em;
+    float: right;
+    border-left: 1px dashed #ccc;
+}
+.list--media-title {}
+.list--media-poster {}
+.typography .list--media-poster img { background-image: url('/themes/simple/images/blank.png')}
+.poster img {float: right}
+
+i.fa-search { cursor: pointer}
+.fa { line-height: 2 !important}
+.jplist-panel { margin-bottom: 2em}
+.jplist-pagination { clear: both; margin: inherit }
+
+
+form input.text, form textarea, form .textajaxuniquetext, form select { max-width: 100% !important }
+form { width: 60% !important; max-width: 100%}

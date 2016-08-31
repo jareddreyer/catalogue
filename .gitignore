@@ -1,0 +1,10 @@
+*.htaccess
+**assets/
+**vendor/
+**sql/*
+**raw_csv/
+**framework/
+**cms/
+aspnet_client/*
+*.htaccess
+framework/_config/config.yml

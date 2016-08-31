@@ -57,7 +57,7 @@ class VideoProfilePage_Controller extends Page_Controller
             array_walk($newArray, array($this, 'createLinks'), $imdbID = $imdb[0]->imdbID);
             $result = implode(' | ', $newArray);
          
-            return $result;    
+            return $result;
                 
         }
     }
@@ -66,7 +66,7 @@ class VideoProfilePage_Controller extends Page_Controller
     {
         $id = (int)Controller::curr()->getRequest()->param('ID');
         
-        $sqlQueryTitle = "SELECT Video_title
+        $sqlQueryTitle = "SELECT Video_title, imdbID
                           FROM catalogue
                           WHERE catalogue.ID = '{$id}'";
 
@@ -77,7 +77,10 @@ class VideoProfilePage_Controller extends Page_Controller
             $set2 = new ArrayList();
             foreach ($recordsVideoTitle as $title)
             {
-                $url = "http://www.omdbapi.com/?t=" .  urlencode($title['Video_title']);
+                $titleEncoded  = urlencode($title['Video_title']); //urlencoded fields only allowed to web api
+                $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $title['Video_title']); //sanitize for disallowed filename characters
+                ($title['imdbID'] !== null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
+                                
                 $json = file_get_contents($url);
                 $data = json_decode($json);
                 
@@ -90,16 +93,14 @@ class VideoProfilePage_Controller extends Page_Controller
                 } else {
                     if($data->{'Poster'} != "N/A") 
                     {
-						$cleanTitleName = preg_replace('/[^A-Za-z0-9\-]/', '', $title['Video_title']);
-						
-                        file_put_contents("c:\\inetpub\\catalogue\\assets\\Uploads\\{$cleanTitleName}.jpg", file_get_contents($data->{'Poster'}));
-						$title['VideoPoster'] = "./assets/Uploads/{$cleanTitleName}.jpg";
+                        
+                        file_put_contents("c:\\inetpub\\catalogue\\assets\\Uploads\\{$sanitized}.jpg", file_get_contents($data->{'Poster'}));
                     } else {
                          $title['VideoPoster'] = "./assets/Uploads/blank.jpg";
                     }
                     
                     $title['errorType'] = "hide";
-                    
+                    $title['VideoPoster'] = "./assets/Uploads/{$sanitized}.jpg";
                     $title['Year'] = $data->{'Year'};
                     $title['Director'] = $data->{'Director'};
                     $title['Actors'] = $data->{'Actors'};

@@ -35,38 +35,6 @@ class Page_Controller extends ContentController {
 		// instead of putting Requirements calls here.  However these are 
 		// included so that our older themes still work
 	}
-	
-	public function recentUpdatesToCatalogue()
-	{
-		if( Member::currentUserID() ) {
-			$sqlQuery = "SELECT catalogue.*, member.ID AS MID, member.Email, member.FirstName, member.Surname 
-                     FROM catalogue 
-                     LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE  catalogue.Last_updated  > NOW() - INTERVAL 1 MONTH
-					 ORDER BY catalogue.Video_title";
-                     
-        $records = DB::query($sqlQuery);             
-        
-        //debug::dump($records->value());
-
-        if ($records)
-        {
-            $set = new ArrayList();
-            foreach ($records as $record)
-            {
-                $record['lastupdatedreadable'] = $this->humanTiming($record['Last_updated']);
-                $set->push(new ArrayData($record));
-            }
-            return $set;
-        }
-
-		} else {
-			// No! do nothing
-		}
-		
-	
-	
-	}
     
     public function humanTiming($time)
     {

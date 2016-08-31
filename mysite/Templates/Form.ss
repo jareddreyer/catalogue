@@ -2,11 +2,10 @@
 <form $AttributesHTML>
 <% end_if %>
     <% if $Message %>
-    <p id="{$FormName}_error" class="message $MessageType"><strong>$Message</strong> - has been added to the catalogue</p>
+    <div class="alert alert-$MessageType {$FormName}_error" role="alert"><strong>$Message</strong> - $messageDetail</div>
     <% else %>
     <p id="{$FormName}_error" class="message $MessageType" style="display: none"></p>
     <% end_if %>
-    
     <fieldset>
         <% if $Legend %><legend>$Legend</legend><% end_if %> 
         <% loop $Fields %>
@@ -22,6 +21,7 @@
         <% end_loop %>
     </div>
     <% end_if %>
+    
 <% if $IncludeFormTag %>
 </form>
 <% end_if %>

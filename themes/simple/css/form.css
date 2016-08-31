@@ -295,3 +295,21 @@ form #DMYDate-day {
 @media only screen and (min-width: 700px) { 
 
 }
+
+
+
+.description
+{
+    color: #666666;
+    display: block;
+    font-family: Verdana,Geneva,sans-serif;
+    font-size: 10px;
+    font-weight: normal;
+}
+
+#Form_Form_Video_title .ui-autocomplete-loading
+{
+    background-image: url('../images/ajax-loader.gif');
+    background-position: right center;
+    background-repeat: no-repeat;
+}
