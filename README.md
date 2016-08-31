@@ -37,7 +37,7 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
   - Insert Form
       - [ ] allow editing of Source fields in edit mode of a title already in catalogue
 
-#Change log: 
+#Change log
      - 2016
 	   - Insert Form
 	     - added 4 new fields to the catalogue table
