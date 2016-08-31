@@ -13,7 +13,7 @@ Once signed into the Silverstripe framework, a user is given a simple form to fi
 INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08', 'Drugs , Bryan Cranston', `breakingBad.jpg`, 'tt0903747', '2008-2013';
 ```
 
-#Change log todo/requests
+#Todo/requests
   - General
 	  - [ ] build listing script for people to create .csv listing of movies to add.
 	  - [x]  check for duplicate movies added
@@ -22,7 +22,8 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] build search functionality
         - [x]  pagination
         - [x]  filtering
-	  - [x] Added field to link to other user profile catalogues
+	  - [ ] Added field to link to other user profile catalogues
+	  - fix genre not filtering results
   - IMDB metadata specific
       - [ ]  check if IMDB metadata is old
       - [x]  fix season links to IMDB
@@ -35,7 +36,8 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] build latest updates section
   - Insert Form
       - [ ] allow editing of Source fields in edit mode of a title already in catalogue
-  - Changes 
+
+#Change log: 
      - 2016
 	   - Insert Form
 	     - added 4 new fields to the catalogue table
@@ -51,8 +53,3 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 	     - added thumbnails to listing
 		 - listings are now broken into profiles by user e.g. /films/ takes you to your profile, /films/x (where x is member ID) will take you to that users profile catalogue
 	   - Catalogue is now "Films" &  "Series" as opposed to "Movies" & "TV", "Series" leaves any ambiguities for Television or Web
-	   
-	   
-	   
-	   
-		 
