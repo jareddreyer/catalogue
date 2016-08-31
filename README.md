@@ -10,7 +10,7 @@ Once signed into the Silverstripe framework, a user is given a simple form to fi
 # Example SQL
 
 ```sql
-INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08');
+INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08', 'Drugs , Bryan Cranston', `breakingBad.jpg`, 'tt0903747', '2008-2013';
 ```
 
 #Change log todo/requests
@@ -22,11 +22,12 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] build search functionality
         - [x]  pagination
         - [x]  filtering
+	  - [x] Added field to link to other user profile catalogues
   - IMDB metadata specific
-      - [ ]  check if imdb metadata is old
+      - [ ]  check if IMDB metadata is old
       - [x]  fix season links to IMDB
-      - [x]  add imdb ID field to insert/update form
-      - [x]  and build cross reference checks to imdb for metadata on movies that aren't labeled correctly
+      - [x]  add IMDB ID field to insert/update form
+      - [x]  and build cross reference checks to IMDB for metadata on movies that aren't labelled correctly
       - [x]  build ajax response to populate values from IMDB to database
   - Visual bugs
       - [x] even out table column widths
@@ -39,14 +40,16 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 	   - Insert Form
 	     - added 4 new fields to the catalogue table
 	     - "Year" (release date of title from IMDB) - read/display only
-		 - "imdbID" - imdbs ID, used on the OMDB API lookup
+		 - "imdbID" - IMDBs ID, used on the OMDB API lookup
 		 - "Poster" - allows title to be saved as a file friendly name so can load poster locally instead of from API
+		 - "Keywords" - this allows for to search for titles that are part of trilogies or part of a canon-universe e.g. "James Bond", "Marvel" (Technically could be used for any type of tagging i.e. "Actors")
 		 - Added look up and saving of title posters on insert form
 		 - Comments now allow for multiple comments and contain a prefix of user and datetime
-		 - Video title is the only manadatory field, once filled out a look up to IMDB is made for metadata and also control of other fields i.e. Title=Star Wars, Type=Film, Source=Bluray/DVD/SCR/CAM/VOD/WEB
+		 - Video title is the only mandatory field, once filled out a look up to IMDB is made for metadata and also control of other fields i.e. Title=Star Wars, Type=Film, Source=Bluray/DVD/SCR/CAM/VOD/WEB
 	   - Catalogue listing
          - listing now an unordered list for both Films and Series (tv)
 	     - added thumbnails to listing
+		 - listings are now broken into profiles by user e.g. /films/ takes you to your profile, /films/x (where x is member ID) will take you to that users profile catalogue
 	   - Catalogue is now "Films" &  "Series" as opposed to "Movies" & "TV", "Series" leaves any ambiguities for Television or Web
 	   
 	   
