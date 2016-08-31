@@ -45,6 +45,7 @@
 <% require javascript("themes/simple/javascript/jplist.pagination-bundle.min.js") %>
 <% require javascript("themes/simple/javascript/jplist.filter-dropdown-bundle.min.js") %>
 <% require javascript("themes/simple/javascript/jplist.textbox-filter.min.js") %>
+<% require javascript("themes/simple/javascript/jplist.history-bundle.min.js") %>
 
 
 </body>

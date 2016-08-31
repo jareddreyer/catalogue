@@ -52,10 +52,15 @@ div.videoDetailsContainer { overflow: hidden }
 .poster img {float: right}
 
 i.fa-search { cursor: pointer}
-.fa { line-height: 2 !important}
+.fa.fa-search  { line-height: 2 !important}
 .jplist-panel { margin-bottom: 2em}
 .jplist-pagination { clear: both; margin: inherit }
 
 
 form input.text, form textarea, form .textajaxuniquetext, form select { max-width: 100% !important }
 form { width: 60% !important; max-width: 100%}
+
+.jplist-panel .jplist-pagination .jplist-current {
+    color: #f03800;
+    font-weight: bold;
+}
