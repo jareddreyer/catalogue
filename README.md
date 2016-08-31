@@ -14,21 +14,42 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 ```
 
 #Change log todo/requests
-  - [ ] build listing script for people to create .csv listing of movies to add.
-  - [ ]  check for duplicate movies added
+  - General
+	  - [ ] build listing script for people to create .csv listing of movies to add.
+	  - [x]  check for duplicate movies added
   - Search
-      - [ ] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
-      - [ ] build search functionality
-        - [ ]  pagination
-        - [ ]  filtering
+      - [x] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
+      - [x] build search functionality
+        - [x]  pagination
+        - [x]  filtering
   - IMDB metadata specific
-      - [ ]  check if metadata exists already before fetching from IMDB
       - [ ]  check if imdb metadata is old
       - [x]  fix season links to IMDB
-      - [ ]  add imdb ID field to insert/update form
-      - [ ]  and build cross reference checks to imdb for metadata on movies that aren't labeled correctly
-      - [ ]  build ajax response to populate values from IMDB to database
+      - [x]  add imdb ID field to insert/update form
+      - [x]  and build cross reference checks to imdb for metadata on movies that aren't labeled correctly
+      - [x]  build ajax response to populate values from IMDB to database
   - Visual bugs
-      - [x]  even out table column widths
-      - [x]  hide field text that is no necessary on movies e.g. "season(s):"
+      - [x] even out table column widths
+      - [x] hide field text that is no necessary on movies e.g. "season(s):"
       - [x] build latest updates section
+  - Insert Form
+      - [ ] allow editing of Source fields in edit mode of a title already in catalogue
+  - Changes 
+     - 2016
+	   - Insert Form
+	     - added 4 new fields to the catalogue table
+	     - "Year" (release date of title from IMDB) - read/display only
+		 - "imdbID" - imdbs ID, used on the OMDB API lookup
+		 - "Poster" - allows title to be saved as a file friendly name so can load poster locally instead of from API
+		 - Added look up and saving of title posters on insert form
+		 - Comments now allow for multiple comments and contain a prefix of user and datetime
+		 - Video title is the only manadatory field, once filled out a look up to IMDB is made for metadata and also control of other fields i.e. Title=Star Wars, Type=Film, Source=Bluray/DVD/SCR/CAM/VOD/WEB
+	   - Catalogue listing
+         - listing now an unordered list for both Films and Series (tv)
+	     - added thumbnails to listing
+	   - Catalogue is now "Films" &  "Series" as opposed to "Movies" & "TV", "Series" leaves any ambiguities for Television or Web
+	   
+	   
+	   
+	   
+		 
