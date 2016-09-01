@@ -79,7 +79,8 @@ class VideoProfilePage_Controller extends Page_Controller
             {
                 $titleEncoded  = urlencode($title['Video_title']); //urlencoded fields only allowed to web api
                 $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $title['Video_title']); //sanitize for disallowed filename characters
-                ($title['imdbID'] !== null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
+                
+                ($title['imdbID'] != null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
                                 
                 $json = file_get_contents($url);
                 $data = json_decode($json);
@@ -89,7 +90,9 @@ class VideoProfilePage_Controller extends Page_Controller
                     $title['error'] = "video was not found in IMDB";
                     $title['errorType'] = "bad";
                     $set2->push(new ArrayData($title));
-                     return $set2; 
+                    
+                    return $set2;
+                    
                 } else {
                     if($data->{'Poster'} != "N/A") 
                     {

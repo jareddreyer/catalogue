@@ -7,20 +7,46 @@ class VideoTelevisionPage extends Page
 
 class VideoTelevisionPage_Controller extends Page_Controller
 {
+    public function init()
+    {
+        parent::init();
+        $this->id = (int)Controller::curr()->getRequest()->param('ID');
+        ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
+    }
 
     public function television()
     {
         Requirements::css('themes/simple/css/jplist.core.min.css');
         Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
         
-        $id = (int)Controller::curr()->getRequest()->param('ID');
-        ($id) ? $member = $id : $member = Member::currentUserID();
+        
+        $keywords = $this -> getKeywords();
+        Requirements::customScript('
+        
+            var availableKeywords = [
+            '.$keywords.'
+            ];
+            $(function() {
+     
+                $(".keywordsText").autocomplete({
+                    source: availableKeywords,
+                    minLength: 3,
+                    select: function(event, ui) {
+                        $(".keywordsText").trigger("input");
+                    },
+             
+                    html: true, // optional (jquery.ui.autocomplete.html.js required)
+                    
+                });
+             
+            });
+         ');
         
         $sqlQuery = "SELECT catalogue.*, member.ID AS MID, member.Email, member.FirstName, member.Surname 
                      FROM catalogue 
                      LEFT JOIN member ON catalogue.Owner = member.ID 
                      WHERE catalogue.Video_type = 'series'
-                     AND catalogue.Owner = $member
+                     AND catalogue.Owner = $this->member
                      ORDER BY catalogue.Video_title";
                      
         $records = DB::query($sqlQuery);             
@@ -40,6 +66,67 @@ class VideoTelevisionPage_Controller extends Page_Controller
             return $set;
         }
 
+    }
+
+    /**
+     * gets keywords as a separate query
+     */
+    public function getKeywords()
+    {
+        $result = Catalogue::get()->sort('Keywords')->where('keywords is not null')->column($colName = "keywords");                                
+        
+        if($result != null)
+        {
+            
+            /** clean up keywords from DB **/
+            $implode = implode(",", $result); //implode array to string, saves foreaching
+            $trim = preg_replace('/\s*,\s*/', ',', $implode); //remove white spaces before and after commas 
+            $explode = explode(",", $trim); //explode string to array by comma
+            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
+            
+            $listoption = "";
+            foreach($_list as $list)
+            {
+                foreach ($list as $value)
+                {
+                    $listoption .= '"'. $value.'",';
+                }
+            }
+                
+            return $listoption;
+        }
+    }
+    
+    
+    /**
+     * gets genres as a separate query
+     */
+    public function getGenres()
+    {
+        $result = Catalogue::get()->sort('Genre')->where('Genre is not null')->column($colName = "Genre");                                
+        
+        if($result != null)
+        {
+            
+            /** clean up keywords from DB **/
+            $implode = implode("|", $result); //implode array to string, saves foreaching
+            $trim = preg_replace('/\s+/', '', $implode); //remove white spaces before and after commas 
+            $explode = explode("|", $trim); //explode string to array by comma
+            sort($explode); //sort the array alphabetically
+            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
+            
+            
+            $genreList = "";
+            foreach($_list as $list)
+            {
+                foreach ($list as $value)
+                {
+                    $genreList .= "<li><span data-path=\".".$value."\">".$value."</span></li>";    
+                }
+            }
+                
+            return $genreList;
+        }
     }
 
     /**

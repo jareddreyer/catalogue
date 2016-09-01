@@ -64,3 +64,6 @@ form { width: 60% !important; max-width: 100%}
     color: #f03800;
     font-weight: bold;
 }
+
+.ui-widget-content li a { color: #337ab7 !important}
+.ui-widget-content li a:hover { color: #000 !important }

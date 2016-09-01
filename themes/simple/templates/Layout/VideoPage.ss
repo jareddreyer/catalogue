@@ -114,7 +114,7 @@
                             <br>
                             <% end_if%> <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Video_title} off you?<eom>">$FirstName $Surname</a></span>
                             <span class="hide keywords">$keywords</span>
-                            <span class="hide genres">$Genres</span>
+                             $genres
                         </div>
                         <div class="list--media-maintenance">
                             <p>

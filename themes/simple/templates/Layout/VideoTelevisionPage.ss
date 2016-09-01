@@ -9,9 +9,11 @@
     
             <div id="films">
             <!-- panel -->
-                <div class="jplist-panel">                       
+                <div class="jplist-panel">
+                <button type="button" class="jplist-reset-btn" data-control-type="reset" data-control-name="reset" data-control-action="reset">
+                    Reset <i class="fa fa-share"></i>
+                </button>
                 <!-- Filter DropDown Control -->
-                    
                     <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="category-filter" data-control-action="filter">
                         <ul>
                             <li><span data-path="default">Filter by Status</span></li>
@@ -47,14 +49,33 @@
                        
                        <input class="keywordsText" data-button="#keywordSearch" data-path=".keywords" type="text" value="" placeholder="Filter by Keywords" data-control-type="textbox" data-control-name="keywords-filter" data-control-action="filter">
                     </div>
-                    <p>&nbsp;</p>
-                    <div class="jplist-pagination" data-control-type="pagination" data-control-name="paging" data-control-action="paging" data-items-per-page="5"></div>
-                      
+                    <div class="jplist-panel box panel-top">
+    
+                        <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="items-per-page-drop-down" class="jplist-drop-down">
+                            <div class="jplist-dd-panel">
+                                3 per page
+                            </div>
+                            <ul>
+                                <li class="active">
+                                    <span data-number="3"> 3 per page </span>
+                                </li>
+                                <li>
+                                    <span data-number="5"> 5 per page </span>
+                                </li>
+                                <li>
+                                    <span data-number="10"> 10 per page </span>
+                                </li>
+                                <li>
+                                    <span data-number="all"> View All </span>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- pagination -->
+                        <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
+    
+                    </div>                      
                 </div>
-            <p>&nbsp;</p>
             <hr>
-            
-            
                 <ul class="imageList list">
                 <% loop television %>
                   <li class="list-item">
@@ -71,6 +92,8 @@
                               <% if $Source %><strong>Source: </strong><span class="source">$Source</span><br><% end_if%>
                               <% if $Quality %><strong>Quality: </strong><span class="quality">$Quality</span><br><% end_if%>
                               <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Video_title} off you?<eom>">$FirstName $Surname</a></span>
+                              <span class="hide keywords">$keywords</span>
+                              <span class="hide genres">$Genre</span>
                           </div>
                           <div class="list--media-maintenance">  
                               <p>
@@ -85,7 +108,13 @@
                   
                 <% end_loop %> 
                 </ul>
-            
+                <hr>
+                <div class="jplist-panel box panel-top">
+
+                    <!-- pagination -->
+                    <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
+
+                </div>
                   <!-- no results found -->
                    <div class="jplist-no-results">
                       <p>No results found</p>
@@ -144,21 +173,4 @@ $('#myModal').on('show.bs.modal', function (event) {
   modal.find('.modal-body').html(comment.replace(/[']+/g, '').split(",").join("<br>"))
 })
 
-$('#readOnlyTagsSeasons, #readOnlyTagsGenre').tagit({
-    readOnly: true
-});
-
-$().ready(function(){ 
- $(".videos tr").hover(
-     function()
-     {
-      $(this).children("td").addClass("ui-state-hover");
-     },
-     function()
-     {
-      $(this).children("td").removeClass("ui-state-hover");
-     }
-    );
- 
-});
 </script>

@@ -7,21 +7,23 @@ class VideoPage extends Page
 
 class VideoPage_Controller extends Page_Controller
 {
-    private $id, $member;
-    
-     private static $allowed_actions = array('getKeywords', 'jared');
+     private $id, $member;
+     private static $allowed_actions = array('getKeywords');
     
     public function init()
     {
         parent::init();
         $this->id = (int)Controller::curr()->getRequest()->param('ID');
         ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
+        
+        //jplist css
+        Requirements::css('themes/simple/css/jplist.core.min.css');
+        Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
     }
 
 	public function movies()
 	{
-	    Requirements::css('themes/simple/css/jplist.core.min.css');
-        Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
+	    
         
         $keywords = $this -> getKeywords();
         Requirements::customScript('
@@ -51,8 +53,7 @@ class VideoPage_Controller extends Page_Controller
                      LEFT JOIN member ON catalogue.Owner = member.ID 
                      WHERE catalogue.Video_type = 'film' 
                      AND catalogue.Owner = $this->member
-                     ORDER BY catalogue.Video_title"
-                     ;
+                     ORDER BY catalogue.Video_title";
                      
         $records = DB::query($sqlQuery);             
         
@@ -65,22 +66,46 @@ class VideoPage_Controller extends Page_Controller
             
             foreach ($records as $record)
             {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['Last_updated']);
-                $set->push(new ArrayData($record));
+                $record['lastupdatedreadable'] = parent::humanTiming($record['Last_updated']);                
+                $record['genres'] = $this->listFilmGenres($record['Genre']);
                 
+                $set->push(new ArrayData($record));
             }
-         
             return $set;
         }
         
 	}
+
+    /**
+     * @param string
+     * 
+     * @desc takes genres string element and splits them into array element for each genre 
+     * 
+     * @return array
+     */
+    private function listFilmGenres ($genre)
+    {
+         
+        $explode = explode("|", $genre); //explode string to array by comma
+        
+        $listoption = "";
+        foreach ($explode as $value)
+        {
+            $listoption .= '<span class="hide genre '.$value.'">'.trim($value).'</span>';
+            
+        }
+        
+        return $listoption;
+        
+    }
     
     /**
      * gets keywords as a separate query
+     * sorts and removes duplicates
      */
     public function getKeywords()
     {
-        $result = Catalogue::get()->sort('Keywords')->where('keywords is not null')->column($colName = "keywords");                                
+        $result = Catalogue::get()->sort('keywords')->where('keywords is not null')->column($colName = "keywords");                                
         
         if($result != null)
         {
@@ -107,6 +132,7 @@ class VideoPage_Controller extends Page_Controller
     
     /**
      * gets genres as a separate query
+     * sorts and removes duplicates
      */
     public function getGenres()
     {

@@ -23,7 +23,22 @@ class CataloguePage_Controller extends Page_Controller
                 });
                                      
             ');
-        
+            
+            //create source arrays to swap out on form load
+            $filmarr = array(
+                          'Bluray'      =>'BD/BRRip',
+                          'DVD'         => 'DVD-R',
+                          'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
+                          'cam'         => 'CAMRip/CAM/TS/TELESYNC',
+                          'vod'         => 'VODRip/VODR',
+                          'web'         => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
+            $tvarr = array( 
+                          'Bluray'  => 'BD/BRRip',
+                          'DVD'     => 'DVD-R',
+                          'HDTV'    => 'HD TV',
+                          'SDTV'    => 'SD TV',
+                          'web'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
+                
         //include js
         $keywords = $this->__getKeywords();
         if($keywords != null)
@@ -55,7 +70,9 @@ class CataloguePage_Controller extends Page_Controller
         $id = (int)Controller::curr()->getRequest()->param('ID');
         $automap = ($id)? $automap = Catalogue::get()->byID($id) : false;
       
-        $submitCaption = ($automap) ? 'Edit' : 'Add'; 
+        $submitCaption = ($automap) ? 'Edit' : 'Add';
+        $sourceArr = $filmarr;
+        if(isset($automap->Video_type)) ($automap->Video_type == 'film') ? $sourceArr = $filmarr : $sourceArr = $tvarr;
         // Create fields
         $fields = FieldList::create(
             TextField::create('Video_title', 'Video Title'),
@@ -69,7 +86,7 @@ class CataloguePage_Controller extends Page_Controller
                 'Wanted' => 'Wanted - need a copy of',
                 'No Torrents' => 'No Torrents - cannot find video',
             ))->setEmptyString('Select status'),
-            DropDownField::create('Source', 'Source of download')->setEmptyString('Select source'),
+            DropDownField::create('Source', 'Source of download', $sourceArr)->setEmptyString('Select source'),
             DropDownField::create('Quality', 'Resolution of download (quality)', array(
                 '4k' => '4k',
                 '1440p' => '1440p',
