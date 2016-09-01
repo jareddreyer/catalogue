@@ -1,19 +1,19 @@
-# What is this?
+## What is this? ##
 Catalogue is a film and television show catalogue listing website based upon the Silverstripe 3.0 CMS framework.
 
-# Why?
+## Why? ##
 I found my friends and I were purchasing the same movies and so to stop from over purchasing tv and movies, I built a catalogue to house all of our library and thus everyone could look at a media title first to find out a) if someone owns it and b) whom owns it.
 
-# How?
+## How? ##
 Once signed into the Silverstripe framework, a user is given a simple form to fill out. This then saves the title to the database, of which then can be looked at further by connecting to the IMDB api. This pulls back a metadata about the title.
 
-# Example SQL
+## Example SQL ##
 
 ```sql
 INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08', 'Drugs , Bryan Cranston', `breakingBad.jpg`, 'tt0903747', '2008-2013';
 ```
 
-#Todo/requests
+## Todo/requests ##
   - General
 	  - [ ] build listing script for people to create .csv listing of movies to add.
 	  - [x]  check for duplicate movies added
@@ -35,7 +35,7 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] hide field text that is no necessary on movies e.g. "season(s):"
       - [x] build latest updates section
   - Insert Form
-      - [ ] allow editing of Source fields in edit mode of a title already in catalogue
+      - [x] allow editing of Source fields in edit mode of a title already in catalogue
 
 #Change log
      - 2016
