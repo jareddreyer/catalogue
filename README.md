@@ -36,6 +36,7 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] build latest updates section
   - Insert Form
       - [x] allow editing of Source fields in edit mode of a title already in catalogue
+	  - [ ] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
 #Change log
      - 2016
