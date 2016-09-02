@@ -22,10 +22,11 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
       - [x] build search functionality
         - [x]  pagination
         - [x]  filtering
-	  - [ ] Added field to link to other user profile catalogues
-	  - fix genre not filtering results
+	  - [x] Added field to link to other user profile catalogues
+	  - [x] fix genre not filtering results
   - IMDB metadata specific
       - [ ]  check if IMDB metadata is old
+	    - [ ] save JSON result to local server
       - [x]  fix season links to IMDB
       - [x]  add IMDB ID field to insert/update form
       - [x]  and build cross reference checks to IMDB for metadata on movies that aren't labelled correctly
