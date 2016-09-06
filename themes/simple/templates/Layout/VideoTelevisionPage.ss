@@ -3,13 +3,23 @@
         <h1>$Title</h1>
         
         <% if countTitles %>
-        <p>$countTitles movies are listed in your catalogue.</p>
+            <p>$countTitles
+        <% loop $CurrentMember %>
+             Series are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
+        <% end_loop %>
         
         <div class="content">
-    
-            <div id="films">
+            <div class="films">
             <!-- panel -->
                 <div class="jplist-panel">
+                <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
+                    <ul>
+                        <li><span data-path="default"> Browse by User</span></li>
+                        <% loop $getMembers %>
+                            <li><a href="/series/$ID">$FirstName $Surname </a></li>
+                        <% end_loop%>
+                    </ul>
+                </div>
                 <button type="button" class="jplist-reset-btn" data-control-type="reset" data-control-name="reset" data-control-action="reset">
                     Reset <i class="fa fa-share"></i>
                 </button>
@@ -18,12 +28,12 @@
                         <ul>
                             <li><span data-path="default">Filter by Status</span></li>
                                 <li><span data-path=".Downloaded">Downloaded</span></li>
-                                <li><span data-path=".Wanted">Wanted</span></li>
                                 <li><span data-path=".Downloading">Downloading</span></li>
                                 <li><span data-path=".NoTorrents">No Torrents</span></li>
+                                <li><span data-path=".Wanted">Wanted</span></li>
                         </ul>
                     </div>
-                    <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="genre-filter" data-control-action="filter">
+                    <div class="jplist-drop-down genre" data-control-type="filter-drop-down" data-control-name="genre-filter" data-control-action="filter">
                         <ul>
                             <li><span data-path="default">Filter by Genre</span></li>
                                 <% if getGenres %>$getGenres <% end_if %>
@@ -49,33 +59,22 @@
                        
                        <input class="keywordsText" data-button="#keywordSearch" data-path=".keywords" type="text" value="" placeholder="Filter by Keywords" data-control-type="textbox" data-control-name="keywords-filter" data-control-action="filter">
                     </div>
-                    <div class="jplist-panel box panel-top">
-    
-                        <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="items-per-page-drop-down" class="jplist-drop-down">
-                            <div class="jplist-dd-panel">
-                                3 per page
-                            </div>
-                            <ul>
-                                <li class="active">
-                                    <span data-number="3"> 3 per page </span>
-                                </li>
-                                <li>
-                                    <span data-number="5"> 5 per page </span>
-                                </li>
-                                <li>
-                                    <span data-number="10"> 10 per page </span>
-                                </li>
-                                <li>
-                                    <span data-number="all"> View All </span>
-                                </li>
-                            </ul>
-                        </div>
-                        <!-- pagination -->
-                        <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
-    
-                    </div>                      
+                    <div>
+
+                    <!-- pagination -->
+                    <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
+                    
+                    <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="items-per-page-drop-down" class="jplist-drop-down">
+                        <div class="jplist-dd-panel">3 per page</div>
+                        <ul>
+                            <li class="active"><span data-number="3"> 3 per page </span></li>
+                            <li><span data-number="5"> 5 per page </span></li>
+                            <li><span data-number="10"> 10 per page </span></li>
+                            <li><span data-number="all"> View All </span></li>
+                        </ul>
+                    </div>
+                </div>           
                 </div>
-            <hr>
                 <ul class="imageList list">
                 <% loop television %>
                   <li class="list-item">
@@ -93,14 +92,13 @@
                               <% if $Quality %><strong>Quality: </strong><span class="quality">$Quality</span><br><% end_if%>
                               <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Video_title} off you?<eom>">$FirstName $Surname</a></span>
                               <span class="hide keywords">$keywords</span>
-                              <span class="hide genres">$Genre</span>
+                              $genres
                           </div>
                           <div class="list--media-maintenance">  
                               <p>
                                   <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
                                   <a href="catalogue-maintenance/edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
                               </p>
-                              <span class="hide keywords">$keywords</span>  
                           </div>
                           
                       </div>
@@ -145,11 +143,24 @@
   </div>
 </div>
 <% else %>
-<p>User does not have any films/series in their catalogue</p>
+<div class="films">
+    <div class="jplist-panel">
+    <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
+        
+        <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
+            <ul>
+                <li><span data-path="default"> Browse by User</span></li>
+                <% loop $getMembers %>
+                    <li><a href="/series/$ID">$FirstName $Surname </a></li>
+                <% end_loop%>
+            </ul>
+        </div>
+    </div>
+</div>
 <% end_if %>
 <script type="text/javascript">
 $('document').ready(function(){
-   $('#films').jplist({              
+   $('.films').jplist({              
       itemsBox: '.list' 
       ,itemPath: '.list-item' 
       ,panelPath: '.jplist-panel'   

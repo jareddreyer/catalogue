@@ -12,12 +12,17 @@ class VideoTelevisionPage_Controller extends Page_Controller
         parent::init();
         $this->id = (int)Controller::curr()->getRequest()->param('ID');
         ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
+        $this -> members = parent::__getAllMembers(); // get all the members
+        
+        //JPlist css
+        Requirements::css('themes/simple/css/jplist.core.min.css');
+        Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
+        
     }
 
     public function television()
     {
-        Requirements::css('themes/simple/css/jplist.core.min.css');
-        Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
+        
         
         
         $keywords = $this -> getKeywords();
@@ -59,8 +64,10 @@ class VideoTelevisionPage_Controller extends Page_Controller
             
             foreach ($records as $record)
             {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['Last_updated']);
+                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = str_replace('Season', '', $record['Seasons']);
+                $record['genres'] = $this->listFilmGenres($record['Genre']);
+                
                 $set->push(new ArrayData($record));
             }
             return $set;
@@ -97,6 +104,29 @@ class VideoTelevisionPage_Controller extends Page_Controller
         }
     }
     
+    
+     /**
+     * @param string
+     * 
+     * @desc takes genres string element and splits them into array element for each genre 
+     * 
+     * @return array
+     */
+    private function listFilmGenres ($genre)
+    {
+         
+        $explode = explode("|", $genre); //explode string to array by comma
+        
+        $listoption = "";
+        foreach ($explode as $value)
+        {
+            $listoption .= '<span class="hide genre '.$value.'">'.trim($value).'</span>';
+            
+        }
+        
+        return $listoption;
+        
+    }
     
     /**
      * gets genres as a separate query
@@ -142,5 +172,17 @@ class VideoTelevisionPage_Controller extends Page_Controller
         
         return $count;
     }
+    
+    /**
+     * returns $this->members from parent::__getAllMembers
+     * 
+     * @return object
+     * 
+     */
+    public function getMembers()
+    {
+        return $this->members;
+    }
+    
     
 }

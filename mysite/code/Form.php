@@ -15,7 +15,6 @@ class Catalogue extends DataObject
 		'Owner' => 'VARCHAR(100)',
 		'Comments' => 'TEXT',
 		'Poster' => 'varchar(100)',		
-		'Last_updated' => "VARCHAR(100)"
     );
     
     public function validate() 

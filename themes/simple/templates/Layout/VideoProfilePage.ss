@@ -3,42 +3,49 @@
         <h1>$Title</h1>
         
         <div class="content">
-                <% loop getIMDBMetadata %><p class="message $errorType" id="Form_Form_error"><strong>$error</strong></p><% end_loop %>
-                <% loop profile %>
-                <div>
-                    
-                    <div class="videoPoster"><% loop Up.getIMDBMetadata %><img src="$VideoPoster" alt="" title="" /><% end_loop %></div>
-                    <div class="videoDetailsContainer">
-                        <h2 class="name">$Video_title (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
-                        <p class="videoDetails"><% loop Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
-                        <% if $seasonLinks %><p><strong>Season(s):</strong> $seasonLinks</p><% end_if %>
-                        <hr />
-                        <p id="plot"><% loop Up.getIMDBMetadata %>$Plot<% end_loop %></p>
-                        <hr />
-                        <ul class="videoDetails">
-                            <li class="director">
-                                <span id="director"><% loop Up.getIMDBMetadata %><strong>Director(s):</strong> $Director<% end_loop %></span>
-                            </li>
-                            <li class="starring"><% loop Up.getIMDBMetadata %><strong>Starring:</strong> $Actors<% end_loop %></li>
-                            <li class="status"><strong>Status:</strong> $Status</li>
-                            <li class="source">
-                                <strong>Source:</strong> $Source
-                            </li>
-                            <li class="quality">
-                                <strong>Quality:</strong> $Quality
-                            </li>
-                            <li>Last updated $lastupdatedreadable ago</li>
-                            <% if $Comments %><li><strong>Comments:</strong><p> $Comments</p></li><% end_if %>
-                            <li>
-                                <a href="mailto: $Email?subject=Can I get $Video_title off you?<eom>">Request a copy</a>
-                            </li>
-                            <li>
-                                <a href="catalogue-maintenance/edit/$ID">[ edit ]</a>
-                            </li>
-                        </ul>
+                <% if $error %>
+                    <% loop getIMDBMetadata %>
+                        <div class="alert alert-$errorType error" role="alert"><strong>$Video_title</strong> - $error</div>
+                    <% end_loop %>
+                <% end_if %>
+                <% if $profile %>
+                    <% loop profile %>
+                    <div>
+                        
+                        <div class="videoPoster"><% loop Up.getIMDBMetadata %><img src="$VideoPoster" alt="" title="" /><% end_loop %></div>
+                        <div class="videoDetailsContainer">
+                            <h2 class="name">$Video_title (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
+                            <p class="videoDetails"><% loop Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
+                            <% if $seasonLinks %><p><strong>Season(s):</strong> $seasonLinks</p><% end_if %>
+                            <hr />
+                            <p id="plot"><% loop Up.getIMDBMetadata %>$Plot<% end_loop %></p>
+                            <hr />
+                            <ul class="videoDetails">
+                                <li class="director">
+                                    <span id="director"><% loop Up.getIMDBMetadata %><strong>Director(s):</strong> $Director<% end_loop %></span>
+                                </li>
+                                <li class="starring"><% loop Up.getIMDBMetadata %><strong>Starring:</strong> $Actors<% end_loop %></li>
+                                <li class="status"><strong>Status:</strong> $Status</li>
+                                <li class="source">
+                                    <strong>Source:</strong> $Source
+                                </li>
+                                <li class="quality">
+                                    <strong>Quality:</strong> $Quality
+                                </li>
+                                <li>Last updated $lastupdatedreadable ago</li>
+                                <% if $Comments %><li><strong>Comments:</strong><p> $Comments</p></li><% end_if %>
+                                <li>
+                                    <a href="mailto: $Email?subject=Can I get $Video_title off you?<eom>">Request a copy</a>
+                                </li>
+                                <li>
+                                    <a href="catalogue-maintenance/edit/$ID">[ edit ]</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <% end_loop %>
-
+                    <% end_loop %>
+                <% else %>
+                <p> Title does not exist in catalogue</p>
+                <% end_if %>
         </div>
 </div>

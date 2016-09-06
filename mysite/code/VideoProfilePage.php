@@ -26,7 +26,7 @@ class VideoProfilePage_Controller extends Page_Controller
 
             foreach ($records as $record)
             {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['Last_updated']);
+                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
                
                 $set->push(new ArrayData($record));
@@ -80,40 +80,53 @@ class VideoProfilePage_Controller extends Page_Controller
                 $titleEncoded  = urlencode($title['Video_title']); //urlencoded fields only allowed to web api
                 $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $title['Video_title']); //sanitize for disallowed filename characters
                 
-                ($title['imdbID'] != null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
-                                
-                $json = file_get_contents($url);
-                $data = json_decode($json);
-                
-                if($data->{'Response'} == "False")
+                //check if metadata already exists on server
+                if(!file_exists(JSONDIR."{$sanitized}.txt"))
                 {
-                    $title['error'] = "video was not found in IMDB";
-                    $title['errorType'] = "bad";
-                    $set2->push(new ArrayData($title));
+                    //no json file found, load from API
+                    ($title['imdbID'] != null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
                     
-                    return $set2;
+                    $json = file_get_contents($url);
+                    $data = json_decode($json);
+                    
+                    file_put_contents(JSONDIR."{$sanitized}.txt", json_encode($data)); //save IMDB metadata local server
                     
                 } else {
-                    if($data->{'Poster'} != "N/A") 
+                    //json file found, load from server
+                    $data = json_decode(file_get_contents(JSONDIR."{$sanitized}.txt")); //get JSON data from local server
+                    
+                    if($data->{'Response'} == "False")
                     {
+                        $title['error'] = "video was not found in IMDB";
+                        $title['errorType'] = "warning";
+                        $set2->push(new ArrayData($title));
                         
-                        file_put_contents("c:\\inetpub\\catalogue\\assets\\Uploads\\{$sanitized}.jpg", file_get_contents($data->{'Poster'}));
+                        return $set2;
+                        
                     } else {
-                         $title['VideoPoster'] = "./assets/Uploads/blank.jpg";
+                            
+                        if($data->{'Poster'} != "N/A") 
+                        {
+                            //if API returns a URI for poster, then save it
+                            file_put_contents(POSTERSDIR."{$sanitized}.jpg", file_get_contents($data->{'Poster'})); //save poster to local server
+                            
+                        } else {
+                            // API did not return a URI for poster, so use blank.png
+                            $title['VideoPoster'] = "./assets/Uploads/blank.png";
+                        }
+                        
+                        $title['errorType'] = "hide";
+                        $title['VideoPoster'] = "./assets/Uploads/{$sanitized}.jpg";
+                        $title['Year'] = $data->{'Year'};
+                        $title['Director'] = $data->{'Director'};
+                        $title['Actors'] = $data->{'Actors'};
+                        $title['Plot'] = $data->{'Plot'};
+                        $title['Runtime'] = $data->{'Runtime'};
+                        $title['imdbID'] = $data->{'imdbID'};
+                        
+                        $set2->push(new ArrayData($title));
                     }
-                    
-                    $title['errorType'] = "hide";
-                    $title['VideoPoster'] = "./assets/Uploads/{$sanitized}.jpg";
-                    $title['Year'] = $data->{'Year'};
-                    $title['Director'] = $data->{'Director'};
-                    $title['Actors'] = $data->{'Actors'};
-                    $title['Plot'] = $data->{'Plot'};
-                    $title['Runtime'] = $data->{'Runtime'};
-                    $title['imdbID'] = $data->{'imdbID'};
-                    
-                    $set2->push(new ArrayData($title));                    
                 }
-                
             }
             return $set2;
         }  

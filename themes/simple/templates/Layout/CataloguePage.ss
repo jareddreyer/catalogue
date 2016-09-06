@@ -7,9 +7,11 @@
                 <div class="poster"></div>
                 $Form
             </div>
-            <% loop __getCurrentMember %>
-                <span class="hide user">$FirstName $Surname</span>
-            <% end_loop %>
+            
+    <% loop $CurrentMember %>
+    <span class="hide user">$CurrentMember.FirstName $Surname</span>
+    <% end_loop %>
+                
         </div>
     </article>
 </div>

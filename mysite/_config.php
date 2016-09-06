@@ -13,6 +13,11 @@ $databaseConfig = array(
 	"path" => '',
 );
 SS_Log::add_writer(new SS_LogFileWriter('c:/inetpub/catalogue/logs/'), SS_Log::WARN, '<=');
+
+//uploads folder location
+define('POSTERSDIR', 'c:\inetpub\catalogue\assets\Uploads\\');
+define('JSONDIR', 'c:\inetpub\catalogue\assets\Uploads\metadata\\');
+
 // Set the site locale
 i18n::set_locale('en_US');
 

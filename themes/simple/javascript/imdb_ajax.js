@@ -93,7 +93,7 @@ function getPosterThumb (poster, media)
 {
 	$.ajax({
     type: "GET",
-    url: "http://catalogue.optimation.co.nz/poster/savePosterPreview",
+    url: "/poster/savePosterPreview",
     
     data: {poster: poster, title: media},
     success: function(data)

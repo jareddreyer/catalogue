@@ -10,7 +10,11 @@ class CataloguePage_Controller extends Page_Controller
     public function Form()
     {
         
-        Requirements::customScript('
+         $genres = $this->__getGenres();
+         $clean = parent::__convertAndCleanList($genres, $pipe='|');
+         ($genres != null) ?  $genresJson = json_encode($clean) : json_encode(array("Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"));
+         
+         Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
                     singleFieldDelimiter: " | ",    
                     allowSpaces: true,
@@ -19,42 +23,38 @@ class CataloguePage_Controller extends Page_Controller
                 
                 $("#Form_Form_Genre").tagit({
                     singleFieldDelimiter: " | ",    
-                    availableTags: ["Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"]
+                    availableTags: '.$genresJson.'
                 });
                                      
             ');
             
-            //create source arrays to swap out on form load
-            $filmarr = array(
-                          'Bluray'      =>'BD/BRRip',
-                          'DVD'         => 'DVD-R',
-                          'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
-                          'cam'         => 'CAMRip/CAM/TS/TELESYNC',
-                          'vod'         => 'VODRip/VODR',
-                          'web'         => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
-            $tvarr = array( 
-                          'Bluray'  => 'BD/BRRip',
-                          'DVD'     => 'DVD-R',
-                          'HDTV'    => 'HD TV',
-                          'SDTV'    => 'SD TV',
-                          'web'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
+        //create source arrays to swap out on form load
+        $filmarr = array(
+                      'Bluray'      =>'BD/BRRip',
+                      'DVD'         => 'DVD-R',
+                      'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
+                      'cam'         => 'CAMRip/CAM/TS/TELESYNC',
+                      'vod'         => 'VODRip/VODR',
+                      'web'         => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
+        $tvarr = array( 
+                      'Bluray'  => 'BD/BRRip',
+                      'DVD'     => 'DVD-R',
+                      'HDTV'    => 'HD TV',
+                      'SDTV'    => 'SD TV',
+                      'web'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL');
                 
         //include js
         $keywords = $this->__getKeywords();
         if($keywords != null)
         {
-            /** clean up keywords from DB **/
-            $implode = implode(",", $keywords); //implode array to string, saves foreaching
-            $trim = preg_replace('/\s*,\s*/', ',', $implode); //remove white spaces before and after commas 
-            $explode = explode(",", $trim); //explode string to array by comma
-            $unique = array_keys(array_flip($explode));  //get only unique elements
-            $json = json_encode($unique); // turn into json array for jquery library
+            $clean = parent::__convertAndCleanList($keywords, $pipe=',');
+            $json = json_encode($clean); // turn into json array for jquery library
             
             Requirements::customScript('
               $("#Form_Form_keywords").tagit({
                     singleFieldDelimiter: " , ",
                     allowSpaces: true,
-                    availableTags: '. $json .'                
+                    availableTags: '. $json .'
                 });
             ');
         } else {
@@ -138,8 +138,6 @@ class CataloguePage_Controller extends Page_Controller
             Session::setFormMessage($form->FormName(), 'Something went wrong.');
         }    
            
-        
-
     }
 
     /**
@@ -162,7 +160,7 @@ class CataloguePage_Controller extends Page_Controller
         
         $result = base64_encode($result);
         $src = 'data: content-type: image/jpeg;base64,'.$result;
-        file_put_contents("c:\\inetpub\\catalogue\\assets\\Uploads\\{$title}.jpg", file_get_contents($src)); //save it to local server
+        file_put_contents(POSTERSDIR."{$title}.jpg", file_get_contents($src)); //save it to local server
         $result = '<img src="'.$src.'">';
         
         return $result;
@@ -172,23 +170,24 @@ class CataloguePage_Controller extends Page_Controller
     /**
      * gets distinct all keywords from records 
      * 
+     * @return object
      */    
     public function __getKeywords()
     {
-        $result = Catalogue::get()->sort('Keywords')->where('keywords is not null')->column($colName = "keywords"); 
+        $result = Catalogue::get()->sort('keywords')->where('keywords is not null')->column($colName = "keywords"); 
         
         return $result;
     }
     
     /**
-     * Gets current Member object and returns to view
+     * gets distinct all Genres from records 
      * 
-     */
-    public function __getCurrentMember ()
+     */    
+    public function __getGenres()
     {
-        $member = Member::currentUser();
+        $result = Catalogue::get()->sort('Genre')->where('Genre is not null')->column($colName = "Genre"); 
         
-        return $member;
+        return $result;
     }
     
 } 

@@ -7,7 +7,7 @@ class VideoPage extends Page
 
 class VideoPage_Controller extends Page_Controller
 {
-     private $id, $member;
+     private $id, $member, $members;
      private static $allowed_actions = array('getKeywords');
     
     public function init()
@@ -16,6 +16,8 @@ class VideoPage_Controller extends Page_Controller
         $this->id = (int)Controller::curr()->getRequest()->param('ID');
         ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
         
+        $this -> members = parent::__getAllMembers(); // get all the members
+        
         //jplist css
         Requirements::css('themes/simple/css/jplist.core.min.css');
         Requirements::css('themes/simple/css/jplist.textbox-filter.min.css');
@@ -23,8 +25,6 @@ class VideoPage_Controller extends Page_Controller
 
 	public function movies()
 	{
-	    
-        
         $keywords = $this -> getKeywords();
         Requirements::customScript('
         
@@ -47,7 +47,7 @@ class VideoPage_Controller extends Page_Controller
             });
          ');
 
-
+        // main SQL call
 	    $sqlQuery = "SELECT catalogue.*, member.ID as MID, member.Email, member.FirstName, member.Surname 
                      FROM catalogue 
                      LEFT JOIN member ON catalogue.Owner = member.ID 
@@ -55,18 +55,15 @@ class VideoPage_Controller extends Page_Controller
                      AND catalogue.Owner = $this->member
                      ORDER BY catalogue.Video_title";
                      
-        $records = DB::query($sqlQuery);             
+        $records = DB::query($sqlQuery);
         
-        
-        //debug::dump($records->value());
-
         if ($records)
         {
             $set = new ArrayList();
             
             foreach ($records as $record)
             {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['Last_updated']);                
+                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['genres'] = $this->listFilmGenres($record['Genre']);
                 
                 $set->push(new ArrayData($record));
@@ -77,22 +74,19 @@ class VideoPage_Controller extends Page_Controller
 	}
 
     /**
+     * Takes genres string element and splits them into array element for each genre
+     *  
      * @param string
-     * 
-     * @desc takes genres string element and splits them into array element for each genre 
-     * 
-     * @return array
+     * @return string
      */
     private function listFilmGenres ($genre)
     {
-         
-        $explode = explode("|", $genre); //explode string to array by comma
+        $explode = explode("|", $genre); //explode string to array by delimiter
         
         $listoption = "";
         foreach ($explode as $value)
         {
-            $listoption .= '<span class="hide genre '.$value.'">'.trim($value).'</span>';
-            
+            $listoption .= '<span class="hide genre '.str_replace(' ', '', $value).'">'.$value.'</span>';
         }
         
         return $listoption;
@@ -102,6 +96,7 @@ class VideoPage_Controller extends Page_Controller
     /**
      * gets keywords as a separate query
      * sorts and removes duplicates
+     * @return array
      */
     public function getKeywords()
     {
@@ -111,10 +106,7 @@ class VideoPage_Controller extends Page_Controller
         {
             
             /** clean up keywords from DB **/
-            $implode = implode(",", $result); //implode array to string, saves foreaching
-            $trim = preg_replace('/\s*,\s*/', ',', $implode); //remove white spaces before and after commas 
-            $explode = explode(",", $trim); //explode string to array by comma
-            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
+            $_list = array(parent::__convertAndCleanList($result, ','));
             
             $listoption = "";
             foreach($_list as $list)
@@ -131,8 +123,9 @@ class VideoPage_Controller extends Page_Controller
     
     
     /**
-     * gets genres as a separate query
-     * sorts and removes duplicates
+     * gets genres as a separate query sorts and removes duplicates
+     * 
+     * @return string
      */
     public function getGenres()
     {
@@ -142,19 +135,14 @@ class VideoPage_Controller extends Page_Controller
         {
             
             /** clean up keywords from DB **/
-            $implode = implode("|", $result); //implode array to string, saves foreaching
-            $trim = preg_replace('/\s+/', '', $implode); //remove white spaces before and after commas 
-            $explode = explode("|", $trim); //explode string to array by comma
-            sort($explode); //sort the array alphabetically
-            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
-            
+            $_list = array(parent::__convertAndCleanList($result, '|'));
             
             $genreList = "";
             foreach($_list as $list)
             {
                 foreach ($list as $value)
                 {
-                    $genreList .= "<li><span data-path=\".".$value."\">".$value."</span></li>";    
+                    $genreList .= "<li><span data-path=\".".str_replace(' ', '', $value)."\">".$value."</span></li>";
                 }
             }
                 
@@ -163,14 +151,26 @@ class VideoPage_Controller extends Page_Controller
     }
     
     /**
-     * returns count of titles in catalogue]
+     * returns count of titles in catalogue
      * 
+     * @return string
      */
     public function countTitles()
     {
         $count = DB::query("SELECT count(Video_title) FROM Catalogue WHERE catalogue.Owner =".$this->member)->value();
         
         return $count;
+    }
+    
+    /**
+     * returns $this->members from parent::__getAllMembers
+     * 
+     * @return object
+     * 
+     */
+    public function getMembers()
+    {
+        return $this->members;
     }
     
 }

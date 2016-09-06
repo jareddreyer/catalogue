@@ -8,7 +8,8 @@ class Page extends SiteTree {
 	);
 
 }
-class Page_Controller extends ContentController {
+class Page_Controller extends ContentController
+{
 
 	/**
 	 * An array of actions that can be accessed via a request. Each array element should be an action name, and the
@@ -25,8 +26,7 @@ class Page_Controller extends ContentController {
 	 *
 	 * @var array
 	 */
-	private static $allowed_actions = array (
-	);
+	private static $allowed_actions = array ();
 
 	public function init() {
 		parent::init();
@@ -36,6 +36,70 @@ class Page_Controller extends ContentController {
 		// included so that our older themes still work
 	}
     
+    /**
+     * Grabs all members in the database and returns ID, Firstname & Surname
+     * 
+     * @return object
+     */
+    public function __getAllMembers()
+    {
+        $members = DataObject::get("Member")->sort('FirstName')->setQueriedColumns(array("ID", "FirstName", "Surname"))->exclude('ID', 1);
+        
+        return $members;
+    }
+    
+    
+    /**
+     * Gets all recently added titles
+     * 
+     */
+    public function recentlyAddedTitles()
+    {
+        // main SQL call
+        $sqlQuery = "SELECT 
+                            catalogue.ID,
+                            catalogue.LastEdited,
+                            catalogue.Video_title,
+                            catalogue.Source,
+                            catalogue.Quality,
+                            catalogue.Year,
+                            catalogue.Status,
+                            catalogue.Poster,                            
+                            member.Email,
+                            member.FirstName,
+                            member.Surname 
+                     FROM catalogue 
+                     LEFT JOIN member ON catalogue.Owner = member.ID 
+                     WHERE catalogue.LastEdited IS NOT NULL
+                     ORDER BY catalogue.LastEdited DESC
+                     LIMIT 12";
+        
+        $records = DB::query($sqlQuery);
+        
+        if ($records)
+        {
+            $set = new ArrayList();
+            
+            foreach ($records as $record)
+            {
+                $record['lastupdatedreadable'] = $this->humanTiming($record['LastEdited']);
+                
+                $set->push(new ArrayData($record));
+            }
+            
+            return $set;
+        }
+
+    }
+    /**
+     * 
+     * @param string
+     * 
+     * returns string in human readable time
+     * 
+     * @return string
+     * 
+     */
     public function humanTiming($time)
     {
     
@@ -66,6 +130,25 @@ class Page_Controller extends ContentController {
             $result = preg_replace('/\s+/', ' ', $result);
     
             return $result;
-        }
+    }
+
+    /**
+     * takes an array list and cleans it up ready to output as unique string
+     * 
+     * @param array
+     * @return array
+     * 
+     */
+    public function __convertAndCleanList($array, $pipe)
+    {
+        /** clean up keywords from DB **/
+        
+        $implode = implode($pipe, $array); //implode array to string, saves foreaching
+        $csv = str_getcsv($implode, $pipe);
+        $trimmed = array_walk($csv, create_function('&$csv', '$csv = trim($csv);'));
+        $unique = array_keys(array_flip($csv));  //get only unique elements
+
+        return $unique;
+    }
 
 }
