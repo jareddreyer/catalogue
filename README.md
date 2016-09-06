@@ -13,14 +13,14 @@ Once signed into the Silverstripe framework, a user is given a simple form to fi
 INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08', 'Drugs , Bryan Cranston', `breakingBad.jpg`, 'tt0903747', '2008-2013';
 ```
 ## Config ##
-3 configurations need to be set in /mysite/_config.php
+3 configurations need to be set in ```/mysite/_config.php```  
 Location to save Poster images:
 ```php
-define('POSTERSDIR', 'c:\\inetpub\\catalogue\\assets\\Uploads\\');
+define('POSTERSDIR', 'c:\inetpub\catalogue\assets\Uploads\\');
 ```
 Location to save JSON metadata:
 ```php
-define('JSONDIR', 'c:\\inetpub\\catalogue\\assets\\Uploads\\metadata\\'); 
+define('JSONDIR', 'c:\inetpub\catalogue\assets\Uploads\metadata\\'); 
 ```
 Database credentials:
 ```php
