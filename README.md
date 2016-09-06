@@ -12,6 +12,27 @@ Once signed into the Silverstripe framework, a user is given a simple form to fi
 ```sql
 INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_title`, `Video_type`, `Genre`, `Seasons`, `Status`, `Source`, `Quality`, `Owner`, `Comments`, `Wanted_by`, `Last_updated`) VALUES (1, 'Catalogue', '2014-03-18 22:03:08', '2014-03-18 22:03:08', 'Breaking Bad', 'TV', 'Drama | Crime', 'Season 1 | Season 2 | Season 3 | Season 4 | Season 5', 'Downloaded', 'HDTV', '720p', '1', 'later seasons HDTV 720p', NULL, '2014-03-18 22:03:08', 'Drugs , Bryan Cranston', `breakingBad.jpg`, 'tt0903747', '2008-2013';
 ```
+## Config ##
+3 configurations need to be set in /mysite/_config.php
+Location to save Poster images:
+```php
+define('POSTERSDIR', 'c:\\inetpub\\catalogue\\assets\\Uploads\\');
+```
+Location to save JSON metadata:
+```php
+define('JSONDIR', 'c:\\inetpub\\catalogue\\assets\\Uploads\\metadata\\'); 
+```
+Database credentials:
+```php
+$databaseConfig = array(
+	"type" => 'MySQLDatabase',
+	"server" => 'localhost',
+	"username" => 'root',
+	"password" => '12345',
+	"database" => 'catalogue',
+	"path" => '',
+);
+```
 
 ## Todo/requests ##
   - General
@@ -26,18 +47,18 @@ INSERT INTO `catalogue` (`ID`, `ClassName`, `Created`, `LastEdited`, `Video_titl
 	  - [x] fix genre not filtering results
   - IMDB metadata specific
       - [ ]  check if IMDB metadata is old
-	    - [ ] save JSON result to local server
+	    - [x] save JSON result to local server
       - [x]  fix season links to IMDB
       - [x]  add IMDB ID field to insert/update form
       - [x]  and build cross reference checks to IMDB for metadata on movies that aren't labelled correctly
       - [x]  build ajax response to populate values from IMDB to database
   - Visual bugs
-      - [x] even out table column widths
+      - [x] even out table column widths (OBSOLETE)
       - [x] hide field text that is no necessary on movies e.g. "season(s):"
       - [x] build latest updates section
   - Insert Form
       - [x] allow editing of Source fields in edit mode of a title already in catalogue
-	  - [ ] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
+	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
 ## Change log ##
     all changes listed under changelog.md
