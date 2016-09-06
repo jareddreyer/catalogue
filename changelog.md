@@ -34,3 +34,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 ### Changed
 - added constant for uploads dir path in /mysite/_config.php
+
+## [Released] September 6, 2016
+
+### Added
+- metadata from OMDB api is now stored on local server, saves looking up every time. (still need to add date check so it periodically updates for tv shows where details may change)
+- added constant for json uploads dir path in /mysite/_config.php
+
+### Changed
+- refactored code for listing array objects to the view (removed redundant preg_replace calls) and added method ```__convertAndCleanList()``` to master page controller.
+- fixed issue where genres had spaces in the data-path lookup of jplist
+- fiddled with css of recently added section
+- numerous comment changes throughout controllers
+- added "exclude(id=1) to member dataobject look up, this should remove "default admin" from drop down navigation for profiles, all site owners should create their own username before inserting media to catalogue.
