@@ -60,5 +60,10 @@ $databaseConfig = array(
       - [x] allow editing of Source fields in edit mode of a title already in catalogue
 	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
+## Issues log ##
+- layout of login form is disrupted by recently added section 
+- if user is not logged in they can still use routing to browse to catalogue-maintenance/$id and edit a title which then breaks the owner field in the catalogue table
+- code base would not work with 3.4 Silverstripe framework (issue with routing)
+
 ## Change log ##
     all changes listed under changelog.md
