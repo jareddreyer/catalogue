@@ -41,6 +41,9 @@ $databaseConfig = array(
 	  - [x] check for duplicate movies added
 	  - [x] Recently added section
 	  - [x] Recently updated section
+	  - [ ] minify JPList CSS
+	  - [ ] minify JPList javascript
+	  - [ ] refactor CSS overrides
   - Search
       - [x] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
       - [x] build search functionality
@@ -63,7 +66,7 @@ $databaseConfig = array(
 	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
 ## Issues log ##
-- layout of login form is disrupted by recently added section ([x] now resolved)
+- layout of login form is disrupted by recently added section (now resolved)
 - if user is not logged in they can still use routing to browse to catalogue-maintenance/$id and edit a title which then breaks the owner field in the catalogue table
 - code base would not work with 3.4 Silverstripe framework (issue with routing)
 
