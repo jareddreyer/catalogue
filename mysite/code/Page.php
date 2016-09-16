@@ -34,6 +34,32 @@ class Page_Controller extends ContentController
 		// Note: you should use SS template require tags inside your templates 
 		// instead of putting Requirements calls here.  However these are 
 		// included so that our older themes still work
+		
+		Requirements::css('themes/simple/css/homepage.css');
+        
+        Requirements::customScript('
+                 $("a.scroll-arrow").hover( 
+               function() {
+                   var container = $(this).parent().attr("id");
+                   console.log(container)
+                   var direction = $(this).is("#scroll-right") ? "+=" : "-=";
+                   var totalWidth = -$(".row__inner").width();
+                   $(".row__inner .tile").each(function() {
+                       totalWidth += $(this).outerWidth(true);
+                   });
+                   $("#"+ container + " .row__inner").animate({
+                       scrollLeft: direction + Math.min(totalWidth, 3000)
+                       
+                   },{
+                       duration: 2000,
+                       easing: "swing", 
+                       queue: false }
+                   );
+               },
+            function() {
+                 $(".row__inner").stop();
+            }
+        );');
 	}
     
     /**
@@ -52,26 +78,28 @@ class Page_Controller extends ContentController
     /**
      * Gets all recently added titles
      * 
+     * @return array
      */
     public function recentlyAddedTitles()
     {
         // main SQL call
         $sqlQuery = "SELECT 
-                            catalogue.ID,
-                            catalogue.LastEdited,
-                            catalogue.Video_title,
-                            catalogue.Source,
-                            catalogue.Quality,
-                            catalogue.Year,
-                            catalogue.Status,
-                            catalogue.Poster,                            
+                            c.ID,
+                            c.LastEdited,
+                            c.Video_title,
+                            c.Source,
+                            c.Quality,
+                            c.Year,
+                            c.Status,
+                            c.Poster,                            
                             member.Email,
                             member.FirstName,
                             member.Surname 
-                     FROM catalogue 
-                     LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE catalogue.LastEdited IS NOT NULL
-                     ORDER BY catalogue.LastEdited DESC
+                     FROM catalogue as c
+                     LEFT JOIN member ON c.Owner = member.ID 
+                     WHERE c.LastEdited IS NOT NULL
+                     AND c.Created = c.LastEdited
+                     ORDER BY c.LastEdited DESC
                      LIMIT 12";
         
         $records = DB::query($sqlQuery);
@@ -91,6 +119,51 @@ class Page_Controller extends ContentController
         }
 
     }
+    
+     /**
+     * Gets all recently added titles
+     * 
+     */
+    public function recentlyUpdatedTitles()
+    {
+        // main SQL call
+        $sqlQuery = "SELECT 
+                            c.ID,
+                            c.LastEdited,
+                            c.Video_title,
+                            c.Source,
+                            c.Quality,
+                            c.Year,
+                            c.Status,
+                            c.Poster,                            
+                            member.Email,
+                            member.FirstName,
+                            member.Surname 
+                     FROM catalogue as c
+                     LEFT JOIN member ON c.Owner = member.ID 
+                     WHERE c.LastEdited IS NOT NULL
+                     AND c.LastEdited > c.Created 
+                     ORDER BY c.LastEdited DESC
+                     LIMIT 12";
+        
+        $records = DB::query($sqlQuery);
+        
+        if ($records)
+        {
+            $set = new ArrayList();
+            
+            foreach ($records as $record)
+            {
+                $record['lastupdatedreadable'] = $this->humanTiming($record['LastEdited']);
+                
+                $set->push(new ArrayData($record));
+            }
+            
+            return $set;
+        }
+
+    }
+    
     /**
      * 
      * @param string

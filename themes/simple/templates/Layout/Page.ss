@@ -2,24 +2,40 @@
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
         <div class="content">
-            $Content
+            
             <h2>Recently Added</h2>
             <hr>
-            <div class="grid--recent-holder">
-                <ul class="imageList list">
-                <% loop recentlyAddedTitles %>
-                    <li class="list-item">
-                        <div class="list-box">
-                                <span class="poster"><a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" width="200"></a></span>
-                                <br>
-                                <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Video_title} off you?<eom>">$FirstName $Surname</a></span>
+               <div id="added" class="row">
+                    <a id="scroll-left" class="scroll-arrow">&lt;</a>
+                    <div class="row__inner">
+                        <% loop recentlyAddedTitles %>
+                            <div class="tile">
+                                <div class="tile__media">
+                                  <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" width="150"></a>
+                                </div>                        
                             </div>
-                    </li>
-                <% end_loop %>
-              </ul>
+                        <% end_loop %>
+                    </div>
+                    <a id="scroll-right" class="scroll-arrow">&gt;</a>
             </div>
-        </div>
+            
+            <h2>Recently Updated</h2>
+            <hr>
+                <div id="updated" class="row">
+                    <a id="scroll-left" class="scroll-arrow">&lt;</a>
+                    <div class="row__inner">
+                    <% loop recentlyUpdatedTitles %>
+                        <div class="tile">
+                            <div class="tile__media">
+                              <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" width="150"></a>
+                            </div>                        
+                        </div>
+                    <% end_loop %>
+                    </div>
+                    <a id="scroll-right" class="scroll-arrow">&gt;</a>
+                </div>
         $Form
         $PageComments
         
+    </div>
 </div>
