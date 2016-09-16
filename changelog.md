@@ -47,3 +47,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 - fiddled with css of recently added section
 - numerous comment changes throughout controllers
 - added "exclude(id=1) to member dataobject look up, this should remove "default admin" from drop down navigation for profiles, all site owners should create their own username before inserting media to catalogue.
+
+## [Released] September 16, 2016
+
+### Added
+- Recently updated section on homepage (data related from 'LastEdited' field in Catalogue class.
+- Security_login.ss added so homepage.ss view does not affect login screen
+- homepage.css added to control various styles on homepage e.g. recently added & updated sections
+
+### Changed
+- removed div table based layout for recently added, changed to CSS solution scroller aka Netflix carousel (note: JS is still used to do actual scrolling)
