@@ -36,8 +36,11 @@ $databaseConfig = array(
 
 ## Todo/requests ##
   - General
-	  - [ ] build listing script for people to create .csv listing of movies to add.
-	  - [x]  check for duplicate movies added
+	  - [ ] build listing script for people to create .csv listing of movies to add (working on it).
+	  - [ ] build mobile app with barcode scanner (for physical movie/tv copies) - Leon to build
+	  - [x] check for duplicate movies added
+	  - [x] Recently added section
+	  - [x] Recently updated section
   - Search
       - [x] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
       - [x] build search functionality
@@ -55,13 +58,12 @@ $databaseConfig = array(
   - Visual bugs
       - [x] even out table column widths (OBSOLETE)
       - [x] hide field text that is no necessary on movies e.g. "season(s):"
-      - [x] build latest updates section
   - Insert Form
       - [x] allow editing of Source fields in edit mode of a title already in catalogue
 	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
 ## Issues log ##
-- layout of login form is disrupted by recently added section 
+- layout of login form is disrupted by recently added section ([x] now resolved)
 - if user is not logged in they can still use routing to browse to catalogue-maintenance/$id and edit a title which then breaks the owner field in the catalogue table
 - code base would not work with 3.4 Silverstripe framework (issue with routing)
 
