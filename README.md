@@ -61,6 +61,7 @@ $databaseConfig = array(
   - Visual bugs
       - [x] even out table column widths (OBSOLETE)
       - [x] hide field text that is no necessary on movies e.g. "season(s):"
+      - [ ] tidy up comments from database on the profile page
   - Insert Form
       - [x] allow editing of Source fields in edit mode of a title already in catalogue
 	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
@@ -69,6 +70,8 @@ $databaseConfig = array(
 - layout of login form is disrupted by recently added section (now resolved)
 - if user is not logged in they can still use routing to browse to catalogue-maintenance/$id and edit a title which then breaks the owner field in the catalogue table
 - code base would not work with 3.4 Silverstripe framework (issue with routing)
+- Member name on catalogue not changing to owner of catalogue
+- Count of catalogue is not done by video type, so reports incorrect if they have no films and 1 series on the film catalogue section and vice versa.
 
 ## Change log ##
     all changes listed under changelog.md
