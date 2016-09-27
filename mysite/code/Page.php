@@ -39,10 +39,8 @@ class Page_Controller extends ContentController
         
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
-                             e.preventDefault();
-              
-              var container = $(this).parent().attr("id");
-                               console.log("we are here");
+                             e.preventDefault();              
+              			var container = $(this).parent().attr("id");                              
                                var direction = $(this).is("#scroll-right") ? "+=" : "-=";
                                var totalWidth = -$(".row__inner").width();
                                $(".row__inner .tile").each(function() {
