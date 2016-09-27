@@ -38,28 +38,28 @@ class Page_Controller extends ContentController
 		Requirements::css('themes/simple/css/homepage.css');
         
         Requirements::customScript('
-                 $("a.scroll-arrow").hover( 
-               function() {
-                   var container = $(this).parent().attr("id");
-                   console.log(container)
-                   var direction = $(this).is("#scroll-right") ? "+=" : "-=";
-                   var totalWidth = -$(".row__inner").width();
-                   $(".row__inner .tile").each(function() {
-                       totalWidth += $(this).outerWidth(true);
-                   });
-                   $("#"+ container + " .row__inner").animate({
-                       scrollLeft: direction + Math.min(totalWidth, 3000)
-                       
-                   },{
-                       duration: 2000,
-                       easing: "swing", 
-                       queue: false }
-                   );
-               },
-            function() {
-                 $(".row__inner").stop();
-            }
-        );');
+                $("a.scroll-arrow").mousedown( function(e) {
+                             e.preventDefault();
+              
+              var container = $(this).parent().attr("id");
+                               console.log("we are here");
+                               var direction = $(this).is("#scroll-right") ? "+=" : "-=";
+                               var totalWidth = -$(".row__inner").width();
+                               $(".row__inner .tile").each(function() {
+                                   totalWidth += $(this).outerWidth(true);
+                               });
+                               
+                               $("#"+ container + " .row__inner").animate({
+                                   scrollLeft: direction + Math.min(totalWidth, 3000)
+                                   
+                               },{
+                                   duration: 2500,
+                                   easing: "swing", 
+                                   queue: false }
+                               );
+                           }).mouseup(function(e) {
+                             $(".row__inner").stop();
+               });');
 	}
     
     /**
