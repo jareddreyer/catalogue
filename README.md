@@ -72,6 +72,7 @@ $databaseConfig = array(
 - code base would not work with 3.4 Silverstripe framework (issue with routing)
 - Member name on catalogue not changing to owner of catalogue
 - Count of catalogue is not done by video type, so reports incorrect if they have no films and 1 series on the film catalogue section and vice versa.
+- comments on the video profile page aren't being exploded properly, so delimiters are showing
 
 ## Change log ##
     all changes listed under changelog.md
