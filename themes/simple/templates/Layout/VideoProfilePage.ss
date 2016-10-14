@@ -10,8 +10,7 @@
                 <% end_if %>
                 <% if $profile %>
                     <% loop profile %>
-                    <div>
-                        
+                    <div class="clear">
                         <div class="videoPoster"><% loop Up.getIMDBMetadata %><img src="$VideoPoster" alt="" title="" /><% end_loop %></div>
                         <div class="videoDetailsContainer">
                             <h2 class="name">$Video_title (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
@@ -47,5 +46,22 @@
                 <% else %>
                 <p> Title does not exist in catalogue</p>
                 <% end_if %>
+                <div class="clear">
+                <% if relatedTitles  %>       
+                    <h3>Trilogy titles:</h3>
+                    <% loop relatedTitles %>
+                         <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" alt="" title="View more about $Video_title" style="width:100px; height: 150px"></a>
+                    <% end_loop %>
+                    <% end_if %>
+                    
+                    <% if seeAlsoTitles  %>
+                      <h4>Related titles:</h4>
+                            <% loop seeAlsoTitles.Sort(Poster, ASC) %>
+                                <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" alt="" title="View more about $Video_title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
+                            <% end_loop %>
+                    
+                
+                <% end_if %>
+                </div>
         </div>
 </div>
