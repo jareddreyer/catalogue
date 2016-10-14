@@ -7,16 +7,31 @@ class VideoProfilePage extends Page
 
 class VideoProfilePage_Controller extends Page_Controller
 {
+    public $id, $keywords, $keywordsArr, $video;
+    public function init()
+    {
+        parent::init();
+        
+        (int) $this->id = (int)Controller::curr()->getRequest()->param('ID'); //grab ID from URL query string
+        
+        $this->keywords = Catalogue::get()->where(array('id ='.$this->id))->column($colName = "keywords"); //get keywords
+        $this->keywordsArr = parent::__convertAndCleanList($this->keywords, ','); // creates array into pieces
+        $this->video = Catalogue::get()->where(array('id ='.$this->id))->setQueriedColumns(array("Video_title", "trilogy")); //get title
+        
+    }
+    /**
+     * main call to build profile of title
+     * 
+     * @return array
+     */
     public function profile()
     {
         $this->getIMDBMetadata();
         
-        $id = (int)Controller::curr()->getRequest()->param('ID');
-        
         $sqlQuery = "SELECT catalogue.*, member.ID as MID, member.Email, member.FirstName, member.Surname 
                      FROM catalogue 
                      LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE catalogue.ID = '{$id}'";
+                     WHERE catalogue.ID = '{$this->id}'";
 
         $records = DB::query($sqlQuery);
         
@@ -28,7 +43,7 @@ class VideoProfilePage_Controller extends Page_Controller
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
-               
+                
                 $set->push(new ArrayData($record));
             }
             
@@ -37,11 +52,24 @@ class VideoProfilePage_Controller extends Page_Controller
         
     }
 
-    public function createLinks (&$item, $key, $imdbID)
+    /**
+     * creates IMDB links for seasons
+     * 
+     * @param item <string>
+     * @param imdbID <string>
+     * 
+     * @return string
+     */
+    public function createLinks (&$item, $imdbID)
     { 
         return $item = '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$item.'">'. $item. '</a>';
     }    
     
+    /**
+     * builds html for IMDB series links
+     * 
+     * @return array
+     */
     public function seasonLinks($string)
     {
         if($string != null)
@@ -62,13 +90,68 @@ class VideoProfilePage_Controller extends Page_Controller
         }
     }
     
+    /**
+     * returns an array of titles related to the keyword of the viewed title
+     * 
+     * @return array
+     */
+    public function relatedTitles()
+    {
+       if($this->video[0]->trilogy == null)
+       {
+           return false;
+           
+       } else {
+           
+           return Catalogue::get()->where(array("trilogy='" . $this->video[0]->trilogy."'"))->exclude('ID', $this->id);
+       }
+       
+    }
+
+    /**
+     * returns an array of results that contain titles based on keyword metadata
+     * 
+     * @return array
+     */
+    public function seeAlsoTitles()
+    {
+        //check how many keywords
+            
+            //if keywords <= 1 then check trilogy == keyword
+            $trilogy = array($this->video[0]->trilogy);
+            $trilogy = array_map('strtolower', $trilogy);
+            $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
+            
+            //loop over values so we can create WHERE like clauses
+            $clauses = array();
+            foreach ($array as $value)
+            {
+              $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';  
+            }
+            
+            if($this->video[0]->trilogy == null)
+                return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->id);
+
+            if(count($this->keywordsArr) <= 1)
+            {
+                return false;
+                
+            } else {
+               //keywords are only 1, so we will return back array of keyword results.
+               return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('trilogy', $this->video[0]->trilogy); //get all titles related to wolverine and exclude itself from result.
+            }
+    }
+    
+    /**
+     * gets metadata from OMDBAPI and saves it to local server
+     * 
+     * @return array
+     */
     public function getIMDBMetadata()
     {
-        $id = (int)Controller::curr()->getRequest()->param('ID');
-        
         $sqlQueryTitle = "SELECT Video_title, imdbID
                           FROM catalogue
-                          WHERE catalogue.ID = '{$id}'";
+                          WHERE catalogue.ID = '{$this->id}'";
 
         $recordsVideoTitle = DB::query($sqlQueryTitle);
         
