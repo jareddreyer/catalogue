@@ -26,7 +26,6 @@ $(function()
 				minLength: 3,
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
-						// do not copy the api key; get your own at developer.rottentomatoes.com
 						s: $('#Form_Form_Video_title').val()
 					},
 					 function(data)
@@ -84,6 +83,19 @@ $(function()
 				$('#Seasons').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
 			}
+		});
+		
+		
+		$('#Form_Form_keywords').on('change', function()
+		{
+			 $("#Form_Form_trilogy").tagit({
+                    singleFieldDelimiter: " , ",
+                    allowSpaces: true,
+                    tagLimit: 1,
+                    availableTags: $('#Form_Form_keywords').tagit('assignedTags')
+                    
+                });
+			
 		});
 		
 		populateComments();
