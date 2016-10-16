@@ -54,9 +54,11 @@ class CataloguePage_Controller extends Page_Controller
               $("#Form_Form_keywords").tagit({
                     singleFieldDelimiter: " , ",
                     allowSpaces: true,
+                    fieldName: "keywordsField",
                     availableTags: '. $json .'
                 });
             ');
+            
         } else {
             Requirements::customScript('
               $("#Form_Form_keywords").tagit({
@@ -64,6 +66,7 @@ class CataloguePage_Controller extends Page_Controller
                     allowSpaces: true,
                 });
             ');
+            
         }
         
         $action = Controller::curr()->getRequest()->param('Action');
@@ -79,6 +82,7 @@ class CataloguePage_Controller extends Page_Controller
             DropDownField::create('Video_type', 'Type of Video', array('series'=>'Series (TV)', 'film'=>'Film'))->setEmptyString('Select type of media'),
             TextField::create('Genre', 'Genre')->setDescription('Select a genre by typing a keyword e.g. Comedy'),
             TextField::create('keywords', 'Keywords')->setDescription('Add a keyword/tag to the title e.g. Marvel'),
+            TextField::create('trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine"'),
             TextField::create('Seasons', 'Seasons')->setDescription('Select a Season or type Seasons owned e.g. Season 1'),
             DropDownField::create('Status', 'Current Status of download', array(
                 'Downloaded' => 'Downloaded - file complete',
