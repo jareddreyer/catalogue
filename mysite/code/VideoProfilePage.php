@@ -43,6 +43,7 @@ class VideoProfilePage_Controller extends Page_Controller
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
+                $record['displayComments'] = parent::displayComments($record['Comments']);
                 
                 $set->push(new ArrayData($record));
             }
