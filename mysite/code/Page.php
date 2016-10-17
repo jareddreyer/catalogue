@@ -222,4 +222,25 @@ class Page_Controller extends ContentController
         return $unique;
     }
 
+    /**
+     * main call to return back cleaned up comments
+     * @param $comments <string>
+     * @return string
+     * 
+     */
+    public function displayComments ($comments)
+    {
+        $search = array('(', ')', '-'); //search for pipes around date
+        $replace = array('</span><span class="timestamp">(', ')</span>', ' : <p>'); //surround them with html
+        
+        $comments = str_replace($search, $replace, $comments); //replace each occurence with new values
+        $comments = explode(',', $comments); //break into array by comma
+                
+        $comments = array_map(function($comment) { return trim($comment, "'" ); }, $comments); //trim array elements and remove quotes
+        
+        $result = implode('</p><span class="name">',$comments); //break array into string
+        
+        return $result;
+    }
+
 }
