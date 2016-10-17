@@ -32,7 +32,7 @@
                                     <strong>Quality:</strong> $Quality
                                 </li>
                                 <li>Last updated $lastupdatedreadable ago</li>
-                                <% if $Comments %><li><strong>Comments:</strong><p> $Comments</p></li><% end_if %>
+                                <% if $displayComments %><li class="profileComments"><strong>Comments:</strong>$displayComments</li><% end_if %>
                                 <li>
                                     <a href="mailto: $Email?subject=Can I get $Video_title off you?<eom>">Request a copy</a>
                                 </li>
