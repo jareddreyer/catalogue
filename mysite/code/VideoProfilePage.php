@@ -130,12 +130,12 @@ class VideoProfilePage_Controller extends Page_Controller
               $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';  
             }
             
-            if($this->video[0]->trilogy == null)
+            if($this->video[0]->trilogy == null && count($this->keywordsArr) > 1)
                 return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->id);
 
             if(count($this->keywordsArr) <= 1)
             {
-                return false;
+                return false; //nothing to return so return a false so view doesn't display anything.
                 
             } else {
                //keywords are only 1, so we will return back array of keyword results.
