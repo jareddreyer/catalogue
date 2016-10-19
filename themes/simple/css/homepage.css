@@ -19,7 +19,8 @@
     position: relative;
     display: inline-block;
     width: 150px;    
-    
+    border-left: 4px #FFF solid;
+    border-right: 4px #FFf solid;
     font-size: 20px;
     cursor: pointer;
     -webkit-transition: 450ms all;
@@ -68,8 +69,7 @@
     z-index: 1;
 }
 .tile__details:before
-{
-    
+{   
     left: 0;
     width: 100%;
     font-size: 30px;
