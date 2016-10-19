@@ -11,7 +11,7 @@
                         <% loop recentlyAddedTitles %>
                             <div class="tile">
                                 <div class="tile__media">
-                                  <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" width="150"></a>
+                                  <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" style="width:150px;height: 220px"></a>
                                 </div>                        
                             </div>
                         <% end_loop %>
@@ -24,13 +24,13 @@
                 <div id="updated" class="row">
                     <a id="scroll-left" class="scroll-arrow">&lt;</a>
                     <div class="row__inner">
-                    <% loop recentlyUpdatedTitles %>
-                        <div class="tile">
-                            <div class="tile__media">
-                              <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" width="150"></a>
-                            </div>                        
-                        </div>
-                    <% end_loop %>
+                            <% loop recentlyUpdatedTitles %>
+                                <div class="tile">
+                                    <div class="tile__media">
+                                      <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" style="width:150px;height: 220px"></a>
+                                    </div>                        
+                                </div>
+                            <% end_loop %>
                     </div>
                     <a id="scroll-right" class="scroll-arrow">&gt;</a>
                 </div>
