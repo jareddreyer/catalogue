@@ -104,7 +104,7 @@ class VideoProfilePage_Controller extends Page_Controller
            
        } else {
            
-           return Catalogue::get()->where(array("trilogy='" . $this->video[0]->trilogy."'"))->exclude('ID', $this->id);
+           return Catalogue::get()->where(array("trilogy='" . $this->video[0]->trilogy."'"))->exclude('ID', $this->id)->sort('year');
        }
        
     }
