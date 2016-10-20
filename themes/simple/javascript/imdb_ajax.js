@@ -87,25 +87,25 @@ $(function()
 		
 		if($('#Form_Form_keywords').val() != '')
 		{
-			$('#Form_Form_keywords').on('change', function()
-			{
-				 $("#Form_Form_trilogy").tagit({
-	                    singleFieldDelimiter: " , ",
-	                    allowSpaces: true,
-	                    tagLimit: 1,
-	                    availableTags: $('#Form_Form_keywords').tagit('assignedTags')
-	                    
-	                });
+			$("#Form_Form_trilogy").tagit({
+				singleFieldDelimiter: " , ",
+				allowSpaces: true,
+				tagLimit: 1,
+				availableTags: $('#Form_Form_keywords').tagit('assignedTags')
+				
 			});
 		}
-
-		$("#Form_Form_trilogy").tagit({
-			singleFieldDelimiter: " , ",
-			allowSpaces: true,
-			tagLimit: 1,
-			availableTags: $('#Form_Form_keywords').tagit('assignedTags')
-			
-		});		
+		
+		$('#Form_Form_keywords').on('change', function()
+		{
+			 $("#Form_Form_trilogy").tagit({
+					singleFieldDelimiter: " , ",
+					allowSpaces: true,
+					tagLimit: 1,
+					availableTags: $('#Form_Form_keywords').tagit('assignedTags')
+					
+				});
+		});
 		
 		
 		populateComments();
