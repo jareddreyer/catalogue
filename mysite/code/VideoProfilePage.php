@@ -54,19 +54,6 @@ class VideoProfilePage_Controller extends Page_Controller
     }
 
     /**
-     * creates IMDB links for seasons
-     * 
-     * @param item <string>
-     * @param imdbID <string>
-     * 
-     * @return string
-     */
-    public function createLinks (&$item, $imdbID)
-    { 
-        return $item = '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$item.'">'. $item. '</a>';
-    }    
-    
-    /**
      * builds html for IMDB series links
      * 
      * @return array
@@ -75,17 +62,16 @@ class VideoProfilePage_Controller extends Page_Controller
     {
         if($string != null)
         {
-            $imdb = $this->getIMDBMetadata();
+            $imdb = $this->getIMDBMetadata(); //get all metadata for title
             
-            $pattern = '/[^\d|]/';
+            $pattern = '/[^\d|]/'; 
             $numbers = preg_replace($pattern,'', $string);
+            $arraySeasons = explode("|",$numbers); //explode the season string into array of season numbers.            
+	        $imdbID = $imdb[0]->imdbID; //assign variable for use in annoymous function.
 
-            $clean = explode("|",$numbers);
+            $seasonLinksArray = array_map(function ($v) use ($imdbID) { return '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$v.'">'. $v. '</a>';}, $arraySeasons); //apply callback annoymous function over the array elements, adding anchor links
+            $result = implode(' | ', $seasonLinksArray); //implode back to array of 1 string.
 
-            $newArray = $clean;
-            array_walk($newArray, array($this, 'createLinks'), $imdbID = $imdb[0]->imdbID);
-            $result = implode(' | ', $newArray);
-         
             return $result;
                 
         }
