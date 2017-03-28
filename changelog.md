@@ -57,3 +57,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 ### Changed
 - removed div table based layout for recently added, changed to CSS solution scroller aka Netflix carousel (note: JS is still used to do actual scrolling)
+
+## [Released] September 16, 2016
+### Changed
+- Fixed season links, was dropping IMDB ID, so links were not working at all.
