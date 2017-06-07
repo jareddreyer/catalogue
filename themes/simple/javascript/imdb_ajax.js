@@ -47,7 +47,12 @@ $(function()
 							});
 							response(array);
 						}
-					});
+					})
+					.fail(function() {
+						//couldn't connect to json request omdbapi
+						console.log( "error, couldn't connect to omdbapi" );
+						$('#media-form').append().html('<div class="alert alert-warning" role="alert">Could not connect to omdbapi.com</div>')
+				    });
 					
 				},
 				focus: function(event, ui) {
