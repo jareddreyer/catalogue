@@ -156,10 +156,17 @@ class VideoProfilePage_Controller extends Page_Controller
                     //no json file found, load from API
                     ($title['imdbID'] != null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
                     
-                    $json = file_get_contents($url);
-                    $data = json_decode($json);
-                    
-                    file_put_contents(JSONDIR."{$sanitized}.txt", json_encode($data)); //save IMDB metadata local server
+                    //now create json file of api data
+		    $json = @file_get_contents($url);
+		    if($json !== false) 
+		    {
+			$data = json_decode($json);
+			file_put_contents(JSONDIR."{$sanitized}.txt", json_encode($data)); //save IMDB metadata local server	
+		    } else {
+			$title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
+			$title['errorType'] = "danger";
+			$set2->push(new ArrayData($title));
+		    }
                     
                 } else {
                     //json file found, load from server
