@@ -61,3 +61,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ## [Released] September 16, 2016
 ### Changed
 - Fixed season links, was dropping IMDB ID, so links were not working at all.
+
+## [Released] June 07, 2017
+### Changed
+- added redundancy on 'insert new media' and profile page so if omdbapi fails to connect, then an error message is displayed 
