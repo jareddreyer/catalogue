@@ -2,7 +2,7 @@
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
         <div class="content">
-            
+            <% if recentlyAddedTitles %>
             <h2>Recently Added</h2>
             <hr>
                <div id="added" class="row">
@@ -18,7 +18,8 @@
                     </div>
                     <a id="scroll-right" class="scroll-arrow">&gt;</a>
             </div>
-            
+            <% end_if %>
+            <% if recentlyAddedTitles %>
             <h2>Recently Updated</h2>
             <hr>
                 <div id="updated" class="row">
@@ -34,6 +35,7 @@
                     </div>
                     <a id="scroll-right" class="scroll-arrow">&gt;</a>
                 </div>
+            <% end_if %>
         $Form
         $PageComments
         
