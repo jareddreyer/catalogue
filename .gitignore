@@ -1,0 +1,6 @@
+/vendor/
+/assets/
+/silverstripe-cache/
+composer.lock
+.DS_Store
+_ss_environment.php
