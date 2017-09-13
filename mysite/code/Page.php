@@ -90,11 +90,11 @@ class Page_Controller extends ContentController
                             c.Year,
                             c.Status,
                             c.Poster,                            
-                            member.Email,
-                            member.FirstName,
-                            member.Surname 
-                     FROM catalogue as c
-                     LEFT JOIN member ON c.Owner = member.ID 
+                            Member.Email,
+                            Member.FirstName,
+                            Member.Surname 
+                     FROM Catalogue as c
+                     LEFT JOIN Member ON c.Owner = Member.ID 
                      WHERE c.LastEdited IS NOT NULL
                      AND c.Created = c.LastEdited
                      ORDER BY c.LastEdited DESC
@@ -134,11 +134,11 @@ class Page_Controller extends ContentController
                             c.Year,
                             c.Status,
                             c.Poster,                            
-                            member.Email,
-                            member.FirstName,
-                            member.Surname 
-                     FROM catalogue as c
-                     LEFT JOIN member ON c.Owner = member.ID 
+                            Member.Email,
+                            Member.FirstName,
+                            Member.Surname 
+                     FROM Catalogue as c
+                     LEFT JOIN Member ON c.Owner = Member.ID 
                      WHERE c.LastEdited IS NOT NULL
                      AND c.LastEdited > c.Created 
                      ORDER BY c.LastEdited DESC

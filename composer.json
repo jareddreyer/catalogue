@@ -3,7 +3,9 @@
 	"description": "Movie and TV database",
 	"require": {
 		"silverstripe/cms": "3.6.1",
-		"silverstripe/framework": "3.6.1",			
+		"silverstripe/framework": "3.6.1",
+		"silverstripe/siteconfig": "3.6.1",
+		"silverstripe-themes/simple": "3.1.*",			
 		"gdmedia/ss-auto-git-ignore": "0.0.3"		
 	},
 	"minimum-stability": "dev",
