@@ -65,3 +65,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ## [Released] June 07, 2017
 ### Changed
 - added redundancy on 'insert new media' and profile page so if omdbapi fails to connect, then an error message is displayed 
+
+## [Released] September 18, 2017
+### Changed
+- added redundancy to CataloguePage controller `_getKeywords()` and `_getGenres()` methods when catalogue dataobject is empty to return null value.
+- removed hard coded system root paths in all constants
+- making use of ASSETS_PATH constants for POSTERS & METADATA constants.
+- included Silverstripe system logging
+- renamed Form.ss to CataloguePage.ss (this could still need work) to resolve admin/ css display bug.
+### Added
+- Created project in Composer
+- Added .gitignore file to control respository better.
+### Removed
+- removed framework/ folders.
+- removed cms/ folders.
