@@ -38,34 +38,34 @@ define('JSONDIR', ASSETS_PATH.'/Metadata/');
   - General
 	  - [ ] build listing script for people to create .csv listing of movies to add (working on it).
 	  - [ ] build mobile app with barcode scanner (for physical movie/tv copies) - Leon to build
-	  - [x] check for duplicate movies added
-	  - [x] Recently added section
-	  - [x] Recently updated section
+	  - [x] ~~check for duplicate movies added~~
+	  - [x] ~~Recently added section~~
+	  - [x] ~~Recently updated section~~
 	  - [ ] minify JPList CSS
 	  - [ ] minify JPList javascript
 	  - [ ] refactor CSS overrides
   - Search
-      - [x] Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"
-      - [x] build search functionality
-        - [x]  pagination
-        - [x]  filtering
-	  - [x] Added field to link to other user profile catalogues
-	  - [x] fix genre not filtering results
+      - [x] ~~Add tagging field to group titles if related e.g. for movie trilogies like "batman", "james bond", "xmen"~~
+      - [x] ~~build search functionality~~
+        - [x]  ~~pagination~~
+        - [x]  ~~filtering~~
+	  - [x] ~~Added field to link to other user profile catalogues~~
+	  - [x] ~~fix genre not filtering results~~
   - IMDB metadata specific
       - [ ]  check if IMDB metadata is old
-	    - [x] save JSON result to local server
-      - [x]  fix season links to IMDB
-      - [x]  add IMDB ID field to insert/update form
-      - [x]  and build cross reference checks to IMDB for metadata on movies that aren't labelled correctly
-      - [x]  build ajax response to populate values from IMDB to database
+	    - [x] ~~save JSON result to local server~~
+      - [x]  ~~fix season links to IMDB~~
+      - [x]  ~~add IMDB ID field to insert/update form~~
+      - [x]  ~~and build cross reference checks to IMDB for metadata on movies that aren't labelled correctly~~
+      - [x]  ~~build ajax response to populate values from IMDB to database~~
   - Visual bugs
-      - [x] even out table column widths (OBSOLETE)
-      - [x] hide field text that is no necessary on movies e.g. "season(s):"
-      - [x] tidy up comments from database on the profile page
+      - [x] ~~even out table column widths (OBSOLETE)~~
+      - [x] ~~hide field text that is no necessary on movies e.g. "season(s):"~~
+      - [x] ~~tidy up comments from database on the profile page~~
   - Insert Form
-      - [x] add trilogy field so titles can be related as a trilogy
-      - [x] allow editing of Source fields in edit mode of a title already in catalogue
-	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
+      - [x] ~~add trilogy field so titles can be related as a trilogy~~
+      - [x] ~~allow editing of Source fields in edit mode of a title already in catalogue~~
+	  - [x] ~~get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete~~ 
 
 ## Issues log ##
 - ~~layout of login form is disrupted by recently added section~~ [*RESOLVED*]
