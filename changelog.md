@@ -73,6 +73,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 - making use of ASSETS_PATH constants for POSTERS & METADATA constants in _config.php.
 - included Silverstripe system logging in _config.php
 - renamed Form.ss to CataloguePage.ss (this could still need work) to resolve admin/ css display bug.
+- added if condition to page.ss to stop loading `recentlyAddedTitles` and `recentlyUpdatedTitles` methods if data returns empty.
 ### Added
 - Created project in Composer
 - Added .gitignore file to control respository better.
