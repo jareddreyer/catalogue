@@ -69,13 +69,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ## [Released] September 18, 2017
 ### Changed
 - added redundancy to CataloguePage controller `_getKeywords()` and `_getGenres()` methods when catalogue dataobject is empty to return null value.
-- removed hard coded system root paths in all constants
-- making use of ASSETS_PATH constants for POSTERS & METADATA constants.
-- included Silverstripe system logging
+- removed hard coded system root paths in all constants in _config.php
+- making use of ASSETS_PATH constants for POSTERS & METADATA constants in _config.php.
+- included Silverstripe system logging in _config.php
 - renamed Form.ss to CataloguePage.ss (this could still need work) to resolve admin/ css display bug.
 ### Added
 - Created project in Composer
 - Added .gitignore file to control respository better.
+- making using of _ss_environment.php
+- included gdmedia/ss-auto-git-ignore package in composer
 ### Removed
-- removed framework/ folders.
-- removed cms/ folders.
+- removed framework/ and cms/ folder from repository.
+- removed .project file IDE leftovers from repository
