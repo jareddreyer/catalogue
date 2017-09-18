@@ -68,12 +68,12 @@ define('JSONDIR', ASSETS_PATH.'/Metadata/');
 	  - [x] get tagit "tags" for Seasons and Genre from DB so list doesn't become obsolete 
 
 ## Issues log ##
-- layout of login form is disrupted by recently added section [*RESOLVED*]
+- ~~layout of login form is disrupted by recently added section~~ [*RESOLVED*]
 - if user is not logged in they can still use routing to browse to catalogue-maintenance/$id and edit a title which then breaks the owner field in the catalogue table
-- code base would not work with 3.4 Silverstripe framework (issue with routing) [*RESOLVED*]
+- ~~code base would not work with 3.4 Silverstripe framework (issue with routing)~~ [*RESOLVED*]
 - Member name on catalogue not changing to owner of catalogue
 - Count of catalogue is not done by video type, so reports incorrect if they have no films and 1 series on the film catalogue section and vice versa.
-- comments on the video profile page aren't being exploded properly, so delimiters are showing [*RESOLVED*]
+- ~~comments on the video profile page aren't being exploded properly, so delimiters are showing~~ [*RESOLVED*]
 
 ## Change log ##
     all changes listed under changelog.md
