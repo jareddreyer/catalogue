@@ -20,7 +20,7 @@
                     <a id="scroll-right" class="scroll-arrow">&gt;</a>
             </div>
             <% end_if %>
-            <% if recentlyAddedTitles %>
+            <% if recentlyUpdatedTitles %>
             <h2>Recently Updated</h2>
             <hr>
                 <div id="updated" class="row">
