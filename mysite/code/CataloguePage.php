@@ -8,9 +8,7 @@ class CataloguePage_Controller extends Page_Controller
     private static $allowed_actions = array('Form', 'edit', '__getKeywords', 'savePosterPreview');
     
     public function Form()
-    {
-        echo $_SERVER['DOCUMENT_ROOT'];
-        exit;
+    {        
          $genres = $this->__getGenres();
         
          ($genres !== null) ? $clean = parent::__convertAndCleanList($genres, $pipe='|') : $clean = null;         
