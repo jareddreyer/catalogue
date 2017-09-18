@@ -1,5 +1,5 @@
 ## What is this?
-Catalogue is a film and television show catalogue listing website based upon the Silverstripe 3.0 CMS framework.
+Catalogue is a film and television show catalogue listing website based upon the Silverstripe 3.x CMS framework.
 
 ## Why?
 I found my friends and I were purchasing the same movies and so to stop from over purchasing tv and movies, I built a catalogue to house all of our library and thus everyone could look at a media title first to find out a) if someone owns it and b) whom owns it.
@@ -34,8 +34,6 @@ Location to save JSON metadata:
 ```php
 define('JSONDIR', ASSETS_PATH.'/Metadata/');
 ```
-
-
 ## Todo/requests ##
   - General
 	  - [ ] build listing script for people to create .csv listing of movies to add (working on it).
