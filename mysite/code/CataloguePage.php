@@ -9,11 +9,14 @@ class CataloguePage_Controller extends Page_Controller
     
     public function Form()
     {
-        
+        echo $_SERVER['DOCUMENT_ROOT'];
+        exit;
          $genres = $this->__getGenres();
-         $clean = parent::__convertAndCleanList($genres, $pipe='|');
-         ($genres != null) ?  $genresJson = json_encode($clean) : json_encode(array("Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"));
-         
+        
+         ($genres !== null) ? $clean = parent::__convertAndCleanList($genres, $pipe='|') : $clean = null;         
+         ($clean !== null) ?  $genresJson = json_encode($clean) : $genresJson = json_encode(array("Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"));
+        
+
          Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
                     singleFieldDelimiter: " | ",    
@@ -30,7 +33,7 @@ class CataloguePage_Controller extends Page_Controller
             
         //create source arrays to swap out on form load
         $filmarr = array(
-                      'Bluray'      =>'BD/BRRip',
+                      'Bluray'      => 'BD/BRRip',
                       'DVD'         => 'DVD-R',
                       'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
                       'cam'         => 'CAMRip/CAM/TS/TELESYNC',
@@ -178,21 +181,23 @@ class CataloguePage_Controller extends Page_Controller
      */    
     public function __getKeywords()
     {
-        $result = Catalogue::get()->sort('keywords')->where('keywords is not null')->column($colName = "keywords"); 
+        $result = Catalogue::get();
+        ($result->exists()) ? $result->sort('keywords')->where('keywords is not null')->column($colName = "keywords") : $result = null;
         
         return $result;
     }
     
     /**
      * gets distinct all Genres from records 
-     * 
+     *
+     * @return object 
      */    
     public function __getGenres()
     {
-        $result = Catalogue::get()->sort('Genre')->where('Genre is not null')->column($colName = "Genre"); 
-        
+        $result = Catalogue::get();
+        ($result->exists()) ? $result->sort('Genre')->where('Genre is not null')->column($colName = "Genre") : $result = null;
+
         return $result;
     }
     
-} 
-
+}

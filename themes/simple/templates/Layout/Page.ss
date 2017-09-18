@@ -2,6 +2,7 @@
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
         <div class="content">
+            $Content
             <% if recentlyAddedTitles %>
             <h2>Recently Added</h2>
             <hr>
