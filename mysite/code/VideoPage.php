@@ -7,16 +7,22 @@ class VideoPage extends Page
 
 class VideoPage_Controller extends Page_Controller
 {
-     private $id, $member, $members;
-     private static $allowed_actions = array('getKeywords');
+    private $id, $member;
+    
+    private static $allowed_actions = array(
+        'movies'
+    );
+
+    private static $url_handlers = array(
+        'user/$ID' => 'movies'
+    );
     
     public function init()
     {
         parent::init();
-        $this->id = (int)Controller::curr()->getRequest()->param('ID');
-        ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
         
-        $this -> members = parent::__getAllMembers(); // get all the members
+        $this->id = (int)Controller::curr()->getRequest()->param('ID');
+        ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();      
         
         //jplist css
         Requirements::css('themes/simple/css/jplist.core.min.css');
@@ -48,27 +54,31 @@ class VideoPage_Controller extends Page_Controller
          ');
 
         // main SQL call
-	    $sqlQuery = "SELECT catalogue.*, member.ID as MID, member.Email, member.FirstName, member.Surname 
-                     FROM catalogue 
-                     LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE catalogue.Video_type = 'film' 
-                     AND catalogue.Owner = $this->member
-                     ORDER BY catalogue.Video_title";
+	    $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
+                     FROM Catalogue 
+                     LEFT JOIN Member ON Catalogue.Owner = Member.ID 
+                     WHERE Catalogue.Video_type = 'film' 
+                     AND Catalogue.Owner = $this->member
+                     ORDER BY Catalogue.Video_title";
                      
         $records = DB::query($sqlQuery);
         
         if ($records)
         {
-            $set = new ArrayList();
+
+            $set = ArrayList::create();
             
             foreach ($records as $record)
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['genres'] = $this->listFilmGenres($record['Genre']);
-                
-                $set->push(new ArrayData($record));
+                $record['posters'] = POSTERSWEBPATH;
+                $record['profileLink'] = parent::getProfileURL()->URLSegment;
+
+                $set->push(ArrayData::create($record));
             }
-            return $set;
+           
+            return $this->customise(array('movies' => $set) );
         }
         
 	}
@@ -157,20 +167,18 @@ class VideoPage_Controller extends Page_Controller
      */
     public function countTitles()
     {
-        $count = DB::query("SELECT count(Video_title) FROM Catalogue WHERE catalogue.Owner =".$this->member)->value();
-        
-        return $count;
+        return DB::query("SELECT count(Video_title) FROM Catalogue WHERE Video_type='film' AND Catalogue.Owner =".$this->member)->value();
     }
     
     /**
      * returns $this->members from parent::__getAllMembers
      * 
-     * @return object
+     * @return arraylist
      * 
      */
     public function getMembers()
-    {
-        return $this->members;
+    {        
+        return parent::__getAllMembers($class=__CLASS__);
     }
     
 }

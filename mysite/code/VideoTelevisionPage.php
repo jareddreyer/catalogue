@@ -7,12 +7,21 @@ class VideoTelevisionPage extends Page
 
 class VideoTelevisionPage_Controller extends Page_Controller
 {
+    private static $allowed_actions = array (
+        'television'
+    );
+
+    private static $url_handlers = array(
+        'user/$ID' => 'television'
+    );
+
     public function init()
     {
+
         parent::init();
         $this->id = (int)Controller::curr()->getRequest()->param('ID');
         ($this->id) ? $this->member = $this->id : $this->member = Member::currentUserID();
-        $this -> members = parent::__getAllMembers(); // get all the members
+           
         
         //JPlist css
         Requirements::css('themes/simple/css/jplist.core.min.css');
@@ -23,13 +32,12 @@ class VideoTelevisionPage_Controller extends Page_Controller
     public function television()
     {
         
-        
-        
         $keywords = $this -> getKeywords();
+
         Requirements::customScript('
         
             var availableKeywords = [
-            '.$keywords.'
+            '. $keywords .'
             ];
             $(function() {
      
@@ -47,30 +55,32 @@ class VideoTelevisionPage_Controller extends Page_Controller
             });
          ');
         
-        $sqlQuery = "SELECT catalogue.*, member.ID AS MID, member.Email, member.FirstName, member.Surname 
-                     FROM catalogue 
-                     LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE catalogue.Video_type = 'series'
-                     AND catalogue.Owner = $this->member
-                     ORDER BY catalogue.Video_title";
+        $sqlQuery = "SELECT Catalogue.*, Member.ID AS MID, Member.Email, Member.FirstName, Member.Surname 
+                     FROM Catalogue 
+                     LEFT JOIN Member ON Catalogue.Owner = Member.ID 
+                     WHERE Catalogue.Video_type = 'series'
+                     AND Catalogue.Owner = $this->member
+                     ORDER BY Catalogue.Video_title";
                      
-        $records = DB::query($sqlQuery);             
-        
-        //debug::dump($records->value());
+        $records = DB::query($sqlQuery);
 
         if ($records)
         {
-            $set = new ArrayList();
+            $set = ArrayList::create();
             
             foreach ($records as $record)
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = str_replace('Season', '', $record['Seasons']);
                 $record['genres'] = $this->listFilmGenres($record['Genre']);
+                $record['posters'] = POSTERSWEBPATH;
+                $record['profileLink'] = parent::getProfileURL()->URLSegment;
                 
-                $set->push(new ArrayData($record));
+                $set->push(ArrayData::create($record));
             }
-            return $set;
+
+            //return $set;
+            return $this->customise(array('television' => $set) );
         }
 
     }
@@ -80,17 +90,14 @@ class VideoTelevisionPage_Controller extends Page_Controller
      */
     public function getKeywords()
     {
-        $result = Catalogue::get()->sort('Keywords')->where('keywords is not null')->column($colName = "keywords");                                
-        
+        $result = Catalogue::get()->sort('Keywords')->where('Keywords is not null')->column("Keywords"); 
+
         if($result != null)
         {
             
             /** clean up keywords from DB **/
-            $implode = implode(",", $result); //implode array to string, saves foreaching
-            $trim = preg_replace('/\s*,\s*/', ',', $implode); //remove white spaces before and after commas 
-            $explode = explode(",", $trim); //explode string to array by comma
-            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
-            
+            $_list = array(parent::__convertAndCleanList($result, ','));
+
             $listoption = "";
             foreach($_list as $list)
             {
@@ -133,6 +140,7 @@ class VideoTelevisionPage_Controller extends Page_Controller
      */
     public function getGenres()
     {
+
         $result = Catalogue::get()->sort('Genre')->where('Genre is not null')->column($colName = "Genre");                                
         
         if($result != null)
@@ -160,7 +168,7 @@ class VideoTelevisionPage_Controller extends Page_Controller
     }
 
     /**
-     * returns count of titles in catalogue]
+     * returns count of titles in catalogue
      * 
      */
     public function countTitles()
@@ -181,7 +189,7 @@ class VideoTelevisionPage_Controller extends Page_Controller
      */
     public function getMembers()
     {
-        return $this->members;
+        return parent::__getAllMembers(); // get all the members;
     }
     
     
