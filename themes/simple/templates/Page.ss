@@ -36,7 +36,7 @@
 </div>
 <% include Footer %>
 
-<% require javascript("framework/thirdparty/jquery/jquery.min.js") %>
+<% require javascript("themes/simple/javascript/jquery-1.12.4.min.js") %>
 <% require javascript("themes/simple/javascript/jquery-ui-1.10.4.custom.min.js") %>
 <% require javascript("themes/simple/javascript/bootstrap.min.js") %>
 <% require javascript("themes/simple/javascript/tag-it.min.js") %>

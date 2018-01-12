@@ -1,6 +1,4 @@
-<% include SideBar %>
-<div class="content-container unit size3of4 lastUnit">
-        <h1>$Title</h1>
+<div class="content-container unit size3of4 lastUnit">      
         
         <div class="content">
                 <% if $error %>
@@ -11,7 +9,7 @@
                 <% if $profile %>
                     <% loop profile %>
                     <div class="clear">
-                        <div class="videoPoster"><% loop Up.getIMDBMetadata %><img src="$VideoPoster" alt="" title="" /><% end_loop %></div>
+                        <div class="videoPoster"><img src="$path$Poster" alt="" title=""></div>
                         <div class="videoDetailsContainer">
                             <h2 class="name">$Video_title (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
                             <p class="videoDetails"><% loop Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
@@ -50,17 +48,15 @@
                 <% if relatedTitles  %>       
                     <h3>Trilogy titles:</h3>
                     <% loop relatedTitles %>
-                         <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" alt="" title="View more about $Video_title" style="width:100px; height: 150px"></a>
+                         <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="width:100px; height: 150px"></a>
                     <% end_loop %>
-                    <% end_if %>
+                <% end_if %>
                     
-                    <% if seeAlsoTitles  %>
-                      <h4>Related titles:</h4>
-                            <% loop seeAlsoTitles.Sort(Poster, ASC) %>
-                                <a href="/video-profile/$ID"><img src="/assets/Uploads/$Poster" alt="" title="View more about $Video_title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
-                            <% end_loop %>
-                    
-                
+                <% if seeAlsoTitles  %>
+                  <h4>Related titles:</h4>
+                        <% loop seeAlsoTitles.Sort(Poster, ASC) %>
+                            <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
+                        <% end_loop %>                   
                 <% end_if %>
                 </div>
         </div>

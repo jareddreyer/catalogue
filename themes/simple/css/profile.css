@@ -99,3 +99,27 @@ form { width: 60% !important; max-width: 100%}
 }
 
 .grid--recent-holder .poster img:hover {border: 0}
+
+/** poster loader **/
+.poster .loader 
+{
+    width: 250px;
+    height: 420px;
+    float: right;
+    display: none;
+    margin: 5px;
+    background-image: url('/themes/simple/images/loader.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: grey;
+}
+
+.broken
+{
+    background-image: none;
+    border: 5px dashed #666;
+    display: block;
+    color: #FFF;
+    padding: 25px 0;
+    text-align: center;    
+}

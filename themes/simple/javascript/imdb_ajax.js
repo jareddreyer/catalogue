@@ -1,24 +1,27 @@
 //arrays of select options
-	var filmarr = [
-		  {val : 'Bluray', text: 'BD/BRRip'},
-		  {val : 'DVD', text: 'DVD-R'},
-		  {val : 'screener', text: 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR'},
-		  {val : 'cam', text: 'CAMRip/CAM/TS/TELESYNC'},
-		  {val : 'vod', text: 'VODRip/VODR'},
-		  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-		];
-		
-	var tvarr = [
-		  {val : 'Bluray', text: 'BD/BRRip'},
-		  {val : 'DVD', text: 'DVD-R'},
-		  {val : 'HDTV', text: 'HD TV'},
-		  {val : 'SDTV', text: 'SD TV'},
-		  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-		];
+var filmarr = [
+	  {val : 'Bluray', text: 'BD/BRRip'},
+	  {val : 'DVD', text: 'DVD-R'},
+	  {val : 'screener', text: 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR'},
+	  {val : 'cam', text: 'CAMRip/CAM/TS/TELESYNC'},
+	  {val : 'vod', text: 'VODRip/VODR'},
+	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
+	];
+	
+var tvarr = [
+	  {val : 'Bluray', text: 'BD/BRRip'},
+	  {val : 'DVD', text: 'DVD-R'},
+	  {val : 'HDTV', text: 'HD TV'},
+	  {val : 'SDTV', text: 'SD TV'},
+	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
+	];
+
+//OMDBAPI key string www.omdbapi.com - get your own free key
+var apikeyString = 'a0f02af4';
 		
 $(function()
 {
-	($('#Form_Form_Video_type').val() == 'series') ? $('#Seasons').show() : $('#Seasons').hide(); //if tv/series then show, else hide seasons if film
+	($('#Form_Form_Video_type').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
 	
 	// main autocomplete function
 	$("#Form_Form_Video_title").autocomplete({
@@ -26,7 +29,8 @@ $(function()
 				minLength: 3,
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
-						s: $('#Form_Form_Video_title').val()
+						s: $('#Form_Form_Video_title').val(),
+						apikey: apikeyString
 					},
 					 function(data)
 					 {
@@ -48,10 +52,11 @@ $(function()
 							response(array);
 						}
 					})
-					.fail(function() {
+					.fail(function( data) {
 						//couldn't connect to json request omdbapi
-						console.log( "error, couldn't connect to omdbapi" );
-						$('#media-form').append().html('<div class="alert alert-warning" role="alert">Could not connect to omdbapi.com</div>')
+						console.log( "error, couldn't connect to omdbapi - " + data.responseText);
+						
+						$('#media-form').before('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Could not connect to omdbapi.com - '+ data.responseText + '</div>')
 				    });
 					
 				},
@@ -79,13 +84,13 @@ $(function()
 			if($('#Form_Form_Video_type').val() == 'series')
 			{
 				$("#Form_Form_Seasons").tagit("removeAll");
-				$('#Seasons').show();
+				$('#Form_Form_Seasons_Holder').show();
 				populateSelect(tvarr, '#Form_Form_Source');
 			}
 			
 			if($('#Form_Form_Video_type').val() == 'film')
 			{
-				$('#Seasons').hide();
+				$('#Form_Form_Seasons_Holder').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
 			}
 		});
@@ -120,14 +125,21 @@ function getPosterThumb (poster, media)
 {
 	$.ajax({
     type: "GET",
-    url: "/poster/savePosterPreview",
+    url: "catalogue/Poster/",
     
     data: {poster: poster, title: media},
+	beforeSend: function() {
+		$('.loader').show();
+	},
+	complete: function(){
+	 $('.loader').hide();
+	},
     success: function(data)
     {
     	$('.poster').html(data);
     },
     error: function(){
+    	$('.loader').addClass('broken');
         console.log("The request failed");
     }
 });
@@ -137,7 +149,8 @@ function getPosterThumb (poster, media)
 function imdblookup(id)
 {
 	$.getJSON("http://www.omdbapi.com", {			
-				i: id
+				i: id,
+				apikey: apikeyString
 			 },
 			 function(data)
 			 {
@@ -150,7 +163,7 @@ function imdblookup(id)
 				 	//if tv hide unnessecary fields/values
 				 	if(data.Type == 'series') 
 				 	{ 
-				 		$('#Form_Form_Video_type').val('series'); $('#Seasons').show();
+				 		$('#Form_Form_Video_type').val('series'); $('#Form_Form_Seasons_Holder').show();
 				 		
 				 		//check how many seasons IMDB returned and put value in seasons box
 					 	var seasonNumber = data.totalSeasons;
@@ -167,7 +180,7 @@ function imdblookup(id)
 				 	if(data.Type == 'movie') 
 				 	{ 
 				 		$('#Form_Form_Video_type').val('film'); 
-				 		$('#Seasons').hide();
+				 		$('#Form_Form_Seasons_Holder').hide();
 				 		$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 				 		populateSelect(filmarr, '#Form_Form_Source');
 				 	}

@@ -15,9 +15,9 @@
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                     <ul>
                         <li><span data-path="default"> Browse by User</span></li>
-                        <% loop $getMembers %>
-                            <li><a href="/series/$ID">$FirstName $Surname </a></li>
-                        <% end_loop%>
+                        <% loop getMembers %>
+                            <li><a href="$link$ID">$FirstName $Surname </a></li>
+                        <% end_loop %>
                     </ul>
                 </div>
                 <button type="button" class="jplist-reset-btn" data-control-type="reset" data-control-name="reset" data-control-action="reset">
@@ -80,10 +80,10 @@
                   <li class="list-item">
                       <div class="list-box">
                           <div class="list--media-poster">
-                              <img src="/assets/Uploads/$Poster" width="90">
+                              <img src="$posters$Poster" width="90">
                           </div>
                           <div class="list--media-title">
-                              <a href="/video-profile/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
+                              <a href="$profileLink/title/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
                           </div>
                           <div class="list--media-metadata">
                               <% if $Seasons %><strong>Season(s) available: </strong><span class="seasons small">$seasonLinks</span><br><% end_if%>
@@ -151,8 +151,8 @@
             <ul>
                 <li><span data-path="default"> Browse by User</span></li>
                 <% loop $getMembers %>
-                    <li><a href="/series/$ID">$FirstName $Surname </a></li>
-                <% end_loop%>
+                    <li><a href="$link$ID">$FirstName $Surname </a></li>
+                <% end_loop %>
             </ul>
         </div>
     </div>

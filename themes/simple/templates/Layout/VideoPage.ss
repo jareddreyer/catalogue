@@ -1,11 +1,9 @@
-<% include SideBar %>
 <div class="content-container unit size3of4 lastUnit">
     <h1>$Title</h1>
-
     
     <% if $countTitles %>
         <p>$countTitles
-    <% loop $CurrentMember %>
+    <% loop CurrentMember %>
          movies are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
     <% end_loop %>
     
@@ -18,9 +16,9 @@
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                     <ul>
                         <li><span data-path="default"> Browse by User</span></li>
-                        <% loop $getMembers %>
-                            <li><a href="/films/$ID">$FirstName $Surname </a></li>
-                        <% end_loop%>
+                        <% loop getMembers %>
+                            <li><a href="$link$ID">$members.FirstName $members.Surname </a></li>
+                        <% end_loop %>
                     </ul>
                 </div>
                 <!-- Filter DropDown Control -->
@@ -87,10 +85,10 @@
                 <li class="list-item">
                     <div class="list-box">
                         <div class="list--media-poster">
-                            <img src="/assets/Uploads/$Poster" width="90">
+                            <img src="$posters$Poster" width="90">
                         </div>
                         <div class="list--media-title">
-                            <a href="/video-profile/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
+                            <a href="$profileLink/title/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
                         </div>
                         <div class="list--media-metadata">
                             <% if $Status %><strong>Status: </strong><span class="status {$Status}">$Status</span>
@@ -167,9 +165,9 @@
         <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
             <ul>
                 <li><span data-path="default"> Browse by User</span></li>
-                <% loop $getMembers %>
-                    <li><a href="/films/$ID">$FirstName $Surname </a></li>
-                <% end_loop%>
+                <% loop getMembers %>
+                    <li><a href="$link$ID">$FirstName $Surname </a></li>
+                <% end_loop %>
             </ul>
         </div>
     </div>

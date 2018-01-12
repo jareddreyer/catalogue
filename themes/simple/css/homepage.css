@@ -19,8 +19,7 @@
     position: relative;
     display: inline-block;
     width: 150px;    
-    border-left: 4px #FFF solid;
-    border-right: 4px #FFf solid;
+    
     font-size: 20px;
     cursor: pointer;
     -webkit-transition: 450ms all;
@@ -69,7 +68,8 @@
     z-index: 1;
 }
 .tile__details:before
-{   
+{
+    
     left: 0;
     width: 100%;
     font-size: 30px;
@@ -106,7 +106,7 @@
     transform: translate3d(50px, 0, 0);
 }
 
-div.row__inner div.tile div.tile__media a img { border: 0}
+div.row__inner div.tile div.tile__media a img { with: 170px; height: 220px; border: 0}
 
 
 a.scroll-arrow:hover {

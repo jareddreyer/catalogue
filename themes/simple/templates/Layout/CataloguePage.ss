@@ -4,11 +4,11 @@
         <h1>$Title</h1>
         <div class="content">
             <div id="media-form">
-                <div class="poster"></div>
+                <div class="poster"><span class="loader"></span></div>
                 $Form
             </div>
             
-    <% loop $CurrentMember %>
+    <% loop CurrentMember %>
     <span class="hide user">$CurrentMember.FirstName $Surname</span>
     <% end_loop %>
                 
