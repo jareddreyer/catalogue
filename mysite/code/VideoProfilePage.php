@@ -2,53 +2,67 @@
 class VideoProfilePage extends Page
 {
     private static $allowed_children = array();
-    
 }
 
 class VideoProfilePage_Controller extends Page_Controller
 {
-    public $id, $keywords, $keywordsArr, $video;
+    public $id, $keywordsArr, $video;
+
+    private static $allowed_actions = array('profile');
+
+    private static $url_handlers = array(
+        'title/$ID' => 'profile'
+    );
+
     public function init()
     {
         parent::init();
         
-        (int) $this->id = (int)Controller::curr()->getRequest()->param('ID'); //grab ID from URL query string
+        (int) $this->id = Controller::curr()->getRequest()->param('ID'); //grab ID from URL query string
         
-        $this->keywords = Catalogue::get()->where(array('id ='.$this->id))->column($colName = "keywords"); //get keywords
-        $this->keywordsArr = parent::__convertAndCleanList($this->keywords, ','); // creates array into pieces
-        $this->video = Catalogue::get()->where(array('id ='.$this->id))->setQueriedColumns(array("Video_title", "trilogy")); //get title
+         $keywords = Catalogue::get()
+                                ->where(array('id = '.$this->id))
+                                ->column('Keywords');
+                                
+        $this->keywordsArr = parent::__convertAndCleanList($keywords, ','); // creates array into pieces
+        $this->video = Catalogue::get()
+                                    ->setQueriedColumns(array("Video_title", "trilogy"))
+                                    ->byID($this->id); //get title
         
     }
+
     /**
      * main call to build profile of title
      * 
      * @return array
      */
     public function profile()
-    {
-        $this->getIMDBMetadata();
+    {        
         
-        $sqlQuery = "SELECT catalogue.*, member.ID as MID, member.Email, member.FirstName, member.Surname 
-                     FROM catalogue 
-                     LEFT JOIN member ON catalogue.Owner = member.ID 
-                     WHERE catalogue.ID = '{$this->id}'";
+        $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
+                     FROM Catalogue 
+                     LEFT JOIN Member ON Catalogue.Owner = Member.ID 
+                     WHERE Catalogue.ID = '{$this->id}'";
 
         $records = DB::query($sqlQuery);
-        
+
+        $metadata = $this->getIMDBMetadata();
+
         if ($records)
         {
-            $set = new ArrayList();
+            $set = ArrayList::create();
 
             foreach ($records as $record)
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
                 $record['displayComments'] = parent::displayComments($record['Comments']);
-                
-                $set->push(new ArrayData($record));
+                $record['path'] = POSTERSWEBPATH;
+
+                $set->push(ArrayData::create($record));
             }
-            
-            return $set;
+
+            return $this->customise(array('profile' => $set, 'getIMDBMetadata'=>$metadata));
         }
         
     }
@@ -67,7 +81,7 @@ class VideoProfilePage_Controller extends Page_Controller
             $pattern = '/[^\d|]/'; 
             $numbers = preg_replace($pattern,'', $string);
             $arraySeasons = explode("|",$numbers); //explode the season string into array of season numbers.            
-	        $imdbID = $imdb[0]->imdbID; //assign variable for use in annoymous function.
+            $imdbID = $imdb[0]->imdbID; //assign variable for use in annoymous function.
 
             $seasonLinksArray = array_map(function ($v) use ($imdbID) { return '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$v.'">'. $v. '</a>';}, $arraySeasons); //apply callback annoymous function over the array elements, adding anchor links
             $result = implode(' | ', $seasonLinksArray); //implode back to array of 1 string.
@@ -84,13 +98,17 @@ class VideoProfilePage_Controller extends Page_Controller
      */
     public function relatedTitles()
     {
-       if($this->video[0]->trilogy == null)
+
+       if($this->video->trilogy == null)
        {
            return false;
            
        } else {
            
-           return Catalogue::get()->where(array("trilogy='" . $this->video[0]->trilogy."'"))->exclude('ID', $this->id)->sort('year');
+           return Catalogue::get()
+                                ->where(array("trilogy='" . $this->video[0]->trilogy."'"))
+                                ->exclude('ID', $this->id)
+                                ->sort('year');
        }
        
     }
@@ -105,7 +123,7 @@ class VideoProfilePage_Controller extends Page_Controller
         //check how many keywords
             
             //if keywords <= 1 then check trilogy == keyword
-            $trilogy = array($this->video[0]->trilogy);
+            $trilogy = array($this->video->trilogy);
             $trilogy = array_map('strtolower', $trilogy);
             $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
             
@@ -116,7 +134,7 @@ class VideoProfilePage_Controller extends Page_Controller
               $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';  
             }
             
-            if($this->video[0]->trilogy == null && count($this->keywordsArr) > 1)
+            if($this->video->trilogy == null && count($this->keywordsArr) > 1)
                 return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->id);
 
             if(count($this->keywordsArr) <= 1)
@@ -136,76 +154,101 @@ class VideoProfilePage_Controller extends Page_Controller
      */
     public function getIMDBMetadata()
     {
-        $sqlQueryTitle = "SELECT Video_title, imdbID
-                          FROM catalogue
-                          WHERE catalogue.ID = '{$this->id}'";
+        //get video title and IMDBID values from Catalogue DB
+        $imdbMetadata = Catalogue::get()->setQueriedColumns(array("Video_title", "imdbID"))->byID($this->id);        
 
-        $recordsVideoTitle = DB::query($sqlQueryTitle);
-        
-        if ($recordsVideoTitle)
+        if ($imdbMetadata->exists())
         {
+            //if title/ID exists            
             $set2 = new ArrayList();
-            foreach ($recordsVideoTitle as $title)
-            {
-                $titleEncoded  = urlencode($title['Video_title']); //urlencoded fields only allowed to web api
-                $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $title['Video_title']); //sanitize for disallowed filename characters
+            
+                $titleEncoded  = urlencode($imdbMetadata->Video_title); //urlencoded fields only allowed to web api
+                $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $imdbMetadata->Video_title); //sanitize for disallowed filename characters
                 
                 //check if metadata already exists on server
                 if(!file_exists(JSONDIR."{$sanitized}.txt"))
                 {
+
                     //no json file found, load from API
-                    ($title['imdbID'] != null) ? $url = "http://www.omdbapi.com/?i=" .  $title['imdbID'] : $url = "http://www.omdbapi.com/?t=" .  $titleEncoded; //use imdb id if its there
+                    ($imdbMetadata->imdbID != null) ? $url = "http://www.omdbapi.com/?apikey=".APIKEY."&i=" .  $imdbMetadata->imdbID : $url = "http://www.omdbapi.com/?apikey=".APIKEY."&t=" .  $titleEncoded; //use imdb id if its there
                     
                     //now create json file of api data
-		    $json = @file_get_contents($url);
-		    if($json !== false) 
-		    {
-			$data = json_decode($json);
-			file_put_contents(JSONDIR."{$sanitized}.txt", json_encode($data)); //save IMDB metadata local server	
-		    } else {
-			$title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
-			$title['errorType'] = "danger";
-			$set2->push(new ArrayData($title));
-		    }
+        		    $json = file_get_contents($url);
+                    $data = json_decode($json);
+                    $title = [];
+
+        		    if($data->{'Response'} == "False")
+        		    {
+                        switch ($data->{'Error'}) {
+                            case 'Incorrect IMDb ID.':
+                                $title['error'] = "IMDB ID does not exist, you must have entered it directly to the database";
+                                $title['errorType'] = "danger";
+                            break;
+
+                            case 'Invalid API key!':
+                                $title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
+                                $title['errorType'] = "danger";
+                            break;
+
+                            case 'Movie not found!':
+                                $title['error'] = "Could not find this title, you must have entered incorrect to database.";
+                                $title['errorType'] = "danger";
+                        }            			
+
+                        $set2->push(new ArrayData($title));
+
+        		    } else {                        
+                        
+                        file_put_contents(JSONDIR."{$sanitized}.txt", json_encode($data)); //save IMDB metadata local server                        
+                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
+
+            			$set2->push(new ArrayData( 
+                                                    $this->jsonDataToArray($data, $sanitized)
+                            )
+                        );
+        		    }
                     
                 } else {
+
                     //json file found, load from server
                     $data = json_decode(file_get_contents(JSONDIR."{$sanitized}.txt")); //get JSON data from local server
                     
-                    if($data->{'Response'} == "False")
-                    {
-                        $title['error'] = "video was not found in IMDB";
-                        $title['errorType'] = "warning";
-                        $set2->push(new ArrayData($title));
-                        
-                        return $set2;
-                        
-                    } else {
-                            
-                        if($data->{'Poster'} != "N/A") 
-                        {
-                            //if API returns a URI for poster, then save it
-                            file_put_contents(POSTERSDIR."{$sanitized}.jpg", file_get_contents($data->{'Poster'})); //save poster to local server
-                            
-                        } else {
-                            // API did not return a URI for poster, so use blank.png
-                            $title['VideoPoster'] = "./assets/Uploads/blank.png";
-                        }
-                        
-                        $title['errorType'] = "hide";
-                        $title['VideoPoster'] = "./assets/Uploads/{$sanitized}.jpg";
-                        $title['Year'] = $data->{'Year'};
-                        $title['Director'] = $data->{'Director'};
-                        $title['Actors'] = $data->{'Actors'};
-                        $title['Plot'] = $data->{'Plot'};
-                        $title['Runtime'] = $data->{'Runtime'};
-                        $title['imdbID'] = $data->{'imdbID'};
-                        
-                        $set2->push(new ArrayData($title));
-                    }
+                    $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
+
+                    $set2->push(new ArrayData($this->jsonDataToArray($data, $sanitized)));
+                    
                 }
-            }
+
             return $set2;
         }  
     }
+
+    public function jsonDataToArray ($data, $sanitized, $title = null) 
+    {
+        $title['errorType'] = "hide";
+        $title['VideoPoster'] = POSTERSDIR."/{$sanitized}.jpg";
+        $title['Year'] = $data->{'Year'};
+        $title['Director'] = $data->{'Director'};
+        $title['Actors'] = $data->{'Actors'};
+        $title['Plot'] = $data->{'Plot'};
+        $title['Runtime'] = $data->{'Runtime'};
+        $title['imdbID'] = $data->{'imdbID'};
+
+        return $title;
+    }
+
+    public function checkPosterExists ($data, $sanitized) 
+    {
+        if($data->{'Poster'} != "N/A") 
+        {                        
+            //if API returns a URI for poster, then save it
+            file_put_contents(POSTERSDIR."{$sanitized}.jpg", file_get_contents($data->{'Poster'})); //save poster to local server
+            
+        } else {
+            
+            // API did not return a URI for poster, so use blank.png
+            return $title['VideoPoster'] = "./assets/Uploads/blank.png";
+        }        
+    }
+
 }
