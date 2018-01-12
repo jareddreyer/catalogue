@@ -7,14 +7,15 @@ class Catalogue extends DataObject
 		'Video_type' => 'VARCHAR(100)',
 		'Year' => 'VARCHAR(10)',
 		'Genre' => 'VARCHAR(100)',
-		'keywords' => 'VARCHAR(100)',
+		'Keywords' => 'VARCHAR(100)',
+        'Trilogy' => 'VARCHAR(100)',
 		'Seasons' => 'VARCHAR(200)',		
 		'Status' => 'VARCHAR(100)',
 		'Source' => 'VARCHAR(50)',
 		'Quality' => 'VARCHAR(50)',
-		'Owner' => 'VARCHAR(100)',
+		'Owner' => 'INT',
 		'Comments' => 'TEXT',
-		'Poster' => 'varchar(100)',		
+		'Poster' => 'varchar(100)'
     );
     
     public function validate() 
