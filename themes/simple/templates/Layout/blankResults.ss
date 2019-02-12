@@ -17,7 +17,7 @@
                         <td class="ui-widget-content">
                         <a href="/video-profile/{$ID}">$Video_title</a> <span class="small">(last updated $lastupdatedreadable ago)</span>
                         <!-- <input type="text" readonly="readonly" id="readOnlyTagsSeasons" value="$Seasons" /> -->
-                        
+
                     </td>
                     <td class="ui-widget-content">$Status</td>
                     <td class="ui-widget-content">$Source</td>
@@ -28,5 +28,5 @@
                     <td class="ui-widget-content"><a href="catalogue-maintenance/edit/{$ID}">[ edit ]</a></td>
                     </tr>
                 </tbody>
-<% end_loop %> 
+<% end_loop %>
 </table>

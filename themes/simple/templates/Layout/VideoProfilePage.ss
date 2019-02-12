@@ -1,5 +1,5 @@
-<div class="content-container unit size3of4 lastUnit">      
-        
+<div class="content-container unit size3of4 lastUnit">
+
         <div class="content">
                 <% if $error %>
                     <% loop getIMDBMetadata %>
@@ -45,18 +45,18 @@
                 <p> Title does not exist in catalogue</p>
                 <% end_if %>
                 <div class="clear">
-                <% if relatedTitles  %>       
+                <% if relatedTitles  %>
                     <h3>Trilogy titles:</h3>
                     <% loop relatedTitles %>
                          <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="width:100px; height: 150px"></a>
                     <% end_loop %>
                 <% end_if %>
-                    
+
                 <% if seeAlsoTitles  %>
                   <h4>Related titles:</h4>
                         <% loop seeAlsoTitles.Sort(Poster, ASC) %>
                             <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
-                        <% end_loop %>                   
+                        <% end_loop %>
                 <% end_if %>
                 </div>
         </div>

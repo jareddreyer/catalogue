@@ -1,18 +1,18 @@
 <div class="content-container unit size3of4 lastUnit">
     <h1>$Title</h1>
-    
+
     <% if $countTitles %>
         <p>$countTitles
     <% loop CurrentMember %>
          movies are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
     <% end_loop %>
-    
-   
+
+
     <div class="content">
         <div class="films">
             <!-- panel -->
             <div class="jplist-panel">
-            
+
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                     <ul>
                         <li><span data-path="default"> Browse by User</span></li>
@@ -67,7 +67,7 @@
 
                     <!-- pagination -->
                     <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
-                    
+
                     <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="items-per-page-drop-down" class="jplist-drop-down">
                         <div class="jplist-dd-panel">3 per page</div>
                         <ul>
@@ -79,7 +79,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <ul class="imageList list">
                 <% loop movies %>
                 <li class="list-item">
@@ -161,7 +161,7 @@
 <div class="films">
     <div class="jplist-panel">
     <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
-        
+
         <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
             <ul>
                 <li><span data-path="default"> Browse by User</span></li>

@@ -1,4 +1,4 @@
-<div class="content-container unit size3of4 lastUnit">       
+<div class="content-container unit size3of4 lastUnit">
         <div class="content">
             $Content
             <% if recentlyAddedTitles %>
@@ -11,7 +11,7 @@
                                 <div class="tile">
                                     <div class="tile__media">
                                       <a href="$profileLink/title/$ID"><img src="$path$Poster" class="loader"></a>
-                                    </div>                        
+                                    </div>
                                 </div>
                             <% end_loop %>
                         </div>
@@ -28,7 +28,7 @@
                                 <div class="tile">
                                     <div class="tile__media">
                                       <a href="$profileLink/title/$ID"><img src="$path$Poster" class="loader"></a>
-                                    </div>                        
+                                    </div>
                                 </div>
                             <% end_loop %>
                     </div>
@@ -37,6 +37,6 @@
             <% end_if %>
         $Form
         $PageComments
-        
+
     </div>
 </div>

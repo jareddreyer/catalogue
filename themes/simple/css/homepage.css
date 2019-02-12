@@ -18,8 +18,8 @@
 {
     position: relative;
     display: inline-block;
-    width: 150px;    
-    
+    width: 150px;
+
     font-size: 20px;
     cursor: pointer;
     -webkit-transition: 450ms all;
@@ -61,15 +61,15 @@
     margin-top: -25px;
     margin-left: -25px;
     width: 50px;
-    height: 50px;    
+    height: 50px;
     line-height: 50px;
-    text-align: center;    
-    
+    text-align: center;
+
     z-index: 1;
 }
 .tile__details:before
 {
-    
+
     left: 0;
     width: 100%;
     font-size: 30px;

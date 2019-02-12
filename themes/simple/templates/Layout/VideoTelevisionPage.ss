@@ -1,13 +1,13 @@
 <% include SideBar %>
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
-        
+
         <% if countTitles %>
             <p>$countTitles
         <% loop $CurrentMember %>
              Series are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
         <% end_loop %>
-        
+
         <div class="content">
             <div class="films">
             <!-- panel -->
@@ -39,31 +39,31 @@
                                 <% if getGenres %>$getGenres <% end_if %>
                         </ul>
                     </div>
-                    
+
                     <div class="text-filter-box">
                        <i class="fa fa-search jplist-icon"></i>
-                       
+
                        <!--[if lt IE 10]>
                        <div class="jplist-label">Filter by Title:</div>
                        <![endif]-->
-                       
+
                        <input data-path=".list--media-title" type="text" value="" placeholder="Filter by Title" data-control-type="textbox" data-control-name="title-filter" data-control-action="filter">
                     </div>
-                    
+
                     <div class="text-filter-box">
                        <i id="keywordSearch" class="fa fa-search jplist-icon"></i>
-                       
+
                        <!--[if lt IE 10]>
                        <div class="jplist-label">Filter by Keywords:</div>
                        <![endif]-->
-                       
+
                        <input class="keywordsText" data-button="#keywordSearch" data-path=".keywords" type="text" value="" placeholder="Filter by Keywords" data-control-type="textbox" data-control-name="keywords-filter" data-control-action="filter">
                     </div>
                     <div>
 
                     <!-- pagination -->
                     <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="pagination" class="jplist-pagination"></div>
-                    
+
                     <div data-control-animate-to-top="true" data-control-action="paging" data-control-name="paging" data-control-type="items-per-page-drop-down" class="jplist-drop-down">
                         <div class="jplist-dd-panel">3 per page</div>
                         <ul>
@@ -73,7 +73,7 @@
                             <li><span data-number="all"> View All </span></li>
                         </ul>
                     </div>
-                </div>           
+                </div>
                 </div>
                 <ul class="imageList list">
                 <% loop television %>
@@ -94,17 +94,17 @@
                               <span class="hide keywords">$keywords</span>
                               $genres
                           </div>
-                          <div class="list--media-maintenance">  
+                          <div class="list--media-maintenance">
                               <p>
                                   <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
                                   <a href="catalogue-maintenance/edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
                               </p>
                           </div>
-                          
+
                       </div>
                   </li>
-                  
-                <% end_loop %> 
+
+                <% end_loop %>
                 </ul>
                 <hr>
                 <div class="jplist-panel box panel-top">
@@ -117,12 +117,12 @@
                    <div class="jplist-no-results">
                       <p>No results found</p>
                    </div>
-                               
+
                 </div
-            
+
             </div>
-        
-        
+
+
 </div>
 
  <div class="modal fade" id="myModal" role="dialog">
@@ -133,7 +133,7 @@
           <h4 class="modal-title">Comments</h4>
         </div>
         <div class="modal-body">
-           
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -146,7 +146,7 @@
 <div class="films">
     <div class="jplist-panel">
     <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
-        
+
         <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
             <ul>
                 <li><span data-path="default"> Browse by User</span></li>
@@ -160,12 +160,12 @@
 <% end_if %>
 <script type="text/javascript">
 $('document').ready(function(){
-   $('.films').jplist({              
-      itemsBox: '.list' 
-      ,itemPath: '.list-item' 
-      ,panelPath: '.jplist-panel'   
+   $('.films').jplist({
+      itemsBox: '.list'
+      ,itemPath: '.list-item'
+      ,panelPath: '.jplist-panel'
    });
-   
+
 });
 
 /*$('#films').listnav({
@@ -180,7 +180,7 @@ $('#myModal').on('show.bs.modal', function (event) {
   var comment = button.data('comments') // Extract info from data-* attributes
   // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
   // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-  var modal = $(this)  
+  var modal = $(this)
   modal.find('.modal-body').html(comment.replace(/[']+/g, '').split(",").join("<br>"))
 })
 

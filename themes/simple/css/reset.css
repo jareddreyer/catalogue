@@ -1,4 +1,4 @@
-/* This reset is loosely derived from HTML5 boilerplate 
+/* This reset is loosely derived from HTML5 boilerplate
 for more information visit http://html5boilerplate.com/ */
 
 /* Every browser has its own default ‘user agent’ stylesheet, that it uses to make unstyled websites appear more legible.
@@ -31,7 +31,7 @@ sub{bottom:-0.25em;}
 
 pre {white-space:pre; white-space:pre-wrap; word-wrap:break-word; padding:15px;}
 textarea {overflow:auto;}
-.ie6 legend, .ie7 legend {margin-left:-7px;} 
+.ie6 legend, .ie7 legend {margin-left:-7px;}
 input[type="radio"], input.radio {vertical-align:text-bottom;}
 input[type="checkbox"], input.checkbox, .checkboxes input {vertical-align:bottom;}
 .ie7 input[type="checkbox"], .ie7 input.checkbox, .ie7 .checkboxes input {vertical-align:baseline;}

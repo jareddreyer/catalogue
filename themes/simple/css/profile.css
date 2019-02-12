@@ -17,7 +17,7 @@ div.videoDetailsContainer { overflow: hidden }
 .comments { cursor: pointer}
 .films li img { float: left}
 .imageList { clear: both}
-.imageList li 
+.imageList li
 {
     list-style-type: none;
     overflow: hidden;
@@ -54,11 +54,11 @@ div.videoDetailsContainer { overflow: hidden }
 i.fa-search { cursor: pointer}
 .fa.fa-search  { line-height: 2 !important}
 
-.jplist-panel 
+.jplist-panel
 {
     border-bottom: 1px solid #e5e5e5;
     height: 100px
-    
+
 }
 .jplist-pagination { clear: both; margin: inherit }
 .content-container { min-height: 400px}
@@ -101,7 +101,7 @@ form { width: 60% !important; max-width: 100%}
 .grid--recent-holder .poster img:hover {border: 0}
 
 /** poster loader **/
-.poster .loader 
+.poster .loader
 {
     width: 250px;
     height: 420px;
@@ -121,5 +121,5 @@ form { width: 60% !important; max-width: 100%}
     display: block;
     color: #FFF;
     padding: 25px 0;
-    text-align: center;    
+    text-align: center;
 }

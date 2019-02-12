@@ -1,14 +1,13 @@
 {
-	"name": "jared/Catalogue",
-	"description": "Movie and TV database",
+	"name": "jareddreyer/Catalogue",
+	"description": "Film and TV database web app",
 	"require": {
-		"silverstripe/cms": "3.6.*",
-		"silverstripe/framework": "3.6.*",
-		"silverstripe/siteconfig": "3.6.*",
-		"silverstripe-themes/simple": "3.1.*",			
-		"gdmedia/ss-auto-git-ignore": "0.0.3"		
-	},
-	"minimum-stability": "dev",
+		"silverstripe/cms": "^3",
+		"silverstripe/framework": "^3",
+		"silverstripe/siteconfig": "^3",
+		"gdmedia/ss-auto-git-ignore": "^1"		
+	},	
+	"prefer-stable": true,
 	"scripts": {
 		"post-update-cmd": "GDM\\SSAutoGitIgnore\\UpdateScript::Go"	    
 	}
