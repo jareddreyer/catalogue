@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
   WEBROOT_HOST = "."
-  WEBROOT_GUEST = "/var/www/mysite/www"
+  WEBROOT_GUEST = "/var/www/"
   config.vm.network "private_network", ip: "182.182.82.82"
   config.vm.hostname = "catalog.test"
   #config.vm.box = "silverstripeltd/dev-ssp"
