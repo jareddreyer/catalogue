@@ -1,0 +1,14 @@
+<?php
+
+// environment state (live,test,dev)
+define('SS_ENVIRONMENT_TYPE', 'dev');
+
+// database credentials
+define('SS_DATABASE_SERVER', 'localhost');
+define('SS_DATABASE_USERNAME', 'root');
+define('SS_DATABASE_PASSWORD', 'root');
+define('SS_DATABASE_NAME', 'catalog');
+define('SS_DEFAULT_ADMIN_USERNAME', SS_DATABASE_USERNAME);
+define('SS_DEFAULT_ADMIN_PASSWORD', SS_DATABASE_PASSWORD);
+define('SS_PRIMARY_DOMAIN', 'http://catalog.test');
+$_FILE_TO_URL_MAPPING["/var/www/"] = SS_PRIMARY_DOMAIN;
