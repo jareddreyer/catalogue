@@ -2,7 +2,7 @@
 _ss_environment.php
 /vendor/
 /assets/
-Vagrantfile.dist
+Vagrantfile
 .vagrant
 .idea
 
