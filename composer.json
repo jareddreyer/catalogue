@@ -2,17 +2,15 @@
 	"name": "jareddreyer/Catalogue",
 	"description": "Film and TV database web app",
 	"require": {
-		"php": ">=5.3.3",
+		"php": ">=7.3.0",
 		"silverstripe/cms": "^3",
 		"silverstripe/framework": "^3",
 		"silverstripe/reports": "^3",
 		"silverstripe/siteconfig": "^3",
-		"silverstripe-themes/simple": "^3",
 		"gdmedia/ss-auto-git-ignore": "^1"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7",
-		"dnadesign/silverstripe-populate": "^1"
+		"phpunit/phpunit": "^5.7"
 	},
 	"config": {
 		"process-timeout": 600
@@ -21,8 +19,6 @@
 	"prefer-stable": true,
 	"scripts": {
 		"post-update-cmd": "GDM\\SSAutoGitIgnore\\UpdateScript::Go",
-		"populate": "sake dev/tasks/DNADesign-Populate-PopulateTask",
-		"populate-flush": "sake dev/tasks/DNADesign-Populate-PopulateTask flush=1",
 		"dev-build": [
 			"sake dev/build flush=1"
 		],

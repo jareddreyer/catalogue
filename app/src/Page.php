@@ -1,6 +1,53 @@
 <?php
 class Page extends SiteTree {
-//nothing needed here
+
+    public function requireDefaultRecords()
+    {
+        parent::requireDefaultRecords();
+
+        if( !MaintenanceFormPage::get()->first() ){
+            $maintenanceFormPage = MaintenanceFormPage::create();
+            $maintenanceFormPage->Title = 'Insert new media';
+            $maintenanceFormPage->Content = '';
+            $maintenanceFormPage->write();
+            $maintenanceFormPage->publish('Stage', 'Live');
+            $maintenanceFormPage->flushCache();
+            DB::alteration_message('Catalog form page created', 'created');
+        }
+
+        if( !TelevisionPage::get()->first() ){
+            $televisionPage = TelevisionPage::create();
+            $televisionPage->Title = 'TV Shows';
+            $televisionPage->Content = '';
+            $televisionPage->write();
+            $televisionPage->publish('Stage', 'Live');
+            $televisionPage->flushCache();
+            DB::alteration_message('TV shows page created', 'created');
+        }
+
+        if( !FilmsPage::get()->first() ){
+            $filmsPage = FilmsPage::create();
+            $filmsPage->Title = 'Movies';
+            $filmsPage->Content = '';
+            $filmsPage->write();
+            $filmsPage->publish('Stage', 'Live');
+            $filmsPage->flushCache();
+            DB::alteration_message('Movies page created', 'created');
+        }
+
+        if( !ProfilePage::get()->first() ){
+            $profilePage = ProfilePage::create();
+            $profilePage->Title = 'Your Profile';
+            $profilePage->Content = '';
+            $profilePage->ShowInMenus = false;
+            $profilePage->write();
+            $profilePage->publish('Stage', 'Live');
+            $profilePage->flushCache();
+            DB::alteration_message('Catalog profile page created', 'created');
+        }
+
+    }
+
 }
 
 class Page_Controller extends ContentController
@@ -9,17 +56,17 @@ class Page_Controller extends ContentController
 
 	public function init() {
 		parent::init();
-        
+
 		Requirements::css('app/css/homepage.css');
 
-        if (Director::isLive()){            
+        if (Director::isLive()){
             Requirements::css('app/thirdparty/bootstrap/css/bootstrap.min.css');
             Requirements::javascript('app/thirdparty/bootstrap/js/bootstrap.bundle.min.js');
         } else {
             Requirements::css('app/thirdparty/bootstrap/css/bootstrap.css');
             Requirements::javascript('app/thirdparty/bootstrap/js/bootstrap.bundle.js');
         }
-        
+
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
                              e.preventDefault();              
@@ -42,7 +89,7 @@ class Page_Controller extends ContentController
                              $(".row__inner").stop();
                });');
 	}
-    
+
     /**
      * Grabs all members in the database and returns ID, Firstname & Surname
      * and inserts the profile URL based on getProfileURL()
@@ -56,24 +103,24 @@ class Page_Controller extends ContentController
 
         $membersList = ArrayList::create();
 
-        foreach ($members as $value) 
-        {            
+        foreach ($members as $value)
+        {
             $value->link = $this->URLSegment . '/user/';
             $membersList->push(
-                            $value 
+                            $value
                         );
         }
 
         return $membersList;
     }
-    
+
     /**
      * Returns object for either newly added titles or
      * updated titles
-     * 
+     *
      * @param  string $type - 'added' or 'updated'
-     * 
-     * @return object - titles 
+     *
+     * @return object - titles
      */
     public function recentTitles ($type)
     {
@@ -82,23 +129,23 @@ class Page_Controller extends ContentController
         if ($type == 'updated')
             return Catalogue::get()->where('LastEdited is not null AND LastEdited > Created')->sort('LastEdited DESC');
     }
-    
+
     /**
-     * 
+     *
      * @param string
-     * 
+     *
      * returns string in human readable time
-     * 
+     *
      * @return string
-     * 
+     *
      */
     public function humanTiming($time)
     {
-    
+
             $currtime = time();
-     
+
             $ago = abs($currtime - strtotime($time));
-            
+
             if($ago < 60 ) {
                 $result = 'less than a minute';
             } elseif($ago < 3600) {
@@ -117,24 +164,24 @@ class Page_Controller extends ContentController
                 $span = round($ago/86400/365);
                 $result = ($span != 1) ? "{$span} ". "years" : "{$span} "."year";
             }
-            
+
             // Replace duplicate spaces, backwards compat with existing translations
             $result = preg_replace('/\s+/', ' ', $result);
-    
+
             return $result;
     }
 
     /**
      * takes an array list and cleans it up ready to output as unique string
-     * 
+     *
      * @param $array <array>, $pipe <string>
      * @return array
-     * 
+     *
      */
     public function convertAndCleanList($array, $pipe)
     {
         /** clean up keywords from DB **/
-        
+
         $implode = implode($pipe, $array); //implode array to string, saves foreaching
         $csv = str_getcsv($implode, $pipe);
         $trimmed = array_walk($csv, create_function('&$csv', '$csv = trim($csv);'));
@@ -147,20 +194,20 @@ class Page_Controller extends ContentController
      * main call to return back cleaned up comments
      * @param $comments <string>
      * @return string
-     * 
+     *
      */
     public function displayComments ($comments)
     {
         $search = array('(', ')', '-'); //search for pipes around date
         $replace = array('</span><span class="timestamp">(', ')</span>', ' : <p>'); //surround them with html
-        
+
         $comments = str_replace($search, $replace, $comments); //replace each occurence with new values
         $comments = explode(',', $comments); //break into array by comma
-                
+
         $comments = array_map(function($comment) { return trim($comment, "'" ); }, $comments); //trim array elements and remove quotes
-        
+
         $result = implode('</p><span class="name">',$comments); //break array into string
-        
+
         return $result;
     }
 
@@ -171,9 +218,9 @@ class Page_Controller extends ContentController
     * @return  <string>
     *
     */
-    public function getProfileURL () 
+    public function getProfileURL ()
     {
         return ProfilePage::get()->first()->URLSegment;
-    }  
+    }
 
 }

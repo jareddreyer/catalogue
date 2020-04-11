@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdb315a119e5d4270ba178523e08a065",
+    "content-hash": "2369de447c8ba6746fc0e0a92fd03eb6",
     "packages": [
         {
             "name": "composer/installers",
@@ -212,53 +212,6 @@
                 "yml"
             ],
             "time": "2019-09-10T13:16:29+00:00"
-        },
-        {
-            "name": "silverstripe-themes/simple",
-            "version": "3.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/silverstripe/silverstripe-simple.git",
-                "reference": "5a6b34cd00a71047e905a8cb5d4b73713ca510c3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/silverstripe/silverstripe-simple/zipball/5a6b34cd00a71047e905a8cb5d4b73713ca510c3",
-                "reference": "5a6b34cd00a71047e905a8cb5d4b73713ca510c3",
-                "shasum": ""
-            },
-            "require": {
-                "composer/installers": "*",
-                "silverstripe/framework": ">=3.5"
-            },
-            "type": "silverstripe-theme",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.2.x-dev"
-                },
-                "expose": [
-                    "css",
-                    "images",
-                    "javascript",
-                    "webfonts"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Sara Tušar (Innovaif)",
-                    "homepage": "http://www.saratusar.com"
-                }
-            ],
-            "description": "The SilverStripe simple theme (default SilverStripe 3 theme)",
-            "keywords": [
-                "silverstripe",
-                "theme"
-            ],
-            "time": "2018-06-25T20:55:43+00:00"
         },
         {
             "name": "silverstripe/cms",
@@ -489,41 +442,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "dnadesign/silverstripe-populate",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dnadesign/silverstripe-populate.git",
-                "reference": "e60cb70bdcded442f452014e62f0192dcf9c196f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dnadesign/silverstripe-populate/zipball/e60cb70bdcded442f452014e62f0192dcf9c196f",
-                "reference": "e60cb70bdcded442f452014e62f0192dcf9c196f",
-                "shasum": ""
-            },
-            "require": {
-                "silverstripe/framework": "^3.1.3"
-            },
-            "type": "silverstripe-module",
-            "extra": {
-                "installer-name": "populate"
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Will Rossiter",
-                    "email": "will.rossiter@dna.co.nz"
-                }
-            ],
-            "description": "Populate your database through YAML files",
-            "keywords": [
-                "silverstripe",
-                "yaml"
-            ],
-            "time": "2017-07-12T09:00:24+00:00"
-        },
         {
             "name": "doctrine/instantiator",
             "version": "1.3.0",
@@ -1918,7 +1836,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.3.3"
+        "php": ">=7.3.0"
     },
     "platform-dev": []
 }
