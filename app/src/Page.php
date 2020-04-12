@@ -1,6 +1,6 @@
 <?php
-class Page extends SiteTree {
-
+class Page extends SiteTree
+{
     public function requireDefaultRecords()
     {
         parent::requireDefaultRecords();
@@ -46,26 +46,36 @@ class Page extends SiteTree {
             DB::alteration_message('Catalog profile page created', 'created');
         }
 
+        // delete about us and contact us pages from default install
+        if( SiteTree::get_by_link('about-us')  || SiteTree::get_by_link('contact-us') ){
+            $contactusPage = Page::get()->byID(3);
+            $aboutusPage = Page::get()->byID(2);
+            $contactusPage->delete();
+            $aboutusPage->delete();
+            DB::alteration_message("Deleting 'about us' & 'contact us' paghes", 'deleted');
+        }
     }
-
 }
 
 class Page_Controller extends ContentController
 {
-	private static $allowed_actions = [];
+    public $member, $id, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
 
 	public function init() {
 		parent::init();
 
-		Requirements::css('app/css/homepage.css');
+		Requirements::themedCSS('homepage');
 
-        if (Director::isLive()){
-            Requirements::css('app/thirdparty/bootstrap/css/bootstrap.min.css');
-            Requirements::javascript('app/thirdparty/bootstrap/js/bootstrap.bundle.min.js');
-        } else {
-            Requirements::css('app/thirdparty/bootstrap/css/bootstrap.css');
-            Requirements::javascript('app/thirdparty/bootstrap/js/bootstrap.bundle.js');
-        }
+        Requirements::javascript("https://code.jquery.com/jquery-1.12.4.min.js");
+
+        Requirements::themedJavascript("jquery-ui-1.10.4.custom.min");
+        Requirements::themedJavascript("bootstrap.min");
+        Requirements::themedJavascript("tag-it.min");
+        Requirements::themedJavascript("jplist.core.min");
+        Requirements::themedJavascript("jplist.pagination-bundle.min");
+        Requirements::themedJavascript("jplist.filter-dropdown-bundle.min");
+        Requirements::themedJavascript("jplist.textbox-filter.min");
+        Requirements::themedJavascript("jplist.history-bundle.min");
 
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
@@ -88,6 +98,23 @@ class Page_Controller extends ContentController
                            }).mouseup(function(e) {
                              $(".row__inner").stop();
                });');
+        // set up routing slugs
+        $this->member = Member::currentUserID();
+        $this->id = (int)Controller::curr()->getRequest()->param('ID');
+
+        // check if slug is set, if not then use currentMember()
+        (!$this->id) ? $this->id = $this->member : $this->id;
+
+        // get config variables
+        $this->apiKey = Config::inst()->get('Catalog', 'apiKey');
+        $this->postersAssetsFolderName = Config::inst()->get('Catalog', 'postersAssetsFolderName');
+        $this->jsonAssetsFolderName = Config::inst()->get('Catalog', 'jsonAssetsFolderName');
+        $this->jsonPath = ASSETS_PATH . $this->jsonAssetsFolderName;
+        $this->postersPath = ASSETS_PATH . $this->postersAssetsFolderName;
+
+
+
+
 	}
 
     /**
@@ -97,7 +124,7 @@ class Page_Controller extends ContentController
      * @param $class <string>
      * @return object
      */
-    public function __getAllMembers()
+    public function getAllMembers()
     {
         $members = Member::get()->sort('FirstName')->setQueriedColumns(array("ID", "FirstName", "Surname"))->exclude('ID', 1);
 
@@ -184,7 +211,7 @@ class Page_Controller extends ContentController
 
         $implode = implode($pipe, $array); //implode array to string, saves foreaching
         $csv = str_getcsv($implode, $pipe);
-        $trimmed = array_walk($csv, create_function('&$csv', '$csv = trim($csv);'));
+        $trimmed = array_walk($csv, function(&$csv){ return $csv = trim($csv); } );
         $unique = array_keys(array_flip($csv));  //get only unique elements
 
         return $unique;
@@ -218,9 +245,36 @@ class Page_Controller extends ContentController
     * @return  <string>
     *
     */
-    public function getProfileURL ()
+    public function getProfileURL()
     {
-        return ProfilePage::get()->first()->URLSegment;
+        return ProfilePage::get()->first()->Link();
+    }
+
+    /**
+     * returns the maintenanceformpage class link
+     * used by most pages so handy to reuse a method helper.
+     * @return <string>
+     */
+    public function getMaintenanceFormPageLink()
+    {
+        return MaintenanceFormPage::get()->first()->Link();
+    }
+
+    /**
+     * returns count of titles in catalogue by member
+     *
+     * @return string
+     */
+    public function countTitles()
+    {
+        $id = (int)Controller::curr()->getRequest()->param('ID');
+        (!$id) ? $id = Member::currentUserID() : $id ;
+
+        if($count = Catalogue::get()->filter(['VideoType'=>'film', 'Owner'=>$id])->count()) {
+            return $count;
+        }
+
+        return false;
     }
 
 }

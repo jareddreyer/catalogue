@@ -1,4 +1,10 @@
 ---
-Name: mysite
+Name: catalog
 After: 'framework/*','cms/*'
 ---
+SSViewer:
+  theme: 'simple'
+Catalog:
+  postersAssetsFolderName: '/posters/'
+  jsonAssetsFolderName: '/posters/json-metadata/'
+  apiKey: 'a0f02af4'

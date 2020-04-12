@@ -15,12 +15,11 @@
 	<% require themedCSS('form') %>
 	<% require themedCSS('layout') %>
 
-
-	<% require css('themes/simple/css/bootstrap.min.css') %>
-	<% require css('themes/simple/css/profile.css') %>
-	<% require css('themes/simple/css/jquery.tagit.css') %>
-	<% require css('themes/simple/css/jquery-ui-overrides.css') %>
-	<% require css('themes/simple/css/font-awesome.min.css') %>
+	<% require themedCSS('bootstrap.min') %>
+	<% require themedCSS('profile') %>
+	<% require themedCSS('jquery.tagit') %>
+	<% require themedCSS('jquery-ui-overrides') %>
+	<% require themedCSS('font-awesome.min') %>
 
 	<% require css('http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css') %>
 	<link rel="shortcut icon" href="$ThemeDir/images/favicon.ico" />
@@ -35,18 +34,6 @@
 	</div>
 </div>
 <% include Footer %>
-
-<% require javascript("themes/simple/javascript/jquery-1.12.4.min.js") %>
-<% require javascript("themes/simple/javascript/jquery-ui-1.10.4.custom.min.js") %>
-<% require javascript("themes/simple/javascript/bootstrap.min.js") %>
-<% require javascript("themes/simple/javascript/tag-it.min.js") %>
-
-<% require javascript("themes/simple/javascript/jplist.core.min.js") %>
-<% require javascript("themes/simple/javascript/jplist.pagination-bundle.min.js") %>
-<% require javascript("themes/simple/javascript/jplist.filter-dropdown-bundle.min.js") %>
-<% require javascript("themes/simple/javascript/jplist.textbox-filter.min.js") %>
-<% require javascript("themes/simple/javascript/jplist.history-bundle.min.js") %>
-
 
 </body>
 </html>

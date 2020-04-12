@@ -2,16 +2,16 @@
 
         <div class="content">
                 <% if $error %>
-                    <% loop getIMDBMetadata %>
-                        <div class="alert alert-$errorType error" role="alert"><strong>$Video_title</strong> - $error</div>
+                    <% loop $getIMDBMetadata %>
+                        <div class="alert alert-$errorType error" role="alert"><strong>$VideoTitle</strong> - $error</div>
                     <% end_loop %>
                 <% end_if %>
                 <% if $profile %>
-                    <% loop profile %>
+                    <% loop $profile %>
                     <div class="clear">
                         <div class="videoPoster"><img src="$path$Poster" alt="" title=""></div>
                         <div class="videoDetailsContainer">
-                            <h2 class="name">$Video_title (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
+                            <h2 class="name">$VideoTitle (<% loop Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
                             <p class="videoDetails"><% loop Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
                             <% if $seasonLinks %><p><strong>Season(s):</strong> $seasonLinks</p><% end_if %>
                             <hr />

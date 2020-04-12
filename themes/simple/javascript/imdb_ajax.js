@@ -21,15 +21,15 @@ var apikeyString = 'a0f02af4';
 
 $(function()
 {
-	($('#Form_Form_Video_type').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
+	($('#Form_Form_VideoType').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
 
 	// main autocomplete function
-	$("#Form_Form_Video_title").autocomplete({
+	$("#Form_Form_VideoTitle").autocomplete({
 				delay: 500,
 				minLength: 3,
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
-						s: $('#Form_Form_Video_title').val(),
+						s: $('#Form_Form_VideoTitle').val(),
 						apikey: apikeyString
 					},
 					 function(data)
@@ -77,18 +77,18 @@ $(function()
 			});
 
 		// control for source field
-		$('#Form_Form_Video_type').on('change', function()
+		$('#Form_Form_VideoType').on('change', function()
 		{
 			$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 
-			if($('#Form_Form_Video_type').val() == 'series')
+			if($('#Form_Form_VideoType').val() == 'series')
 			{
 				$("#Form_Form_Seasons").tagit("removeAll");
 				$('#Form_Form_Seasons_Holder').show();
 				populateSelect(tvarr, '#Form_Form_Source');
 			}
 
-			if($('#Form_Form_Video_type').val() == 'film')
+			if($('#Form_Form_VideoType').val() == 'film')
 			{
 				$('#Form_Form_Seasons_Holder').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
@@ -123,9 +123,11 @@ $(function()
 });
 function getPosterThumb (poster, media)
 {
+	var posterlink = $("#Form_Form").data('posterlink');
+
 	$.ajax({
     type: "GET",
-    url: "catalogue/Poster/",
+    url: posterlink,
 
     data: {poster: poster, title: media},
 	beforeSend: function() {

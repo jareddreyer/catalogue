@@ -1,12 +1,11 @@
 <div class="content-container unit size3of4 lastUnit">
     <h1>$Title</h1>
 
-    <% if $countTitles %>
+    <% if $countTitles > 0 %>
         <p>$countTitles
-    <% loop CurrentMember %>
+    <% loop $CurrentMember %>
          movies are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
     <% end_loop %>
-
 
     <div class="content">
         <div class="films">
@@ -81,14 +80,14 @@
             </div>
 
             <ul class="imageList list">
-                <% loop movies %>
+                <% loop $movies %>
                 <li class="list-item">
                     <div class="list-box">
                         <div class="list--media-poster">
                             <img src="$posters$Poster" width="90">
                         </div>
                         <div class="list--media-title">
-                            <a href="$profileLink/title/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
+                            <a href="$profileLink/title/{$ID}"><h2>$VideoTitle <% if $Year%>($Year)<% end_if%></h2></a>
                         </div>
                         <div class="list--media-metadata">
                             <% if $Status %><strong>Status: </strong><span class="status {$Status}">$Status</span>
@@ -99,14 +98,14 @@
                             <% end_if%>
                             <% if $Quality %><strong>Quality: </strong><span class="quality">$Quality</span>
                             <br>
-                            <% end_if%> <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Video_title} off you?<eom>">$FirstName $Surname</a></span>
+                            <% end_if%> <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$VideoTitle} off you?<eom>">$FirstName $Surname</a></span>
                             <span class="hide keywords">$keywords</span>
                              $genres
                         </div>
                         <div class="list--media-maintenance">
                             <p>
                                 <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
-                                <a href="catalogue-maintenance/edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
+                                <a href="{$Top.MaintenanceFormPageLink}edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
                             </p>
 
                         </div>
@@ -132,7 +131,6 @@
         </div>
 
     </div>
-
 </div>
 
 <div class="modal fade" id="myModal" role="dialog">
@@ -158,20 +156,20 @@
 </div>
 
 <% else %>
-<div class="films">
-    <div class="jplist-panel">
-    <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
+    <div class="films">
+        <div class="jplist-panel">
+        <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
 
-        <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
-            <ul>
-                <li><span data-path="default"> Browse by User</span></li>
-                <% loop getMembers %>
-                    <li><a href="$link$ID">$FirstName $Surname </a></li>
-                <% end_loop %>
-            </ul>
+            <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
+                <ul>
+                    <li><span data-path="default"> Browse by User</span></li>
+                    <% loop getMembers %>
+                        <li><a href="$link$ID">$FirstName $Surname </a></li>
+                    <% end_loop %>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 <% end_if %>
 
 <script type="text/javascript">

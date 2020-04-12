@@ -1,4 +1,3 @@
-<% include SideBar %>
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
 
@@ -83,7 +82,7 @@
                               <img src="$posters$Poster" width="90">
                           </div>
                           <div class="list--media-title">
-                              <a href="$profileLink/title/{$ID}"><h2>$Video_title <% if $Year%>($Year)<% end_if%></h2></a>
+                              <a href="$profileLink/title/{$ID}"><h2>$VideoTitle <% if $Year%>($Year)<% end_if%></h2></a>
                           </div>
                           <div class="list--media-metadata">
                               <% if $Seasons %><strong>Season(s) available: </strong><span class="seasons small">$seasonLinks</span><br><% end_if%>
@@ -97,7 +96,7 @@
                           <div class="list--media-maintenance">
                               <p>
                                   <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
-                                  <a href="catalogue-maintenance/edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
+                                  <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
                               </p>
                           </div>
 

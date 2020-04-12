@@ -1,7 +1,7 @@
 <?php
 
 global $project;
-$project = 'mysite';
+$project = 'catalog';
 
 global $databaseConfig;
 require_once('conf/ConfigureFromEnv.php');
@@ -11,7 +11,7 @@ DataObject::add_extension('SiteConfig', 'SiteConfigExtension');
 define('APIKEY', 'a0f02af4');
 
 //logging
-SS_Log::add_writer(new SS_LogFileWriter('/logs/silverstripe-errors-warnings.log'), SS_Log::WARN, '<=');
+SS_Log::add_writer(new SS_LogFileWriter('../logs/silverstripe-errors-warnings.log'), SS_Log::WARN, '<=');
 
 // Set the site locale
 i18n::set_locale('en_US');
