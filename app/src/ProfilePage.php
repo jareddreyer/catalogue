@@ -54,7 +54,6 @@ class ProfilePage_Controller extends Page_Controller
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
                 $record['displayComments'] = parent::displayComments($record['Comments']);
-                $record['path'] = $this->postersAssetsFolderName;
 
                 $set->push(ArrayData::create($record));
             }
@@ -193,7 +192,7 @@ class ProfilePage_Controller extends Page_Controller
                         // create asset folder path
                         Folder::find_or_make($this->jsonAssetsFolderName);
 
-        		        $rawJsonFilename = $this->jsonAssetsFolderName . "{$sanitized}.txt";
+        		        $rawJsonFilename = "{$sanitized}.txt";
                         $rawJsonPath = $this->jsonPath . $rawJsonFilename;
 
                         //save IMDB metadata local server
@@ -202,7 +201,7 @@ class ProfilePage_Controller extends Page_Controller
                         // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
                         $poster = File::create();
                         $poster->Title = $title;
-                        $poster->Filename = $rawJsonFilename;
+                        $poster->Filename = $this->jsonAssetsFolderName . $rawJsonFilename;
                         $poster->write();
 
                         $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
@@ -214,11 +213,19 @@ class ProfilePage_Controller extends Page_Controller
         		    }
 
                 } else {
-debug::dump('we are hre');
-die;
+
                     //json file found, load from server
-                    $data = json_decode(file_get_contents($this->jsonAssetsFolderName."{$sanitized}.txt")); //get JSON data from local server
-                    $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
+                    $data = json_decode(file_get_contents($this->jsonPath."{$sanitized}.txt")); //get JSON data from local server
+
+                    if($data->{'Poster'} != "N/A")
+                    {
+                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
+                    } else {
+
+                        // API did not return a URI for poster, so use blank.png
+                        return 'blank.png';
+                    }
+
                     $set2->push(new ArrayData($this->jsonDataToArray($data, $sanitized)));
                 }
 
@@ -229,7 +236,7 @@ die;
     public function jsonDataToArray ($data, $sanitized, $title = null)
     {
         $title['errorType'] = "hide";
-        $title['VideoPoster'] = $this->postersAssetsFolderName."{$sanitized}.jpg";
+        $title['VideoPoster'] = ASSETS_DIR . $this->postersAssetsFolderName."{$sanitized}.jpg";
         $title['Year'] = $data->{'Year'};
         $title['Director'] = $data->{'Director'};
         $title['Actors'] = $data->{'Actors'};
@@ -241,36 +248,40 @@ die;
     }
 
     /**
+     * checks if we have a poster saved to assets already.
      * @param $data
-     * @param $sanitized
+     * @param $filename
      * @return string
      * @throws ValidationException
      */
     public function checkPosterExists ($data, $filename)
     {
-        if($data->{'Poster'} != "N/A")
-        {
+        // setup raw filename and path
+        $rawPosterFilename = "{$filename}.jpg";
+        $posterID = Catalogue::get()->byID($this->ID)->Poster;
+
+        if(!Image::get()->byID($posterID)) {
             // create asset folder path
             Folder::find_or_make($this->postersAssetsFolderName);
 
-            // setup raw filename and path
-            $rawPosterFilename = $this->postersAssetsFolderName."{$filename}.jpg";
-            $rawPosterPath = ASSETS_PATH . $rawPosterFilename;
-            // now save it to assets folder
-            //if API returns a URI for poster, then save it
-            file_put_contents($rawPosterPath, file_get_contents($data->{'Poster'})); //save poster to local server
+            // whole web path to posters
+            $rawPosterPath = $this->postersPath . $rawPosterFilename;
+
+            try {
+                file_put_contents($rawPosterPath, file_get_contents($data->{'Poster'}));
+            } catch (Exception $exception) {
+                user_error('we had trouble saving posters to ' . $rawPosterPath );
+            }
 
             // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
             $poster = Image::create();
             $poster->Title = $filename;
-            $poster->Filename = $rawPosterFilename;
+            $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
             $poster->write();
 
-        } else {
-
-            // API did not return a URI for poster, so use blank.png
-            return $title['VideoPoster'] = "./assets/Uploads/blank.png";
+            return ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
         }
+
     }
 
 }

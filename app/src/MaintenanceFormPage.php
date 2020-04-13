@@ -185,15 +185,15 @@ class MaintenanceFormPage_Controller extends Page_Controller
         Folder::find_or_make($this->postersAssetsFolderName);
 
         // setup raw filename and path
-        $rawPosterFilename = $this->postersAssetsFolderName."{$title}.jpg";
-        $rawPosterPath =  . $rawPosterFilename;
+        $rawPosterFilename = "{$title}.jpg";
+        $rawPosterPath =  $this->postersPath . $rawPosterFilename;
         // now save it to assets folder
         file_put_contents($rawPosterPath, file_get_contents($src)); //save it to local server
 
         // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
         $poster = Image::create();
         $poster->Title = $title;
-        $poster->Filename = $rawPosterFilename;
+        $poster->Filename = $this->postersAssetsFolderName . $rawPosterFilename;
         $poster->write();
 
         $result = '<img src="'.$src.'">';
