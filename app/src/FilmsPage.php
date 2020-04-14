@@ -11,7 +11,7 @@ class FilmsPage_Controller extends Page_Controller
     ];
 
     private static $url_handlers = [
-        'user/!ID' => 'movies'
+        'user/$ID' => 'movies'
     ];
 
     public function init()
@@ -62,7 +62,7 @@ class FilmsPage_Controller extends Page_Controller
                      FROM Catalogue 
                      LEFT JOIN Member ON Catalogue.Owner = Member.ID 
                      WHERE Catalogue.VideoType = 'film' 
-                     AND Catalogue.Owner = $this->id
+                     AND Catalogue.Owner = $this->slug
                      ORDER BY Catalogue.VideoTitle";
 
         $records = DB::query($sqlQuery);

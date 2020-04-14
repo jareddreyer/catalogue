@@ -59,7 +59,7 @@ class Page extends SiteTree
 
 class Page_Controller extends ContentController
 {
-    public $member, $id, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+    public $member, $slug, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
 
 	public function init() {
 		parent::init();
@@ -100,10 +100,10 @@ class Page_Controller extends ContentController
                });');
         // set up routing slugs
         $this->member = Member::currentUserID();
-        $this->id = (int)Controller::curr()->getRequest()->param('ID');
+        $this->slug = (int)Controller::curr()->getRequest()->param('ID');
 
         // check if slug is set, if not then use currentMember()
-        (!$this->id) ? $this->id = $this->member : $this->id;
+        (!$this->slug) ? $this->slug = $this->member : $this->slug;
 
         // get config variables
         $this->apiKey = Config::inst()->get('Catalog', 'apiKey');
@@ -267,14 +267,57 @@ class Page_Controller extends ContentController
      */
     public function countTitles()
     {
-        $id = (int)Controller::curr()->getRequest()->param('ID');
-        (!$id) ? $id = Member::currentUserID() : $id ;
-
-        if($count = Catalogue::get()->filter(['VideoType'=>'film', 'Owner'=>$id])->count()) {
+        if($count = Catalogue::get()->filter(['VideoType'=>'film', 'Owner'=>$this->slug])->count()) {
             return $count;
         }
 
         return false;
+    }
+
+    /**
+     * checks if we have a poster saved to assets already
+     * If it doesn't exist then it will save to DB and local file storage.
+     *
+     * @param $data
+     * @param $filename
+     * @return string
+     * @throws ValidationException
+     */
+    public function checkPosterExists ($data, $filename)
+    {
+        // setup raw filename and path
+        $rawPosterFilename = "{$filename}.jpg";
+        $posterID = Catalogue::get()->byID($this->slug);
+
+        if(DataObject::get_one('Image', ['ID' => $posterID->PosterID]) === false) {
+            // create asset folder path
+            Folder::find_or_make($this->postersAssetsFolderName);
+
+            // whole web path to posters
+            $rawPosterPath = $this->postersPath . $rawPosterFilename;
+
+            try {
+                file_put_contents($rawPosterPath, file_get_contents($data->{'Poster'}));
+            } catch (Exception $exception) {
+                user_error('we had trouble saving posters to ' . $rawPosterPath );
+            }
+
+            // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
+            $poster = Image::create();
+            $poster->Title = $filename;
+            $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
+            $poster->write();
+
+            // update the catalogue record to now use a dataobject relationship ID.
+            $updateCatalog = Catalogue::create();
+            $updateCatalog->ID = $posterID->ID;
+            $updateCatalog->PosterID = $poster->ID;
+            $updateCatalog->write();
+
+            return $poster;
+        } else {
+            return DataObject::get_one('Image', ['ID' => $posterID->PosterID]);
+        }
     }
 
 }

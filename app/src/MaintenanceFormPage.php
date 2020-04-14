@@ -47,6 +47,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         //include js
         $keywords = $this->getKeywords();
+
         if($keywords != null)
         {
             $clean = parent::convertAndCleanList($keywords, $pipe=',');
@@ -68,11 +69,9 @@ class MaintenanceFormPage_Controller extends Page_Controller
                     allowSpaces: true,
                 });
             ');
-
         }
 
-        $id = (int)Controller::curr()->getRequest()->param('ID');
-        $automap = ($id)? $automap = Catalogue::get()->byID($id) : false;
+        $automap = ($this->slug) ? $automap = Catalogue::get()->byID($this->slug) : false;
 
         $submitCaption = ($automap) ? 'Edit' : 'Add';
 
@@ -140,21 +139,23 @@ class MaintenanceFormPage_Controller extends Page_Controller
         $automap = Catalogue::create();
         $form->saveInto($automap);
         $automap->ID = $data['ID'];
-        $automap->Last_updated = SS_Datetime::now()->format('Y-m-d H:i:s');
+        $automap->LastEdited = SS_Datetime::now()->format('Y-m-d H:i:s');
         ($automap->validate == false) ? $id = $automap->write() : $id = null;
 
         if ($id !== null)
         {
-            Session::setFormMessage($form->FormName(), $data['Video_title'], 'has been saved to the catalogue. <br><a href="video-profile/'.$id.'">Preview changes</a>', 'success');
-            $this->redirect($this->Link() . "edit/$id");
+            Session::setFormMessage($form->FormName(), $data['VideoTitle'],
+                'has been saved to the catalogue. <br><a href="'.$this->getProfileURL().$id.'">Preview changes</a>',
+                'success'
+            );
+            $this->redirect($this->Link() . 'edit/'.$this->slug);
         } elseif($id === null)
         {
-            Session::setFormMessage($form->FormName(), $data['Video_title'], " is already in the catalogue.", 'bad');
+            Session::setFormMessage($form->FormName(), $data['VideoTitle'], " is already in the catalogue.", 'bad');
             $this->redirect($this->Link());
         } else {
             Session::setFormMessage($form->FormName(), 'Something went wrong.');
         }
-
     }
 
     /**
@@ -181,20 +182,9 @@ class MaintenanceFormPage_Controller extends Page_Controller
         $result = base64_encode($result);
         $src = 'data: content-type: image/jpeg;base64,'.$result;
 
-        // create asset folder path
-        Folder::find_or_make($this->postersAssetsFolderName);
+        if(ProfilePage_Controller::get()->checkPosterExists()) {
 
-        // setup raw filename and path
-        $rawPosterFilename = "{$title}.jpg";
-        $rawPosterPath =  $this->postersPath . $rawPosterFilename;
-        // now save it to assets folder
-        file_put_contents($rawPosterPath, file_get_contents($src)); //save it to local server
-
-        // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-        $poster = Image::create();
-        $poster->Title = $title;
-        $poster->Filename = $this->postersAssetsFolderName . $rawPosterFilename;
-        $poster->write();
+        }
 
         $result = '<img src="'.$src.'">';
 

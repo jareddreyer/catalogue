@@ -19,27 +19,27 @@ class ProfilePage_Controller extends Page_Controller
         parent::init();
 
         $keywords = Catalogue::get()
-                                ->where(array('id = '.$this->id))
+                                ->where(array('id = '.$this->slug))
                                 ->column('Keywords');
 
         $this->keywordsArr = parent::convertAndCleanList($keywords, ','); // creates array into pieces
         $this->video = Catalogue::get()
                                     ->setQueriedColumns(array("VideoTitle", "trilogy"))
-                                    ->byID($this->id); //get title
+                                    ->byID($this->slug); //get title
     }
 
     /**
      * main call to build profile of title
      *
      * @return ViewableData_Customised
+     * @throws ValidationException
      */
     public function profile()
     {
-
         $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
                      FROM Catalogue 
                      LEFT JOIN Member ON Catalogue.Owner = Member.ID 
-                     WHERE Catalogue.ID = '$this->id'";
+                     WHERE Catalogue.ID = '$this->slug'";
 
         $records = DB::query($sqlQuery);
 
@@ -67,6 +67,7 @@ class ProfilePage_Controller extends Page_Controller
      * builds html for IMDB series links
      *
      * @return string
+     * @throws ValidationException
      */
     public function seasonLinks($string)
     {
@@ -98,7 +99,7 @@ class ProfilePage_Controller extends Page_Controller
        {
            return Catalogue::get()
                                 ->where(array("trilogy='" . $this->video[0]->trilogy."'"))
-                                ->exclude('ID', $this->id)
+                                ->exclude('ID', $this->slug)
                                 ->sort('year');
        }
        return false;
@@ -112,30 +113,29 @@ class ProfilePage_Controller extends Page_Controller
     public function seeAlsoTitles()
     {
         //check how many keywords
+        //if keywords <= 1 then check trilogy == keyword
+        $trilogy = array($this->video->trilogy);
+        $trilogy = array_map('strtolower', $trilogy);
+        $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
 
-            //if keywords <= 1 then check trilogy == keyword
-            $trilogy = array($this->video->trilogy);
-            $trilogy = array_map('strtolower', $trilogy);
-            $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
+        //loop over values so we can create WHERE like clauses
+        $clauses = array();
+        foreach ($array as $value)
+        {
+          $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+        }
 
-            //loop over values so we can create WHERE like clauses
-            $clauses = array();
-            foreach ($array as $value)
-            {
-              $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
-            }
+        if($this->video->trilogy == null && count($this->keywordsArr) > 1)
+            return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->slug);
 
-            if($this->video->trilogy == null && count($this->keywordsArr) > 1)
-                return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->id);
+        if(count($this->keywordsArr) <= 1)
+        {
+            return false; //nothing to return so return a false so view doesn't display anything.
 
-            if(count($this->keywordsArr) <= 1)
-            {
-                return false; //nothing to return so return a false so view doesn't display anything.
-
-            } else {
-               //keywords are only 1, so we will return back array of keyword results.
-               return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('trilogy', $this->video[0]->trilogy); //get all titles related to wolverine and exclude itself from result.
-            }
+        } else {
+           //keywords are only 1, so we will return back array of keyword results.
+           return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('trilogy', $this->video[0]->trilogy); //get all titles related to wolverine and exclude itself from result.
+        }
     }
 
     /**
@@ -147,7 +147,7 @@ class ProfilePage_Controller extends Page_Controller
     public function getIMDBMetadata()
     {
         //get video title and IMDBID values from Catalogue DB
-        $imdbMetadata = Catalogue::get()->setQueriedColumns(array("VideoTitle", "IMDBID"))->byID($this->id);
+        $imdbMetadata = Catalogue::get()->setQueriedColumns(["VideoTitle" , "IMDBID"])->byID($this->slug);
 
         if ($imdbMetadata->exists())
         {
@@ -207,7 +207,7 @@ class ProfilePage_Controller extends Page_Controller
                         $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
 
             			$set2->push(new ArrayData(
-                                                    $this->jsonDataToArray($data, $sanitized)
+                                                    $this->jsonDataToArray($data)
                             )
                         );
         		    }
@@ -221,22 +221,28 @@ class ProfilePage_Controller extends Page_Controller
                     {
                         $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
                     } else {
-
                         // API did not return a URI for poster, so use blank.png
-                        return 'blank.png';
+                        $data->{'VideoPoster'} = 'blank.png';
                     }
 
-                    $set2->push(new ArrayData($this->jsonDataToArray($data, $sanitized)));
+                    $set2->push(new ArrayData($this->jsonDataToArray($data)));
                 }
 
             return $set2;
         }
     }
 
-    public function jsonDataToArray ($data, $sanitized, $title = null)
+    /**
+     * resets the IMDBAPI result to arraylist for the template.
+     * L = DBFieldname, R = APIFieldname
+     *
+     * @param $data
+     * @return mixed
+     */
+    public function jsonDataToArray ($data)
     {
         $title['errorType'] = "hide";
-        $title['VideoPoster'] = ASSETS_DIR . $this->postersAssetsFolderName."{$sanitized}.jpg";
+        $title['VideoPoster'] = $data->{'VideoPoster'};
         $title['Year'] = $data->{'Year'};
         $title['Director'] = $data->{'Director'};
         $title['Actors'] = $data->{'Actors'};
@@ -248,40 +254,14 @@ class ProfilePage_Controller extends Page_Controller
     }
 
     /**
-     * checks if we have a poster saved to assets already.
-     * @param $data
-     * @param $filename
-     * @return string
-     * @throws ValidationException
+     * returns poster image object for the template view.
+     * @param $id
+     * @return bool
      */
-    public function checkPosterExists ($data, $filename)
+    public function getPosterImage($id)
     {
-        // setup raw filename and path
-        $rawPosterFilename = "{$filename}.jpg";
-        $posterID = Catalogue::get()->byID($this->ID)->Poster;
-
-        if(!Image::get()->byID($posterID)) {
-            // create asset folder path
-            Folder::find_or_make($this->postersAssetsFolderName);
-
-            // whole web path to posters
-            $rawPosterPath = $this->postersPath . $rawPosterFilename;
-
-            try {
-                file_put_contents($rawPosterPath, file_get_contents($data->{'Poster'}));
-            } catch (Exception $exception) {
-                user_error('we had trouble saving posters to ' . $rawPosterPath );
-            }
-
-            // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-            $poster = Image::create();
-            $poster->Title = $filename;
-            $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
-            $poster->write();
-
-            return ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
+        if($poster = Image::get()->byID($id) !== null) {
+            return $poster->Title;
         }
-
     }
-
 }

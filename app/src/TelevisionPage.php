@@ -65,7 +65,7 @@ class TelevisionPage_Controller extends Page_Controller
                      FROM Catalogue 
                      LEFT JOIN Member ON Catalogue.Owner = Member.ID 
                      WHERE Catalogue.VideoType = 'series'
-                     AND Catalogue.Owner = $this->id
+                     AND Catalogue.Owner = $this->slug
                      ORDER BY Catalogue.VideoTitle";
 
         $records = DB::query($sqlQuery);
