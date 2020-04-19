@@ -112,7 +112,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
                 '320p' => '320p'
                 ]
             )->setEmptyString('Select quality'),
-            HiddenField::create('Owner', '', Member::currentUserID()),
+            HiddenField::create('OwnerID', '', Member::currentUserID()),
             HiddenField::create('Comments'),
             HiddenField::create('IMDBID'),
             HiddenField::create('Year'),
@@ -172,8 +172,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
     {
         $url = $poster['poster'];
         $title = $poster['title'] . " (". $poster['year'] . ")";
-        $sanitizedFilename = preg_replace('/[^a-zA-Z0-9-_\.]/','', $poster['title']);
-        $filename = $sanitizedFilename . "-" . $poster['IMDBID'];
+        $filename = $this->cleanFilename($poster['title'], $poster['imdbID'], 'image');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

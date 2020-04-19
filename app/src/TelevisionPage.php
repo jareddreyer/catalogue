@@ -62,9 +62,9 @@ class TelevisionPage_Controller extends Page_Controller
 
         $sqlQuery = "SELECT Catalogue.*, Member.ID AS MID, Member.Email, Member.FirstName, Member.Surname 
                      FROM Catalogue 
-                     LEFT JOIN Member ON Catalogue.Owner = Member.ID 
+                     LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
                      WHERE Catalogue.VideoType = 'series'
-                     AND Catalogue.Owner = $this->slug
+                     AND Catalogue.OwnerID = $this->slug
                      ORDER BY Catalogue.VideoTitle";
 
         $records = DB::query($sqlQuery);

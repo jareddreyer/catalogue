@@ -35,10 +35,10 @@
                         <li class="quality">
                             <strong>Quality:</strong> $Quality
                         </li>
-                        <li>Last updated $lastupdatedreadable ago</li>
+                        <li>Last updated $lastEditedAgo ago</li>
                         <% if $displayComments %><li class="profileComments"><strong>Comments:</strong>$displayComments</li><% end_if %>
                         <li>
-                            <a href="mailto: $Email?subject=Can I get $Video_title off you?<eom>">Request a copy</a>
+                            <a href="mailto: $Email?subject=Can I get $VideoTitle off you?<eom>">Request a copy</a>
                         </li>
                         <li>
                             <a href="{$Up.MaintenanceFormPageLink}edit/$ID">[ edit ]</a>
@@ -54,15 +54,15 @@
         <% if $relatedTitles %>
             <h3>Part of the following trilogy:</h3>
             <% loop $relatedTitles %>
-                 <a href="{$Up.ProfileURL}title/$ID"><img src="$path$Poster" alt="" title="View more about $VideoTitle" style="width:100px; height: 150px"></a>
+                 <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $VideoTitle" style="width:100px; height: 150px"></a>
             <% end_loop %>
         <% end_if %>
 
         <% if $seeAlsoTitles %>
-          <h4>See also:</h4>
-                <% loop $seeAlsoTitles.Sort('VideoTitle', 'ASC') %>
-                    <a href="{$Up.ProfileURL}title/$ID"><img src="$path$Poster" alt="" title="View more about $VideoTitle" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
-                <% end_loop %>
+            <h4>See also:</h4>
+            <% loop $seeAlsoTitles.Sort('VideoTitle', 'ASC') %>
+                <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $VideoTitle" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
+            <% end_loop %>
         <% end_if %>
         </div>
     </div>

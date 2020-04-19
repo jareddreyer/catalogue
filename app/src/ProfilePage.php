@@ -38,7 +38,7 @@ class ProfilePage_Controller extends Page_Controller
     {
         $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
                      FROM Catalogue 
-                     LEFT JOIN Member ON Catalogue.Owner = Member.ID 
+                     LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
                      WHERE Catalogue.ID = '$this->slug'";
 
         $records = DB::query($sqlQuery);
@@ -51,7 +51,7 @@ class ProfilePage_Controller extends Page_Controller
 
             foreach ($records as $record)
             {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
+                $record['lastEditedAgo'] = parent::humanTiming($record['LastEdited']); // @todo refactor to remove this
                 $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
                 $record['displayComments'] = parent::displayComments($record['Comments']);
 
@@ -212,7 +212,7 @@ class ProfilePage_Controller extends Page_Controller
                     try {
                         file_put_contents($rawJsonPath, json_encode($data));
                     } catch (Exception $exception) {
-                        user_error('we had trouble saving posters to ' . $rawJsonPath );
+                        user_error('we had trouble saving poster metadata to ' . $rawJsonPath );
                     }
 
                     // creating dataobject this needs refactoring in SS4 to use assetsFileStore class

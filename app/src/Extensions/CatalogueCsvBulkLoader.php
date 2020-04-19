@@ -3,14 +3,15 @@
 class CatalogueCsvBulkLoader extends CsvBulkLoader {
 
     public $columnMap = [
-        'Number' => 'PlayerNumber',
+        'Title' => 'VideoTitle',
         'Name' => '->importFirstAndLastName',
         'Birthday' => 'Birthday',
         'Team' => 'Team.Title',
     ];
-    public $duplicateChecks = array(
-        'Number' => 'PlayerNumber'
-    );
+
+    public $duplicateChecks = [
+        'Title' => 'VideoTitle'
+    ];
 
     public static function importFirstAndLastName(&$obj, $val, $record) {
         $parts = explode(' ', $val);

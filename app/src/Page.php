@@ -121,6 +121,7 @@ class Page_Controller extends ContentController
 
     /**
      * Grabs all members in the database and returns ID, Firstname & Surname
+     * @todo needs refactoring, dont need an arrayList to do this method.
      *
      * @return object
      */
@@ -284,7 +285,7 @@ class Page_Controller extends ContentController
     {
         $type = ($this->Title == 'films') ? 'films' : 'series';
 
-        if($count = Catalogue::get()->filter(['VideoType'=> $type, 'Owner' => $this->slug])->count()) {
+        if($count = Catalogue::get()->filter(['VideoType'=> $type, 'OwnerID' => $this->slug])->count()) {
             return $count;
         }
 
