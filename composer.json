@@ -8,7 +8,8 @@
 		"silverstripe/reports": "^3",
 		"silverstripe/siteconfig": "^3",
         "symbiote/silverstripe-queuedjobs": "^3",
-		"gdmedia/ss-auto-git-ignore": "^1"
+		"gdmedia/ss-auto-git-ignore": "^1",
+		"silverstripe/login-forms": "3.0.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7"

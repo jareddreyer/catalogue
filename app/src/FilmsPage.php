@@ -75,8 +75,7 @@ class FilmsPage_Controller extends Page_Controller
             {
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['genres'] = $this->listFilmGenres($record['Genre']);
-                $record['posters'] = $this->postersAssetsFolderName;
-                $record['profileLink'] = parent::getProfileURL();
+                $record['posters'] = $this->getPosterImage($record['PosterID']);
 
                 $set->push(ArrayData::create($record));
             }
@@ -116,9 +115,8 @@ class FilmsPage_Controller extends Page_Controller
 
         if($result != null)
         {
-
             /** clean up keywords from DB **/
-            $_list = array(parent::convertAndCleanList($result, ','));
+            $_list = [parent::convertAndCleanList($result, ',')];
 
             $listoption = "";
             foreach($_list as $list)
@@ -147,7 +145,7 @@ class FilmsPage_Controller extends Page_Controller
         {
 
             /** clean up keywords from DB **/
-            $_list = array(parent::convertAndCleanList($result, '|'));
+            $_list = [parent::convertAndCleanList($result, '|')];
 
             $genreList = "";
             foreach($_list as $list)
@@ -161,17 +159,4 @@ class FilmsPage_Controller extends Page_Controller
             return $genreList;
         }
     }
-
-    /**
-     * returns $this->members from parent::__getAllMembers
-     *
-     * @return arraylist
-     *
-     */
-    public function getMembers()
-    {
-        return parent::getAllMembers();
-    }
-
 }
-

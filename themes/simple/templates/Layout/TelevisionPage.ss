@@ -1,7 +1,7 @@
 <div class="content-container unit size3of4 lastUnit">
         <h1>$Title</h1>
 
-        <% if countTitles %>
+        <% if $countTitles > 0 %>
             <p>$countTitles
         <% loop $CurrentMember %>
              Series are listed in $CurrentMember.FirstName $Surname's catalogue.</p>
@@ -14,7 +14,7 @@
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                     <ul>
                         <li><span data-path="default"> Browse by User</span></li>
-                        <% loop getMembers %>
+                        <% loop $AllMembers %>
                             <li><a href="$link$ID">$FirstName $Surname </a></li>
                         <% end_loop %>
                     </ul>
@@ -75,14 +75,16 @@
                 </div>
                 </div>
                 <ul class="imageList list">
-                <% loop television %>
+                <% loop $television %>
                   <li class="list-item">
                       <div class="list-box">
                           <div class="list--media-poster">
-                              <img src="$posters$Poster" width="90">
+                              <% loop $posters %>
+                                  $Me.setWidth(90)
+                              <% end_loop %>
                           </div>
                           <div class="list--media-title">
-                              <a href="$profileLink/title/{$ID}"><h2>$VideoTitle <% if $Year%>($Year)<% end_if%></h2></a>
+                              <a href="{$Up.ProfileURL}title/{$ID}"><h2>$VideoTitle <% if $Year%>($Year)<% end_if%></h2></a>
                           </div>
                           <div class="list--media-metadata">
                               <% if $Seasons %><strong>Season(s) available: </strong><span class="seasons small">$seasonLinks</span><br><% end_if%>
@@ -149,7 +151,7 @@
         <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
             <ul>
                 <li><span data-path="default"> Browse by User</span></li>
-                <% loop $getMembers %>
+                <% loop $AllMembers %>
                     <li><a href="$link$ID">$FirstName $Surname </a></li>
                 <% end_loop %>
             </ul>

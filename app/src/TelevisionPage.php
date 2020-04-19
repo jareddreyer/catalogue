@@ -12,7 +12,7 @@ class TelevisionPage_Controller extends Page_Controller
     );
 
     private static $url_handlers = array(
-        'user/!ID' => 'television'
+        'user/$ID' => 'television'
     );
 
     public function init()
@@ -37,7 +37,6 @@ class TelevisionPage_Controller extends Page_Controller
 
     public function television()
     {
-
         $keywords = $this -> getKeywords();
 
         Requirements::customScript('
@@ -79,8 +78,7 @@ class TelevisionPage_Controller extends Page_Controller
                 $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
                 $record['seasonLinks'] = str_replace('Season', '', $record['Seasons']);
                 $record['genres'] = $this->listFilmGenres($record['Genre']);
-                $record['posters'] = $this->postersAssetsFolderName;
-                $record['profileLink'] = parent::getProfileURL();
+                $record['posters'] = $this->getPosterImage($record['PosterID']);
 
                 $set->push(ArrayData::create($record));
             }

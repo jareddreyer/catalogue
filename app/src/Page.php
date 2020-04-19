@@ -1,4 +1,5 @@
 <?php
+
 class Page extends SiteTree
 {
     public function requireDefaultRecords()
@@ -52,8 +53,12 @@ class Page extends SiteTree
             $aboutusPage = Page::get()->byID(2);
             $contactusPage->delete();
             $aboutusPage->delete();
-            DB::alteration_message("Deleting 'about us' & 'contact us' paghes", 'deleted');
+            DB::alteration_message("Deleting 'about us' & 'contact us' pages", 'deleted');
         }
+
+        //set up assets so its nice and clean
+        Folder::find_or_make(Config::inst()->get('Catalog', 'postersAssetsFolderName'));
+        Folder::find_or_make(Config::inst()->get('Catalog', 'jsonAssetsFolderName'));
     }
 }
 
@@ -61,7 +66,8 @@ class Page_Controller extends ContentController
 {
     public $member, $slug, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
 
-	public function init() {
+	public function init()
+    {
 		parent::init();
 
 		Requirements::themedCSS('homepage');
@@ -111,22 +117,20 @@ class Page_Controller extends ContentController
         $this->jsonAssetsFolderName = Config::inst()->get('Catalog', 'jsonAssetsFolderName');
         $this->jsonPath = ASSETS_PATH . $this->jsonAssetsFolderName;
         $this->postersPath = ASSETS_PATH . $this->postersAssetsFolderName;
-
-
-
-
 	}
 
     /**
      * Grabs all members in the database and returns ID, Firstname & Surname
-     * and inserts the profile URL based on getProfileURL()
      *
-     * @param $class <string>
      * @return object
      */
     public function getAllMembers()
     {
-        $members = Member::get()->sort('FirstName')->setQueriedColumns(array("ID", "FirstName", "Surname"))->exclude('ID', 1);
+        $members = Member::get()->sort('FirstName')
+            ->setQueriedColumns(
+                ["ID" , "FirstName" , "Surname"]
+            )
+            ->exclude('ID', 1);
 
         $membersList = ArrayList::create();
 
@@ -151,10 +155,21 @@ class Page_Controller extends ContentController
      */
     public function recentTitles ($type)
     {
-        if ($type == 'added')
-            return Catalogue::get()->where('LastEdited is not null AND Created = LastEdited')->sort('LastEdited DESC');
-        if ($type == 'updated')
-            return Catalogue::get()->where('LastEdited is not null AND LastEdited > Created')->sort('LastEdited DESC');
+        if ($type == 'added') {
+            $recentlyAdded = Catalogue::get()
+                ->where('Created BETWEEN (CURRENT_DATE() - INTERVAL 1 MONTH) AND CURRENT_DATE()')
+                ->limit(15)
+                ->sort('LastEdited DESC');
+            return $recentlyAdded;
+        }
+
+        if ($type == 'updated') {
+            $recentlyUpdated = Catalogue::get()
+                ->where('LastEdited is not null AND LastEdited > Created')
+                ->limit(15)
+                ->sort('LastEdited DESC');
+            return $recentlyUpdated;
+        }
     }
 
     /**
@@ -201,9 +216,9 @@ class Page_Controller extends ContentController
     /**
      * takes an array list and cleans it up ready to output as unique string
      *
-     * @param $array <array>, $pipe <string>
+     * @param $array <array>
+     * @param $pipe <string>
      * @return array
-     *
      */
     public function convertAndCleanList($array, $pipe)
     {
@@ -211,7 +226,7 @@ class Page_Controller extends ContentController
 
         $implode = implode($pipe, $array); //implode array to string, saves foreaching
         $csv = str_getcsv($implode, $pipe);
-        $trimmed = array_walk($csv, function(&$csv){ return $csv = trim($csv); } );
+        array_walk($csv, function(&$csv){ return $csv = trim($csv); } );
         $unique = array_keys(array_flip($csv));  //get only unique elements
 
         return $unique;
@@ -267,9 +282,12 @@ class Page_Controller extends ContentController
      */
     public function countTitles()
     {
-        if($count = Catalogue::get()->filter(['VideoType'=>'film', 'Owner'=>$this->slug])->count()) {
+        $type = ($this->Title == 'films') ? 'films' : 'series';
+
+        if($count = Catalogue::get()->filter(['VideoType'=> $type, 'Owner' => $this->slug])->count()) {
             return $count;
         }
+
 
         return false;
     }
@@ -285,39 +303,103 @@ class Page_Controller extends ContentController
      */
     public function checkPosterExists ($data, $filename)
     {
-        // setup raw filename and path
-        $rawPosterFilename = "{$filename}.jpg";
-        $posterID = Catalogue::get()->byID($this->slug);
+        // Get Catalogue PosterID ID
+        $cataloguePosterID = Catalogue::get()->byID($this->slug);
+        $poster = $data->{'Poster'};
 
-        if(DataObject::get_one('Image', ['ID' => $posterID->PosterID]) === false) {
+        if(DataObject::get_one('Image', ['ID' => $cataloguePosterID->PosterID]) === false)
+        {
+            // save file and create dataobject image.
+            $poster = $this->savePosterImage($cataloguePosterID, $poster, $filename, $data->{'Title'} );
+
+            return $poster;
+        } else {
+            return DataObject::get_one('Image', ['ID' => $cataloguePosterID->PosterID]);
+        }
+    }
+
+    /**
+     * allows saving of imdb posters to local storage
+     *
+     * @param $cataloguePosterID - ID of PosterID from Catalogue::class
+     * @param $src - base64 of Poster image data (from IMDBApi)
+     * @param $filename - what the image dataobject filename and local filename will be
+     * @param $videoTitle - Name and Title of media (from data sources)
+     *
+     * @return Image
+     * @throws ValidationException
+     *
+     * @see Catalogue::class
+     */
+    public function savePosterImage($cataloguePosterID = null,
+                                    $src = null,
+                                    $filename = null,
+                                    $videoTitle = null)
+    {
+        // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
+        if(($poster = DataObject::get_one('Image', ['Title' => $videoTitle])) !== false)
+        {
+            $poster = DataObject::get_one('Image', ['Title' => $videoTitle]);
+        } else {
+
             // create asset folder path
-            Folder::find_or_make($this->postersAssetsFolderName);
+            $assetsParentID = Folder::find_or_make($this->postersAssetsFolderName);
 
             // whole web path to posters
-            $rawPosterPath = $this->postersPath . $rawPosterFilename;
+            $rawPosterPath = $this->postersPath . $filename;
 
             try {
-                file_put_contents($rawPosterPath, file_get_contents($data->{'Poster'}));
+                file_put_contents($rawPosterPath, file_get_contents($src));
             } catch (Exception $exception) {
                 user_error('we had trouble saving posters to ' . $rawPosterPath );
             }
 
-            // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
             $poster = Image::create();
-            $poster->Title = $filename;
-            $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $rawPosterFilename;
+            $poster->Title = $videoTitle;
+            $poster->ParentID = $assetsParentID->ID;
+            $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $filename;
             $poster->write();
 
-            // update the catalogue record to now use a dataobject relationship ID.
-            $updateCatalog = Catalogue::create();
-            $updateCatalog->ID = $posterID->ID;
-            $updateCatalog->PosterID = $poster->ID;
-            $updateCatalog->write();
-
-            return $poster;
-        } else {
-            return DataObject::get_one('Image', ['ID' => $posterID->PosterID]);
+            // update the catalogue record to now use a dataobject relationship ID if Catalogue record exists.
+            if($cataloguePosterID !== null) {
+                $updateCatalog = Catalogue::create();
+                $updateCatalog->ID = $cataloguePosterID->ID;
+                $updateCatalog->PosterID = $poster->ID;
+                $updateCatalog->write();
+            }
         }
+
+        return $poster;
     }
 
+    /**
+     * returns poster image object for the template view.
+     * @param $id
+     * @return bool
+     */
+    public function getPosterImage($id)
+    {
+        if( ($poster = Image::get()->byID($id) ) !== null) {
+            return $poster;
+        }
+
+        return 'blank.png';
+    }
+
+    /**
+     * returns a safe title (removes characters unallowed in filenames)
+     *
+     * @param $title - name of media
+     * @param $IMDBID - static IMDBID value
+     * @param $fileType - image or text
+     *
+     * @return string
+     */
+    public function cleanFilename($title, $IMDBID, $fileType)
+    {
+        $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $title);
+        $filetype = ($fileType == 'image') ? '.jpg' : '.txt';
+
+        return $sanitized .'-'. $IMDBID . $filetype;
+    }
 }

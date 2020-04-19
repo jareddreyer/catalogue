@@ -14,7 +14,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
     ];
 
     private static $url_handlers = [
-        'Poster/$poster/$title' => 'savePosterPreview'
+        'Poster/$poster' => 'savePosterPreview'
     ];
 
     public function init()
@@ -54,23 +54,24 @@ class MaintenanceFormPage_Controller extends Page_Controller
             $json = json_encode($clean); // turn into json array for jquery library
 
             Requirements::customScript('
-              $("#Form_Form_keywords").tagit({
+              $("#Form_Form_Keywords").tagit({
                     singleFieldDelimiter: " , ",
                     allowSpaces: true,
-                    fieldName: "keywordsField",
                     availableTags: '. $json .'
                 });
             ');
 
         } else {
             Requirements::customScript('
-              $("#Form_Form_keywords").tagit({
+              $("#Form_Form_Keywords").tagit({
                     singleFieldDelimiter: " , ",
                     allowSpaces: true,
                 });
             ');
         }
 
+        // override slug cause we need to check for null values specifically
+        $this->slug = (int)Controller::curr()->getRequest()->param('ID');
         $automap = ($this->slug) ? $automap = Catalogue::get()->byID($this->slug) : false;
 
         $submitCaption = ($automap) ? 'Edit' : 'Add';
@@ -116,8 +117,8 @@ class MaintenanceFormPage_Controller extends Page_Controller
             HiddenField::create('IMDBID'),
             HiddenField::create('Year'),
             TextareaField::create('CommentsEnter', 'Enter new comments on new line'),
-            HiddenField::create('Poster'),
-            HiddenField::create('ID', 'ID')->setValue($id)
+            HiddenField::create('PosterID'),
+            HiddenField::create('ID', 'ID')->setValue($this->slug)
         );
 
         $actions = FieldList::create(
@@ -144,17 +145,17 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         if ($id !== null)
         {
-            Session::setFormMessage($form->FormName(), $data['VideoTitle'],
-                'has been saved to the catalogue. <br><a href="'.$this->getProfileURL().$id.'">Preview changes</a>',
+            Session::setFormMessage($form->FormName(), $data['VideoTitle'].
+                ' has been saved to the catalogue. <br><a href="'.$this->getProfileURL().'title/'.$id.'">Preview changes</a>',
                 'success'
             );
             $this->redirect($this->Link() . 'edit/'.$this->slug);
         } elseif($id === null)
         {
-            Session::setFormMessage($form->FormName(), $data['VideoTitle'], " is already in the catalogue.", 'bad');
+            Session::setFormMessage($form->FormName(), $data['VideoTitle']. " is already in the catalogue.", 'bad');
             $this->redirect($this->Link());
         } else {
-            Session::setFormMessage($form->FormName(), 'Something went wrong.');
+            Session::setFormMessage($form->FormName(), 'Something went wrong.', 'bad');
         }
     }
 
@@ -170,7 +171,9 @@ class MaintenanceFormPage_Controller extends Page_Controller
     public function savePosterPreview($poster)
     {
         $url = $poster['poster'];
-        $title = $poster['title'];
+        $title = $poster['title'] . " (". $poster['year'] . ")";
+        $sanitizedFilename = preg_replace('/[^a-zA-Z0-9-_\.]/','', $poster['title']);
+        $filename = $sanitizedFilename . "-" . $poster['IMDBID'];
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -182,26 +185,28 @@ class MaintenanceFormPage_Controller extends Page_Controller
         $result = base64_encode($result);
         $src = 'data: content-type: image/jpeg;base64,'.$result;
 
-        if(ProfilePage_Controller::get()->checkPosterExists()) {
+        if($poster = $this->savePosterImage(null, $src, $filename, $title) )
+        {
+            $result = Image::get()->byID($poster->ID);
 
+            return $image = '<img data-posterid="'.$result->ID.'" src="'.$result->scaleWidth(250)->Link().'" alt="'.$result->Title.'">';
         }
-
-        $result = '<img src="'.$src.'">';
-
-        return $result;
     }
-
 
     /**
      * gets distinct all keywords from records
      *
-     * @return object
+     * @return array|bool
      */
     public function getKeywords()
     {
         $result = Catalogue::get();
 
-        return ($result->exists()) ? $result->sort('keywords')->where('keywords is not null')->column($colName = "keywords") : $result = null;
+        if($result->exists()) {
+            return $result->sort('Keywords')->where('Keywords is not null')->column(  "Keywords");
+        }
+
+        return false;
     }
 
     /**
@@ -213,7 +218,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
     {
         $result = Catalogue::get();
 
-        return ($result->exists()) ? $result->sort('Genre')->where('Genre is not null')->column($colName = "Genre") : $result = null;
+        return ($result->exists()) ? $result->sort('Genre')->where('Genre is not null')->column( "Genre") : $result = null;
     }
 
     /**

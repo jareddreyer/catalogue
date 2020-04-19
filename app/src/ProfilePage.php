@@ -8,11 +8,11 @@ class ProfilePage_Controller extends Page_Controller
 {
     public $keywordsArr, $video;
 
-    private static $allowed_actions = array('profile');
+    private static $allowed_actions = ['profile'];
 
-    private static $url_handlers = array(
+    private static $url_handlers = [
         'title/$ID' => 'profile'
-    );
+    ];
 
     public function init()
     {
@@ -24,7 +24,7 @@ class ProfilePage_Controller extends Page_Controller
 
         $this->keywordsArr = parent::convertAndCleanList($keywords, ','); // creates array into pieces
         $this->video = Catalogue::get()
-                                    ->setQueriedColumns(array("VideoTitle", "trilogy"))
+                                    ->setQueriedColumns(["VideoTitle" , "Trilogy"])
                                     ->byID($this->slug); //get title
     }
 
@@ -78,7 +78,7 @@ class ProfilePage_Controller extends Page_Controller
             $pattern = '/[^\d|]/';
             $numbers = preg_replace($pattern,'', $string);
             $arraySeasons = explode("|",$numbers); //explode the season string into array of season numbers.
-            $imdbID = $imdb[0]->imdbID; //assign variable for use in annoymous function.
+            $imdbID = $imdb->imdbID; //assign variable for use in annoymous function.
 
             $seasonLinksArray = array_map(function ($v) use ($imdbID) { return '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$v.'">'. $v. '</a>';}, $arraySeasons); //apply callback annoymous function over the array elements, adding anchor links
             $result = implode(' | ', $seasonLinksArray); //implode back to array of 1 string.
@@ -95,12 +95,12 @@ class ProfilePage_Controller extends Page_Controller
      */
     public function relatedTitles()
     {
-       if($this->video->trilogy !== null)
+       if($this->video->Trilogy !== null)
        {
            return Catalogue::get()
-                                ->where(array("trilogy='" . $this->video[0]->trilogy."'"))
+                                ->where(["Trilogy='" . $this->video->Trilogy."'"])
                                 ->exclude('ID', $this->slug)
-                                ->sort('year');
+                                ->sort('Year');
        }
        return false;
     }
@@ -114,18 +114,18 @@ class ProfilePage_Controller extends Page_Controller
     {
         //check how many keywords
         //if keywords <= 1 then check trilogy == keyword
-        $trilogy = array($this->video->trilogy);
+        $trilogy = [$this->video->Trilogy];
         $trilogy = array_map('strtolower', $trilogy);
         $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
 
         //loop over values so we can create WHERE like clauses
-        $clauses = array();
+        $clauses = [];
         foreach ($array as $value)
         {
-          $clauses[] = 'keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+          $clauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
         }
 
-        if($this->video->trilogy == null && count($this->keywordsArr) > 1)
+        if($this->video->Trilogy == null && count($this->keywordsArr) > 1)
             return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->slug);
 
         if(count($this->keywordsArr) <= 1)
@@ -134,7 +134,11 @@ class ProfilePage_Controller extends Page_Controller
 
         } else {
            //keywords are only 1, so we will return back array of keyword results.
-           return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('trilogy', $this->video[0]->trilogy); //get all titles related to wolverine and exclude itself from result.
+            //get all titles related to itself (e.g. 'wolverine') and exclude itself from result.
+
+           return Catalogue::get()
+               ->where(implode(' OR ', $clauses))
+               ->exclude('Trilogy', $this->video->Trilogy);
         }
     }
 
@@ -149,86 +153,106 @@ class ProfilePage_Controller extends Page_Controller
         //get video title and IMDBID values from Catalogue DB
         $imdbMetadata = Catalogue::get()->setQueriedColumns(["VideoTitle" , "IMDBID"])->byID($this->slug);
 
+        //sanitize for disallowed filename characters
+        $jsonFilename = $this->cleanFilename($imdbMetadata->VideoTitle, $imdbMetadata->IMDBID, 'txt');
+        $posterFilename = $this->cleanFilename($imdbMetadata->VideoTitle, $imdbMetadata->IMDBID, 'image');
+
         if ($imdbMetadata->exists())
         {
             //if title/ID exists
-            $set2 = new ArrayList();
+            $result = ArrayList::create();
 
-                $titleEncoded  = urlencode($imdbMetadata->VideoTitle); //urlencoded fields only allowed to web api
-                $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/','', $imdbMetadata->VideoTitle); //sanitize for disallowed filename characters
+            $titleEncoded  = urlencode($imdbMetadata->VideoTitle); //urlencoded fields only allowed to web api
 
-                //check if metadata already exists on server
-                if(!file_exists($this->jsonPath."{$sanitized}.txt"))
+            //check if metadata already exists on server
+            if(!file_exists($this->jsonPath. $jsonFilename))
+            {
+                //no json file found, load from API
+                if($imdbMetadata->IMDBID !== null) {
+                    //use imdb id if its there
+                    $url = "http://www.omdbapi.com/?apikey=".$this->apiKey."&i=" . $imdbMetadata->IMDBID;
+                } else {
+                    $url = "http://www.omdbapi.com/?apikey=".$this->apiKey."&t=" . $titleEncoded;
+                }
+
+                //now create json file of api data
+                $json = file_get_contents($url);
+                $data = json_decode($json);
+                $title = [];
+
+                if($data->{'Response'} == "False")
                 {
-                    //no json file found, load from API
-                    ($imdbMetadata->IMDBID !== null) ? $url = "http://www.omdbapi.com/?apikey=".$this->apiKey."&i=" .  $imdbMetadata->imdbID : $url = "http://www.omdbapi.com/?apikey=".APIKEY."&t=" .  $titleEncoded; //use imdb id if its there
+                    switch ($data->{'Error'}) {
+                        case 'Incorrect IMDb ID.':
+                            $title['error'] = "IMDB ID does not exist, you must have entered it directly to the database";
+                            $title['errorType'] = "danger";
+                        break;
 
-                    //now create json file of api data
-        		    $json = file_get_contents($url);
-                    $data = json_decode($json);
-                    $title = [];
+                        case 'Invalid API key!':
+                            $title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
+                            $title['errorType'] = "danger";
+                        break;
 
-        		    if($data->{'Response'} == "False")
-        		    {
-                        switch ($data->{'Error'}) {
-                            case 'Incorrect IMDb ID.':
-                                $title['error'] = "IMDB ID does not exist, you must have entered it directly to the database";
-                                $title['errorType'] = "danger";
-                            break;
+                        case 'Movie not found!':
+                            $title['error'] = "Could not find this title, you must have entered incorrect to database.";
+                            $title['errorType'] = "danger";
+                    }
 
-                            case 'Invalid API key!':
-                                $title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
-                                $title['errorType'] = "danger";
-                            break;
-
-                            case 'Movie not found!':
-                                $title['error'] = "Could not find this title, you must have entered incorrect to database.";
-                                $title['errorType'] = "danger";
-                        }
-
-                        $set2->push(new ArrayData($title));
-
-        		    } else {
-                        // create asset folder path
-                        Folder::find_or_make($this->jsonAssetsFolderName);
-
-        		        $rawJsonFilename = "{$sanitized}.txt";
-                        $rawJsonPath = $this->jsonPath . $rawJsonFilename;
-
-                        //save IMDB metadata local server
-                        file_put_contents($rawJsonPath, json_encode($data));
-
-                        // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-                        $poster = File::create();
-                        $poster->Title = $title;
-                        $poster->Filename = $this->jsonAssetsFolderName . $rawJsonFilename;
-                        $poster->write();
-
-                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
-
-            			$set2->push(new ArrayData(
-                                                    $this->jsonDataToArray($data)
-                            )
-                        );
-        		    }
+                    $result->push( ArrayData::create($title));
 
                 } else {
 
-                    //json file found, load from server
-                    $data = json_decode(file_get_contents($this->jsonPath."{$sanitized}.txt")); //get JSON data from local server
+                    // create asset folder path
+                    $parentID = Folder::find_or_make($this->jsonAssetsFolderName);
+
+                    // set entire path to file
+                    $rawJsonPath = $this->jsonPath . $jsonFilename;
+
+                    //save IMDB metadata local server
+                    try {
+                        file_put_contents($rawJsonPath, json_encode($data));
+                    } catch (Exception $exception) {
+                        user_error('we had trouble saving posters to ' . $rawJsonPath );
+                    }
+
+                    // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
+                    $poster = File::create();
+                    $poster->Title = $imdbMetadata->VideoTitle;
+                    $poster->ParentID = $parentID->ID;
+                    $poster->Filename = ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename;
+                    $poster->write();
+
+                    $data->{'VideoPoster'} = $this->checkPosterExists($data, $posterFilename);
+
+                    $result->push(
+                            ArrayData::create($this->jsonDataToArray($data)
+                        )
+                    );
+                }
+
+            } else {
+
+                //json file found, load from server
+                try {
+                    //get JSON data from local server
+                    $data = json_decode(file_get_contents($this->jsonPath.$jsonFilename));
 
                     if($data->{'Poster'} != "N/A")
                     {
-                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $sanitized);
+                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $posterFilename);
                     } else {
                         // API did not return a URI for poster, so use blank.png
-                        $data->{'VideoPoster'} = 'blank.png';
+                        $data->{'VideoPoster'} = THEMES_PATH. '/simple/images/blank.png';
                     }
 
-                    $set2->push(new ArrayData($this->jsonDataToArray($data)));
-                }
+                    $result->push(ArrayData::create($this->jsonDataToArray($data)));
 
-            return $set2;
+                    return $result;
+
+                } catch (Exception $exception) {
+                    user_error('we had trouble saving posters to ' . $this->jsonPath );
+                }
+            }
         }
     }
 
@@ -251,17 +275,5 @@ class ProfilePage_Controller extends Page_Controller
         $title['IMDBID'] = $data->{'imdbID'};
 
         return $title;
-    }
-
-    /**
-     * returns poster image object for the template view.
-     * @param $id
-     * @return bool
-     */
-    public function getPosterImage($id)
-    {
-        if($poster = Image::get()->byID($id) !== null) {
-            return $poster->Title;
-        }
     }
 }

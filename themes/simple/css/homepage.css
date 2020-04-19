@@ -106,7 +106,7 @@
     transform: translate3d(50px, 0, 0);
 }
 
-div.row__inner div.tile div.tile__media a img { with: 170px; height: 220px; border: 0}
+div.row__inner div.tile div.tile__media a img { width: 170px; height: 220px; border: 0}
 
 
 a.scroll-arrow:hover {

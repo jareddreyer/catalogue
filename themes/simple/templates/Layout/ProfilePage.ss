@@ -1,5 +1,8 @@
 <div class="content-container unit size3of4 lastUnit">
     <div class="content">
+        <% loop $profile %>
+                $errorType
+        <% end_loop %>
         <% if $error %>
             <% loop $getIMDBMetadata %>
                 <div class="alert alert-$errorType error" role="alert"><strong>$VideoTitle</strong> - $error</div>
@@ -10,12 +13,12 @@
             <div class="clear">
                 <div class="videoPoster">
                     <% loop $Up.getIMDBMetadata %>
-                        <img src="$VideoPoster.Filename" alt="">
+                        $VideoPoster.setWidth(250)
                     <% end_loop %>
                 </div>
                 <div class="videoDetailsContainer">
                     <h2 class="name">$VideoTitle (<% loop $Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
-                    <p class="videoDetails"><% loop Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
+                    <p class="videoDetails"><% loop $Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
                     <% if $seasonLinks %><p><strong>Season(s):</strong> $seasonLinks</p><% end_if %>
                     <hr />
                     <p id="plot"><% loop $Up.getIMDBMetadata %>$Plot<% end_loop %></p>
@@ -38,7 +41,7 @@
                             <a href="mailto: $Email?subject=Can I get $Video_title off you?<eom>">Request a copy</a>
                         </li>
                         <li>
-                            <a href="catalogue-maintenance/edit/$ID">[ edit ]</a>
+                            <a href="{$Up.MaintenanceFormPageLink}edit/$ID">[ edit ]</a>
                         </li>
                     </ul>
                 </div>
@@ -48,17 +51,17 @@
         <p> Title does not exist in catalogue</p>
         <% end_if %>
         <div class="clear">
-        <% if relatedTitles  %>
-            <h3>Trilogy titles:</h3>
-            <% loop relatedTitles %>
-                 <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="width:100px; height: 150px"></a>
+        <% if $relatedTitles %>
+            <h3>Part of the following trilogy:</h3>
+            <% loop $relatedTitles %>
+                 <a href="{$Up.ProfileURL}title/$ID"><img src="$path$Poster" alt="" title="View more about $VideoTitle" style="width:100px; height: 150px"></a>
             <% end_loop %>
         <% end_if %>
 
-        <% if seeAlsoTitles  %>
-          <h4>Related titles:</h4>
-                <% loop seeAlsoTitles.Sort(Poster, ASC) %>
-                    <a href="$profileLink/title/$ID"><img src="$path$Poster" alt="" title="View more about $Video_title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
+        <% if $seeAlsoTitles %>
+          <h4>See also:</h4>
+                <% loop $seeAlsoTitles.Sort('VideoTitle', 'ASC') %>
+                    <a href="{$Up.ProfileURL}title/$ID"><img src="$path$Poster" alt="" title="View more about $VideoTitle" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
                 <% end_loop %>
         <% end_if %>
         </div>

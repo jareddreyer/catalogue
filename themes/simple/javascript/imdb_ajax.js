@@ -17,10 +17,14 @@ var tvarr = [
 	];
 
 //OMDBAPI key string www.omdbapi.com - get your own free key
-var apikeyString = 'a0f02af4';
+// @todo: refactor to use base64 encryption and move this var into the template.
+let apikeyString = 'a0f02af4';
+let posterContainer = $('.loader');
 
 $(function()
 {
+
+
 	($('#Form_Form_VideoType').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
 
 	// main autocomplete function
@@ -67,12 +71,11 @@ $(function()
 				select: function(event, ui) {
 					// prevent autocomplete from updating the textbox
 					event.preventDefault();
-					$('#Form_Form_imdbID').val(ui.item.id); //add imdb ID to field
+					$('#Form_Form_IMDBID').val(ui.item.id); //add imdb ID to field
 					$('#Form_Form_Year').val(ui.item.year); //add year of release to field
-					var media = ui.item.title.replace(/[^a-zA-Z0-9-_\.]/gi, ''); //clean up the title so its local filename safe
-					(ui.item.poster != 'N/A') ?	getPosterThumb(ui.item.poster, media) : $('.poster').html('<img src="themes/simple/images/blank.png">'); //get the poster as  base64 curl request and display it
+					const filename = ui.item.title.replace(/[^a-zA-Z0-9-_\.]/gi, ''); //clean up the title so its local filename safe
+					(ui.item.poster != 'N/A') ?	getPosterThumb(ui.item.poster, ui.item.title, filename, ui.item.year) : $('.poster').html('<img src="themes/simple/images/blank.png">'); //get the poster as  base64 curl request and display it
 					imdblookup(ui.item.id); //get all metadata from imdb
-
 				}
 			});
 
@@ -95,57 +98,53 @@ $(function()
 			}
 		});
 
-		if($('#Form_Form_keywords').val() != '')
+		if($('#Form_Form_Keywords').val() != '')
 		{
-			$("#Form_Form_trilogy").tagit({
+			$("#Form_Form_Trilogy").tagit({
 				singleFieldDelimiter: " , ",
 				allowSpaces: true,
 				tagLimit: 1,
-				availableTags: $('#Form_Form_keywords').tagit('assignedTags')
+				availableTags: $('#Form_Form_Keywords').tagit('assignedTags')
 
 			});
 		}
 
-		$('#Form_Form_keywords').on('change', function()
+		$('#Form_Form_Keywords').on('change', function()
 		{
-			 $("#Form_Form_trilogy").tagit({
+			 $("#Form_Form_Trilogy").tagit({
 					singleFieldDelimiter: " , ",
 					allowSpaces: true,
 					tagLimit: 1,
-					availableTags: $('#Form_Form_keywords').tagit('assignedTags')
-
+					availableTags: $('#Form_Form_Keywords').tagit('assignedTags')
 				});
 		});
 
-
 		populateComments();
-
 });
-function getPosterThumb (poster, media)
+
+function getPosterThumb (poster, title, filename, year)
 {
-	var posterlink = $("#Form_Form").data('posterlink');
+	const posterlink = $("#Form_Form").data('posterlink');
 
 	$.ajax({
-    type: "GET",
-    url: posterlink,
+		type: "GET",
+		url: posterlink,
 
-    data: {poster: poster, title: media},
-	beforeSend: function() {
-		$('.loader').show();
-	},
-	complete: function(){
-	 $('.loader').hide();
-	},
-    success: function(data)
-    {
-    	$('.poster').html(data);
-    },
-    error: function(){
-    	$('.loader').addClass('broken');
-        console.log("The request failed");
-    }
-});
-
+		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
+		beforeSend: function() {
+			posterContainer.show();
+			console.log(filename);
+		},
+		success: function(data)
+		{
+			console.log('success');
+			$('.poster').html(data);
+		},
+		error: function(){
+			posterContainer.addClass('broken');
+			console.log("The request failed");
+		}
+	});
 }
 
 function imdblookup(id)
@@ -158,14 +157,14 @@ function imdblookup(id)
 			 {
 			 	if (data != 'false')
     			{
-    				var title = data.Title.replace(/[^a-zA-Z0-9-_\.]/gi, '');
-    				$('#Form_Form_Poster').val(title + '.jpg');
-				 	$('#Form_Form_Video_title').val(data.Title);
+
+    				$('#Form_Form_PosterID').val(posterContainer.data('posterid'));
+				 	$('#Form_Form_VideoTitle').val(data.Title);
 
 				 	//if tv hide unnessecary fields/values
 				 	if(data.Type == 'series')
 				 	{
-				 		$('#Form_Form_Video_type').val('series'); $('#Form_Form_Seasons_Holder').show();
+				 		$('#Form_Form_VideoType').val('series'); $('#Form_Form_Seasons_Holder').show();
 
 				 		//check how many seasons IMDB returned and put value in seasons box
 					 	var seasonNumber = data.totalSeasons;
@@ -176,18 +175,17 @@ function imdblookup(id)
 
 						$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 						populateSelect(tvarr, '#Form_Form_Source');
-
 				 	}
 
 				 	if(data.Type == 'movie')
 				 	{
-				 		$('#Form_Form_Video_type').val('film');
+				 		$('#Form_Form_VideoType').val('film');
 				 		$('#Form_Form_Seasons_Holder').hide();
 				 		$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 				 		populateSelect(filmarr, '#Form_Form_Source');
 				 	}
 
-					if(data.Type == 'game') { $('#Form_Form_Video_type').val(''); $('#Seasons').hide(); } // hide seasons if not tv
+					if(data.Type == 'game') { $('#Form_Form_VideoType').val(''); $('#Seasons').hide(); } // hide seasons if not tv
 
 				 	//tags
 				 	$("#Form_Form_Genre").tagit("removeAll"); //get rids of last tags
@@ -224,6 +222,7 @@ function populateComments ()
 	});
 
 }
+
 function populateSelect (elements, selector)
 {
 	var sel = $(selector);
