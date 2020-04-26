@@ -1,6 +1,5 @@
 <% if $recentTitles('added').count > 1 %>
     <h2>Recently Added</h2>
-    <hr>
     <div id="added" class="row">
         <a id="scroll-left" class="scroll-arrow">&lt;</a>
         <div class="row__inner">
@@ -8,7 +7,7 @@
                     <div class="tile">
                         <div class="tile__media">
                             <a href="{$Top.ProfileURL}title/$ID">
-                                <img src="$Poster.setHeight(220).Link" alt="Browse {$VideoTitle} (Updated {$LastEdited.Ago})" class="loader">
+                                <img src="$Poster.setHeight(220).Link" alt="Browse {$Title} (Updated {$LastEdited.Ago})" class="loader">
                             </a>
                         </div>
                     </div>
@@ -19,7 +18,6 @@
 <% end_if %>
 <% if $recentTitles('updated').count > 1 %>
     <h2>Recently Updated</h2>
-    <hr>
     <div id="updated" class="row">
         <a id="scroll-left" class="scroll-arrow">&lt;</a>
         <div class="row__inner">
@@ -27,7 +25,7 @@
                     <div class="tile">
                         <div class="tile__media">
                             <a href="{$Top.ProfileURL}title/$ID">
-                                <img src="$Poster.setHeight(220).Link" alt="Browse {$VideoTitle} (Updated {$LastEdited.Ago})" class="loader">
+                                <img src="$Poster.setHeight(220).Link" alt="Browse {$Title} (Updated {$LastEdited.Ago})" class="loader">
                             </a>
                         </div>
                     </div>

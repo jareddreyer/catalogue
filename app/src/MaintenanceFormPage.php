@@ -76,8 +76,8 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         $submitCaption = ($automap) ? 'Edit' : 'Add';
 
-        if(isset($automap->VideoType)) {
-            if($automap->VideoType == 'film') {
+        if(isset($automap->Type)) {
+            if($automap->Type == 'film') {
                 $sourceArr = $this->getSourceTypes('film');
             } else {
                 $sourceArr = $this->getSourceTypes('tv');
@@ -86,8 +86,8 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         // Create fields
         $fields = FieldList::create(
-            TextField::create('VideoTitle', 'Video Title'),
-            DropDownField::create('VideoType', 'Type of Video', ['series' =>'Series (TV/Web)' , 'film' =>'Film'])->setEmptyString('Select type of media'),
+            TextField::create('Title', 'Video Title'),
+            DropDownField::create('Type', 'Type of Video', ['series' =>'Series (TV/Web)' , 'film' =>'Film'])->setEmptyString('Select type of media'),
             TextField::create('Genre', 'Genre')->setDescription('Select a genre by typing a keyword e.g. Comedy'),
             TextField::create('Keywords', 'Keywords')->setDescription('Add a keyword/tag to the title e.g. Marvel'),
             TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine"'),
@@ -125,7 +125,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
              FormAction::create('submit', $submitCaption)
         );
 
-        $validator = RequiredFields::create('VideoTitle');
+        $validator = RequiredFields::create('Title');
         $form = Form::create($this, 'Form', $fields, $actions, $validator);
         $form->setAttribute('data-posterlink', $this->Link() .'Poster/');
         $form->type = $submitCaption; //are we in edit or add mode, pass it to view
@@ -145,14 +145,14 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         if ($id !== null)
         {
-            Session::setFormMessage($form->FormName(), $data['VideoTitle'].
+            Session::setFormMessage($form->FormName(), $data['Title'].
                 ' has been saved to the catalogue. <br><a href="'.$this->getProfileURL().'title/'.$id.'">Preview changes</a>',
                 'success'
             );
             $this->redirect($this->Link() . 'edit/'.$this->slug);
         } elseif($id === null)
         {
-            Session::setFormMessage($form->FormName(), $data['VideoTitle']. " is already in the catalogue.", 'bad');
+            Session::setFormMessage($form->FormName(), $data['Title']. " is already in the catalogue.", 'bad');
             $this->redirect($this->Link());
         } else {
             Session::setFormMessage($form->FormName(), 'Something went wrong.', 'bad');

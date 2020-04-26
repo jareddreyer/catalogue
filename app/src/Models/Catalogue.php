@@ -3,18 +3,18 @@
 class Catalogue extends DataObject
 {
     private static $db = [
-        'VideoTitle' => 'Varchar(255)',
-        'IMDBID'     => 'Varchar(50)',
-        'VideoType'  => 'Varchar(100)',
-        'Year'       => 'Varchar(10)',
-        'Genre'      => 'Varchar(100)',
-        'Keywords'   => 'Varchar(100)',
-        'Trilogy'    => 'Varchar(100)',
-        'Seasons'    => 'Varchar(200)',
-        'Status'     => 'Varchar(100)',
-        'Source'     => 'Varchar(50)',
-        'Quality'    => 'Varchar(50)',
-        'Comments'   => 'Text',
+        'Title'    => 'Varchar(255)',
+        'IMDBID'   => 'Varchar(50)',
+        'Type'     => 'Varchar(100)',
+        'Year'     => 'Varchar(10)',
+        'Genre'    => 'Varchar(100)',
+        'Keywords' => 'Varchar(100)',
+        'Trilogy'  => 'Varchar(100)',
+        'Seasons'  => 'Varchar(200)',
+        'Status'   => 'Varchar(100)',
+        'Source'   => 'Varchar(50)',
+        'Quality'  => 'Varchar(50)',
+        'Comments' => 'Text',
     ];
 
     private static $has_one = [
@@ -24,17 +24,17 @@ class Catalogue extends DataObject
 
     private static $summary_fields = [
         'ID',
-        'VideoTitle' => 'Title',
-        'VideoType' => 'Type',
+        'Poster.CMSThumbnail' => 'Poster',
+        'Title',
+        'Type',
         'Year',
         'Genre',
-        'IMDBID' => 'IMDB ID',
         'LastEdited.Nice' => 'Last edited'
     ];
 
     private static $searchable_fields = [
-        'VideoTitle',
-        'VideoType'
+        'Title',
+        'Type'
     ];
 
     public function canView($member = null) {
@@ -57,16 +57,15 @@ class Catalogue extends DataObject
     {
         $result = parent::validate();
 
-        if(DataObject::get_one('Catalogue',
+        if($media = DataObject::get_one('Catalogue',
             [
-                'VideoTitle' => $this->VideoTitle,
+                'Title' => $this->Title,
                 'Year' => $this->Year
         ]
         )) {
-            $result->error('This media has already been inserted to the catalogue.');
+            $result->error($media->Title . '(' . $media->Year .') has already been inserted to the catalogue.');
         }
 
         return $result;
     }
-
 }

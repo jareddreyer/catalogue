@@ -8,7 +8,7 @@
     <% end_loop %>
 
     <div class="content">
-        <div class="films">
+        <div class="catalogue">
             <!-- panel -->
             <div class="jplist-panel">
 
@@ -38,7 +38,7 @@
                         <li>
                             <span data-path="default"> Filter by Genre</span>
                         </li>
-                        <% if getGenres %>$getGenres <% end_if %>
+                        <% if $getGenres %>$getGenres <% end_if %>
                     </ul>
                 </div>
 
@@ -89,7 +89,7 @@
                            <% end_loop %>
                         </div>
                         <div class="list--media-title">
-                            <a href="{$Up.ProfileURL}title/{$ID}"><h2>$VideoTitle <% if $Year%>($Year)<% end_if%></h2></a>
+                            <a href="{$Up.ProfileURL}title/{$ID}"><h2>$Title <% if $Year%>($Year)<% end_if%></h2></a>
                         </div>
                         <div class="list--media-metadata">
                             <% if $Status %><strong>Status: </strong><span class="status {$Status}">$Status</span>
@@ -100,7 +100,7 @@
                             <% end_if%>
                             <% if $Quality %><strong>Quality: </strong><span class="quality">$Quality</span>
                             <br>
-                            <% end_if%> <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$VideoTitle} off you?<eom>">$FirstName $Surname</a></span>
+                            <% end_if%> <span class="small">Last updated $lastupdatedreadable ago by <a href="mailto: {$Email}?subject=Can I get {$Title} off you?<eom>">$FirstName $Surname</a></span>
                             <span class="hide keywords">$keywords</span>
                              $genres
                         </div>
@@ -158,9 +158,9 @@
 </div>
 
 <% else %>
-    <div class="films">
+    <div class="catalogue">
         <div class="jplist-panel">
-        <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
+        <p>User does not have any films in their catalogue. Try another user?</p>
 
             <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                 <ul>
@@ -173,23 +173,3 @@
         </div>
     </div>
 <% end_if %>
-
-<script type="text/javascript">
-$('document').ready(function(){
-$('.films').jplist({
-itemsBox: '.list'
-,itemPath: '.list-item'
-,panelPath: '.jplist-panel'
-});
-
-});
-
-$('#myModal').on('show.bs.modal', function (event) {
-var button = $(event.relatedTarget) // Button that triggered the modal
-var comment = button.data('comments') // Extract info from data-* attributes
-
-var modal = $(this)
-modal.find('.modal-body').html(comment.replace(/[']+/g, '').split(",").join("<br>"))
-})
-
-</script>

@@ -3,7 +3,7 @@ Name: catalog
 After: 'framework/*','cms/*'
 ---
 SSViewer:
-  theme: 'simple'
+  theme: 'default'
 Catalog:
   postersAssetsFolderName: '/posters/'
   jsonAssetsFolderName: '/posters/json-metadata/'

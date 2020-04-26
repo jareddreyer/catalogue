@@ -29,7 +29,7 @@ class CrawlMediaPage extends AbstractQueuedJob implements QueuedJob
      */
     public function getTitle()
     {
-        return 'Crawling  '. $this->page->VideoTitle . ' to begin downloading of posters and metadata.';
+        return 'Crawling  '. $this->page->Title . ' to begin downloading of posters and metadata.';
     }
 
     public function process()
@@ -37,7 +37,7 @@ class CrawlMediaPage extends AbstractQueuedJob implements QueuedJob
         $domain = Director::absoluteBaseURL();
         $profilePage = Page_Controller::create();
 
-        $this->addMessage('Crawling media '. $domain . $profilePage->getProfileURL() . 'title/'.$this->page->ID. ' for media: '. $this->page->VideoTitle . '(#'.$this->page->ID .')');
+        $this->addMessage('Crawling media '. $domain . $profilePage->getProfileURL() . 'title/'.$this->page->ID. ' for media: '. $this->page->Title . '(#'.$this->page->ID .')');
 
         $service = new RestfulService($domain . $profilePage->getProfileURL() . 'title/'.$this->page->ID, 0);
         $service->request();

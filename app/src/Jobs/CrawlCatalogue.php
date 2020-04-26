@@ -25,7 +25,7 @@ class CrawlCatalogue extends AbstractQueuedJob implements QueuedJob {
         $catalogue = Catalogue::get();
 
         foreach ($catalogue as $page) {
-            $this->addMessage('Queued job for page ' .$page->VideoTitle .' (#'. $page->ID .')');
+            $this->addMessage('Queued job for page ' .$page->Title .' (#'. $page->ID .')');
 
             $unpublish = new CrawlMediaPage($page);
             singleton('QueuedJobService')->queueJob($unpublish);

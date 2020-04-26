@@ -8,7 +8,7 @@
         <% end_loop %>
 
         <div class="content">
-            <div class="films">
+            <div class="catalogue">
             <!-- panel -->
                 <div class="jplist-panel">
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
@@ -144,9 +144,9 @@
   </div>
 </div>
 <% else %>
-<div class="films">
+<div class="catalogue">
     <div class="jplist-panel">
-    <p>User does not have any films/series in their catalogue. Try another Catalogue?</p>
+    <p>User does not have any tv series in their catalogue. Try another user?</p>
 
         <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
             <ul>
@@ -159,30 +159,3 @@
     </div>
 </div>
 <% end_if %>
-<script type="text/javascript">
-$('document').ready(function(){
-   $('.films').jplist({
-      itemsBox: '.list'
-      ,itemPath: '.list-item'
-      ,panelPath: '.jplist-panel'
-   });
-
-});
-
-/*$('#films').listnav({
-    filterSelector: '.title',
-    includeNums: true,
-    removeDisabled: true,
-    allText: 'All films'
-});*/
-
-$('#myModal').on('show.bs.modal', function (event) {
-  var button = $(event.relatedTarget) // Button that triggered the modal
-  var comment = button.data('comments') // Extract info from data-* attributes
-  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-  var modal = $(this)
-  modal.find('.modal-body').html(comment.replace(/[']+/g, '').split(",").join("<br>"))
-})
-
-</script>

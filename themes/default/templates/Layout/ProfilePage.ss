@@ -17,7 +17,7 @@
                     <% end_loop %>
                 </div>
                 <div class="videoDetailsContainer">
-                    <h2 class="name">$VideoTitle (<% loop $Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
+                    <h2 class="name">$Title (<% loop $Up.getIMDBMetadata %><span id="year">$Year</span><% end_loop %>)</h2>
                     <p class="videoDetails"><% loop $Up.getIMDBMetadata %>$Runtime<% end_loop %> - $Genre</p>
                     <% if $seasonLinks %><p><strong>Season(s):</strong> $seasonLinks</p><% end_if %>
                     <hr />
@@ -54,14 +54,14 @@
         <% if $relatedTitles %>
             <h3>Part of the following trilogy:</h3>
             <% loop $relatedTitles %>
-                 <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $VideoTitle" style="width:100px; height: 150px"></a>
+                 <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $Title" style="width:100px; height: 150px"></a>
             <% end_loop %>
         <% end_if %>
 
         <% if $seeAlsoTitles %>
             <h4>See also:</h4>
-            <% loop $seeAlsoTitles.Sort('VideoTitle', 'ASC') %>
-                <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $VideoTitle" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
+            <% loop $seeAlsoTitles.Sort('Title', 'ASC') %>
+                <a href="{$Up.ProfileURL}title/$ID"><img src="$Poster.setHeight(80).Link" alt="" title="View more about $Title" style="height:100px;width: 80px; margin-bottom: .3em" height="80"></a>
             <% end_loop %>
         <% end_if %>
         </div>

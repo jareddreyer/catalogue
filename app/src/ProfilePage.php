@@ -24,7 +24,7 @@ class ProfilePage_Controller extends Page_Controller
 
         $this->keywordsArr = parent::convertAndCleanList($keywords, ','); // creates array into pieces
         $this->video = Catalogue::get()
-                                    ->setQueriedColumns(["VideoTitle" , "Trilogy"])
+                                    ->setQueriedColumns(["Title" , "Trilogy"])
                                     ->byID($this->slug); //get title
     }
 
@@ -151,18 +151,18 @@ class ProfilePage_Controller extends Page_Controller
     public function getIMDBMetadata()
     {
         //get video title and IMDBID values from Catalogue DB
-        $imdbMetadata = Catalogue::get()->setQueriedColumns(["VideoTitle" , "IMDBID"])->byID($this->slug);
+        $imdbMetadata = Catalogue::get()->setQueriedColumns(["Title" , "IMDBID"])->byID($this->slug);
 
         //sanitize for disallowed filename characters
-        $jsonFilename = $this->cleanFilename($imdbMetadata->VideoTitle, $imdbMetadata->IMDBID, 'txt');
-        $posterFilename = $this->cleanFilename($imdbMetadata->VideoTitle, $imdbMetadata->IMDBID, 'image');
+        $jsonFilename = $this->cleanFilename($imdbMetadata->Title, $imdbMetadata->IMDBID, 'txt');
+        $posterFilename = $this->cleanFilename($imdbMetadata->Title, $imdbMetadata->IMDBID, 'image');
 
         if ($imdbMetadata->exists())
         {
             //if title/ID exists
             $result = ArrayList::create();
 
-            $titleEncoded  = urlencode($imdbMetadata->VideoTitle); //urlencoded fields only allowed to web api
+            $titleEncoded  = urlencode($imdbMetadata->Title); //urlencoded fields only allowed to web api
 
             //check if metadata already exists on server
             if(!file_exists($this->jsonPath. $jsonFilename))
@@ -217,7 +217,7 @@ class ProfilePage_Controller extends Page_Controller
 
                     // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
                     $poster = File::create();
-                    $poster->Title = $imdbMetadata->VideoTitle;
+                    $poster->Title = $imdbMetadata->Title;
                     $poster->ParentID = $parentID->ID;
                     $poster->Filename = ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename;
                     $poster->write();

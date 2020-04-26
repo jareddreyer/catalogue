@@ -70,18 +70,39 @@ class Page_Controller extends ContentController
     {
 		parent::init();
 
-		Requirements::themedCSS('homepage');
+        $themeDir = $this->ThemeDir();
+        Requirements::set_write_js_to_body(true);
+        Requirements::set_force_js_to_bottom(true);
+        Requirements::set_combined_files_folder($themeDir.'/dist');
+        Requirements::combine_files(
+            'site.css',
+            [
+                $themeDir . '/css/bootstrap.min.css',
+                $themeDir . '/css/reset.css',
+                $themeDir . '/css/typography.css',
+                $themeDir . '/css/form.css',
+                $themeDir . '/css/layout.css',
+                $themeDir . '/css/profile.css',
+                $themeDir . '/css/jquery.tagit.css',
+                $themeDir . '/css/jquery-ui-overrides.css',
+                $themeDir . '/css/font-awesome.min.css',
+                $themeDir . '/css/catalogue.css',
+                $themeDir . '/css/homepage.css'
+            ]
+        );
 
-        Requirements::javascript("https://code.jquery.com/jquery-1.12.4.min.js");
-
-        Requirements::themedJavascript("jquery-ui-1.10.4.custom.min");
-        Requirements::themedJavascript("bootstrap.min");
-        Requirements::themedJavascript("tag-it.min");
-        Requirements::themedJavascript("jplist.core.min");
-        Requirements::themedJavascript("jplist.pagination-bundle.min");
-        Requirements::themedJavascript("jplist.filter-dropdown-bundle.min");
-        Requirements::themedJavascript("jplist.textbox-filter.min");
-        Requirements::themedJavascript("jplist.history-bundle.min");
+		Requirements::javascript("https://code.jquery.com/jquery-1.12.4.min.js");
+        Requirements::combine_files('app.js',
+            [
+               $themeDir . '/javascript/jquery-ui-1.10.4.custom.min.js',
+               $themeDir . '/javascript/bootstrap.min.js',
+               $themeDir . '/javascript/tag-it.min.js',
+               $themeDir . '/javascript/jplist.core.min.js',
+               $themeDir . '/javascript/jplist.pagination-bundle.min.js',
+               $themeDir . '/javascript/jplist.filter-dropdown-bundle.min.js',
+               $themeDir . '/jplist.textbox-filter.min.js',
+               $themeDir . '/javascript/jplist.history-bundle.min.js'
+            ]);
 
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
@@ -104,6 +125,7 @@ class Page_Controller extends ContentController
                            }).mouseup(function(e) {
                              $(".row__inner").stop();
                });');
+
         // set up routing slugs
         $this->member = Member::currentUserID();
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
@@ -161,6 +183,7 @@ class Page_Controller extends ContentController
                 ->where('Created BETWEEN (CURRENT_DATE() - INTERVAL 1 MONTH) AND CURRENT_DATE()')
                 ->limit(15)
                 ->sort('LastEdited DESC');
+
             return $recentlyAdded;
         }
 
@@ -169,6 +192,7 @@ class Page_Controller extends ContentController
                 ->where('LastEdited is not null AND LastEdited > Created')
                 ->limit(15)
                 ->sort('LastEdited DESC');
+
             return $recentlyUpdated;
         }
     }
@@ -283,9 +307,10 @@ class Page_Controller extends ContentController
      */
     public function countTitles()
     {
-        $type = ($this->Title == 'films') ? 'films' : 'series';
 
-        if($count = Catalogue::get()->filter(['VideoType'=> $type, 'OwnerID' => $this->slug])->count()) {
+        $type = ($this->Title == 'Movies') ? 'films' : 'series';
+
+        if($count = Catalogue::get()->filter(['Type'=> $type, 'OwnerID' => $this->slug])->count()) {
             return $count;
         }
 
@@ -325,7 +350,7 @@ class Page_Controller extends ContentController
      * @param $cataloguePosterID - ID of PosterID from Catalogue::class
      * @param $src - base64 of Poster image data (from IMDBApi)
      * @param $filename - what the image dataobject filename and local filename will be
-     * @param $videoTitle - Name and Title of media (from data sources)
+     * @param $Title - Name and Title of media (from data sources)
      *
      * @return Image
      * @throws ValidationException
@@ -335,12 +360,12 @@ class Page_Controller extends ContentController
     public function savePosterImage($cataloguePosterID = null,
                                     $src = null,
                                     $filename = null,
-                                    $videoTitle = null)
+                                    $Title = null)
     {
         // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-        if(($poster = DataObject::get_one('Image', ['Title' => $videoTitle])) !== false)
+        if(($poster = DataObject::get_one('Image', ['Title' => $Title])) !== false)
         {
-            $poster = DataObject::get_one('Image', ['Title' => $videoTitle]);
+            $poster = DataObject::get_one('Image', ['Title' => $Title]);
         } else {
 
             // create asset folder path
@@ -356,7 +381,7 @@ class Page_Controller extends ContentController
             }
 
             $poster = Image::create();
-            $poster->Title = $videoTitle;
+            $poster->Title = $Title;
             $poster->ParentID = $assetsParentID->ID;
             $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $filename;
             $poster->write();

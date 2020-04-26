@@ -21,6 +21,7 @@ class FilmsPage_Controller extends Page_Controller
         //jplist css
         Requirements::themedCSS('jplist.core.min');
         Requirements::themedCSS('jplist.textbox-filter.min');
+        Requirements::themedJavascript('catalogue-scripts');
     }
 
     /**
@@ -61,9 +62,9 @@ class FilmsPage_Controller extends Page_Controller
 	    $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
                      FROM Catalogue 
                      LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
-                     WHERE Catalogue.VideoType = 'film' 
+                     WHERE Catalogue.Type = 'films' 
                      AND Catalogue.OwnerID = $this->slug
-                     ORDER BY Catalogue.VideoTitle";
+                     ORDER BY Catalogue.Title";
 
         $records = DB::query($sqlQuery);
 

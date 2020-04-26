@@ -130,7 +130,7 @@ function getPosterThumb (poster, title, filename, year)
 		type: "GET",
 		url: posterlink,
 
-		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
+		data: {poster: poster, title: title, filename: filename, year: year},
 		beforeSend: function() {
 			posterContainer.show();
 			console.log(filename);

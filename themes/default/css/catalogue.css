@@ -2,9 +2,6 @@
 
 table.collapse.in { display: table }
 
-
-/*body { background: #fff; font: 400 1em/1.4 "Open Sans", "Helvetica Neue", sans-serif; color: #333 }*/
-
 table { width: 100%; text-align: left; border-spacing: 0; border-collapse: collapse; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 th, td { font-family: inherit; font-size: .875em; line-height: 1.45; color: #444; vertical-align: middle; padding: 1em; }
 
@@ -60,12 +57,6 @@ tbody tr:last-child td { border-bottom: 0 none; }
 @media(max-width:768px)
 {
     div.sidebar { background-color: #FFF}
-}
-
-
-
-html, body {
-    overflow-x: hidden;
 }
 
 footer {

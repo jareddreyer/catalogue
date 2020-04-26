@@ -20,13 +20,6 @@
   /* add your own custom fonts here */
 
   @font-face {
-      font-family: 'CamboRegular';
-      src: url('../webfonts/Cambo-Regular-webfont.eot');
-      src: url('../webfonts/Cambo-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../webfonts/Cambo-Regular-webfont.woff') format('woff'), url('../webfonts/Cambo-Regular-webfont.ttf') format('truetype'), url('../webfonts/Cambo-Regular-webfont.svg#CamboRegular') format('svg');
-      font-weight: normal;
-      font-style: normal;
-  }
-  @font-face {
       font-family: 'WebSymbolsRegular';
       src: url('../webfonts/websymbols-regular-webfont.eot');
       src: url('../webfonts/websymbols-regular-webfont.eot?#iefix') format('embedded-opentype'), url('../webfonts/websymbols-regular-webfont.woff') format('woff'), url('../webfonts/websymbols-regular-webfont.ttf') format('truetype'), url('../webfonts/websymbols-regular-webfont.svg#WebSymbolsRegular') format('svg');
@@ -42,12 +35,12 @@ body {
     font-size: 13px; /* This overrides the browsers default font size */
     line-height: 20px; /* If you change the font-size make sure you change the line-height value as well - the usual ratio is around 1.5 (font-size x 1.5 = line-height) */
     margin-bottom: 20px;
-    color: #333333;
+    color: #141414;
     font-family: Arial, Helvetica, sans-serif;
 }
-  body a { text-decoration: none; } /* this removes the underline from all links */
-  body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight color when links are tapped on Safari (browser) on iPhone */
 
+body a { text-decoration: none; } /* this removes the underline from all links */
+body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight color when links are tapped on Safari (browser) on iPhone */
 
 /* HEADERS */
 .typography h1,
@@ -56,16 +49,14 @@ body {
 .typography h4,
 .typography h5,
 .typography h6 {
-    font-family: "CamboRegular", Georgia, "Times New Roman", Times, serif; /* This references one of the custom @font-face fonts - the other fonts that are referenced are fallbacks for browsers that don't support @fontface */
     font-weight: normal;
     margin-bottom: 10px;
-    color: #444;
+    color: #E5E5E5;
 }
 .typography h1 {
   font-size: 36px;
   line-height: 45px;
   margin: 0 0 25px 0;
-  border-bottom: 1px solid #e5e5e5;
   padding-bottom: 5px;
 }
 .typography h2 { font-size: 28px; line-height: 35px; margin-bottom: 15px; }
@@ -95,7 +86,7 @@ body {
 /* LINKS */
 .typography a,
 .typography a.intro {
-    color: #B80000;
+    color: #FFF;
     text-decoration: none;
 }
   .typography a:hover {

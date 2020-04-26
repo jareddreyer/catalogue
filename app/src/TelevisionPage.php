@@ -40,7 +40,6 @@ class TelevisionPage_Controller extends Page_Controller
         $keywords = $this -> getKeywords();
 
         Requirements::customScript('
-        
             var availableKeywords = [
             '. $keywords .'
             ];
@@ -56,16 +55,16 @@ class TelevisionPage_Controller extends Page_Controller
                     html: true, // optional (jquery.ui.autocomplete.html.js required)
                     
                 });
-             
             });
          ');
+        Requirements::themedJavascript('catalogue-scripts');
 
         $sqlQuery = "SELECT Catalogue.*, Member.ID AS MID, Member.Email, Member.FirstName, Member.Surname 
                      FROM Catalogue 
                      LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
-                     WHERE Catalogue.VideoType = 'series'
+                     WHERE Catalogue.Type = 'series'
                      AND Catalogue.OwnerID = $this->slug
-                     ORDER BY Catalogue.VideoTitle";
+                     ORDER BY Catalogue.Title";
 
         $records = DB::query($sqlQuery);
 

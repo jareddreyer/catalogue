@@ -49,7 +49,7 @@ div.videoDetailsContainer { overflow: hidden }
 }
 .list--media-title {}
 .list--media-poster {}
-.typography .list--media-poster img { background-image: url('/themes/simple/images/blank.png')}
+.typography .list--media-poster img { background-image: url('/themes/default/images/blank.png')}
 .poster img {float: right}
 i.fa-search { cursor: pointer}
 .fa.fa-search  { line-height: 2 !important}
@@ -63,8 +63,20 @@ i.fa-search { cursor: pointer}
 .jplist-pagination { clear: both; margin: inherit }
 .content-container { min-height: 400px}
 
-form input.text, form textarea, form .textajaxuniquetext, form select { max-width: 100% !important }
-form { width: 60% !important; max-width: 100%}
+form input.text,
+form textarea,
+form .textajaxuniquetext,
+form select {
+    max-width: 100%;
+    color: #E5E5E5;
+    background: none;
+
+}
+/** tagit overrides */
+.ui-widget-content {
+    background: none !important;
+    color: #E5E5E5
+}
 
 .jplist-panel .jplist-pagination .jplist-current {
     color: #f03800;
@@ -103,12 +115,12 @@ form { width: 60% !important; max-width: 100%}
 /** poster loader **/
 .poster .loader
 {
+    display: none;
     width: 250px;
     height: 420px;
     float: right;
-    display: none;
     margin: 5px;
-    background-image: url('/themes/simple/images/loader.svg');
+    background-image: url('/themes/default/images/ajax-loader.gif');
     background-position: center;
     background-repeat: no-repeat;
     background-color: grey;

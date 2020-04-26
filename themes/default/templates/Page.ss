@@ -10,7 +10,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	$MetaTags(false)
 
-	<% require themedCSS('reset') %>
+	<% require themedCSS('css') %>
 	<% require themedCSS('typography') %>
 	<% require themedCSS('form') %>
 	<% require themedCSS('layout') %>
@@ -22,7 +22,7 @@
 	<% require themedCSS('font-awesome.min') %>
 
 	<% require css('http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css') %>
-	<link rel="shortcut icon" href="$ThemeDir/images/favicon.ico" />
+	<link rel="shortcut icon" href="favicon.ico" />
 
 </head>
 
