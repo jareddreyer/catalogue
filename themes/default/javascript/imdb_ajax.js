@@ -23,17 +23,15 @@ let posterContainer = $('.loader');
 
 $(function()
 {
-
-
-	($('#Form_Form_VideoType').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
+	($('#Form_Form_Type').val() == 'series') ? $('#Form_Form_Seasons_Holder').show() : $('#Form_Form_Seasons_Holder').hide(); //if tv/series then show, else hide seasons if film
 
 	// main autocomplete function
-	$("#Form_Form_VideoTitle").autocomplete({
+	$("#Form_Form_Title").autocomplete({
 				delay: 500,
 				minLength: 3,
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
-						s: $('#Form_Form_VideoTitle').val(),
+						s: $('#Form_Form_Title').val(),
 						apikey: apikeyString
 					},
 					 function(data)
@@ -74,24 +72,24 @@ $(function()
 					$('#Form_Form_IMDBID').val(ui.item.id); //add imdb ID to field
 					$('#Form_Form_Year').val(ui.item.year); //add year of release to field
 					const filename = ui.item.title.replace(/[^a-zA-Z0-9-_\.]/gi, ''); //clean up the title so its local filename safe
-					(ui.item.poster != 'N/A') ?	getPosterThumb(ui.item.poster, ui.item.title, filename, ui.item.year) : $('.poster').html('<img src="themes/simple/images/blank.png">'); //get the poster as  base64 curl request and display it
+					(ui.item.poster != 'N/A') ?	getPosterThumb(ui.item.poster, ui.item.title, filename, ui.item.year, ui.item.id) : $('.poster').html('<img src="themes/simple/images/blank.png">'); //get the poster as  base64 curl request and display it
 					imdblookup(ui.item.id); //get all metadata from imdb
 				}
 			});
 
 		// control for source field
-		$('#Form_Form_VideoType').on('change', function()
+		$('#Form_Form_Type').on('change', function()
 		{
 			$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 
-			if($('#Form_Form_VideoType').val() == 'series')
+			if($('#Form_Form_Type').val() == 'series')
 			{
 				$("#Form_Form_Seasons").tagit("removeAll");
 				$('#Form_Form_Seasons_Holder').show();
 				populateSelect(tvarr, '#Form_Form_Source');
 			}
 
-			if($('#Form_Form_VideoType').val() == 'film')
+			if($('#Form_Form_Type').val() == 'film')
 			{
 				$('#Form_Form_Seasons_Holder').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
@@ -122,7 +120,7 @@ $(function()
 		populateComments();
 });
 
-function getPosterThumb (poster, title, filename, year)
+function getPosterThumb (poster, title, filename, year, IMDBID)
 {
 	const posterlink = $("#Form_Form").data('posterlink');
 
@@ -130,7 +128,7 @@ function getPosterThumb (poster, title, filename, year)
 		type: "GET",
 		url: posterlink,
 
-		data: {poster: poster, title: title, filename: filename, year: year},
+		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
 		beforeSend: function() {
 			posterContainer.show();
 			console.log(filename);
@@ -159,12 +157,12 @@ function imdblookup(id)
     			{
 
     				$('#Form_Form_PosterID').val(posterContainer.data('posterid'));
-				 	$('#Form_Form_VideoTitle').val(data.Title);
+				 	$('#Form_Form_Title').val(data.Title);
 
 				 	//if tv hide unnessecary fields/values
 				 	if(data.Type == 'series')
 				 	{
-				 		$('#Form_Form_VideoType').val('series'); $('#Form_Form_Seasons_Holder').show();
+				 		$('#Form_Form_Type').val('series'); $('#Form_Form_Seasons_Holder').show();
 
 				 		//check how many seasons IMDB returned and put value in seasons box
 					 	var seasonNumber = data.totalSeasons;
@@ -179,13 +177,13 @@ function imdblookup(id)
 
 				 	if(data.Type == 'movie')
 				 	{
-				 		$('#Form_Form_VideoType').val('film');
+				 		$('#Form_Form_Type').val('film');
 				 		$('#Form_Form_Seasons_Holder').hide();
 				 		$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 				 		populateSelect(filmarr, '#Form_Form_Source');
 				 	}
 
-					if(data.Type == 'game') { $('#Form_Form_VideoType').val(''); $('#Seasons').hide(); } // hide seasons if not tv
+					if(data.Type == 'game') { $('#Form_Form_Type').val(''); $('#Seasons').hide(); } // hide seasons if not tv
 
 				 	//tags
 				 	$("#Form_Form_Genre").tagit("removeAll"); //get rids of last tags
