@@ -108,15 +108,9 @@
 
 div.row__inner div.tile div.tile__media a img { width: 170px; height: 220px; border: 0}
 
-
-a.scroll-arrow:hover {
-    opacity: 0.9;
-    text-decoration: none
-}
-a.scroll-arrow {
-    color: #fff;
-    cursor: default;
-    display: block;
+a.scroll-arrow
+{
+    color: #343434;
     float: left;
     font-family: sans-serif;
     font-size: 4em;
@@ -129,5 +123,12 @@ a.scroll-arrow {
     width: 30px;
     z-index: 20;
 }
+
+a.scroll-arrow:hover {
+    opacity: 0.9;
+    color: #666;
+    text-decoration: none
+}
+
 #scroll-left { left: 6px }
 #scroll-right { left: 900px }

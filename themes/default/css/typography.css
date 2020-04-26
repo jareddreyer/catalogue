@@ -32,7 +32,7 @@
 
 /* These are the default styles for the Simple theme */
 body {
-    font-size: 13px; /* This overrides the browsers default font size */
+    font-size: 16px; /* This overrides the browsers default font size */
     line-height: 20px; /* If you change the font-size make sure you change the line-height value as well - the usual ratio is around 1.5 (font-size x 1.5 = line-height) */
     margin-bottom: 20px;
     color: #141414;
@@ -51,7 +51,7 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 .typography h6 {
     font-weight: normal;
     margin-bottom: 10px;
-    color: #E5E5E5;
+    color: #343434;
 }
 .typography h1 {
   font-size: 36px;
@@ -86,7 +86,7 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 /* LINKS */
 .typography a,
 .typography a.intro {
-    color: #FFF;
+    color: #999;
     text-decoration: none;
 }
   .typography a:hover {
@@ -100,7 +100,7 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 -------------------------------------------- */
 .typography ul,
 .typography ol,
-.typography dl { margin: 0 0 20px 25px; }
+.typography dl { margin: 0 0 0 25px; }
 .typography ul li { list-style-type: disc; } /* adds disc style bullet to the list */
   .typography li { margin-bottom: 5px; }
 

@@ -1,4 +1,11 @@
 .navbar-brand { padding: 0 }
+.header {
+    background-color: #141414;
+}
+
+.brand h1 {
+    font-size: 2rem;
+}
 
 table.collapse.in { display: table }
 
@@ -6,10 +13,6 @@ table { width: 100%; text-align: left; border-spacing: 0; border-collapse: colla
 th, td { font-family: inherit; font-size: .875em; line-height: 1.45; color: #444; vertical-align: middle; padding: 1em; }
 
 colgroup:nth-child(1) { width: 200px; border: 0 none; }
-.profile colgroup:nth-child(1) { auto;  }
-.profile colgroup:nth-child(2) { auto;  }
-.profile colgroup:nth-child(3) { width: 5%; }
-.profile colgroup:nth-child(4) { width: 5%; }
 /* Tablehead */
 
 thead th { background: #def4fe; background: -moz-linear-gradient(top,  #ffffff 0%, #f5f5f5 100%); background: -webkit-linear-gradient(top,  #ffffff 0%,#f5f5f5 100%); background: -o-linear-gradient(top,  #ffffff 0%,#f5f5f5 100%); background: -ms-linear-gradient(top,  #ffffff 0%,#f5f5f5 100%); background: linear-gradient(to bottom,  #ffffff 0%,#f5f5f5 100%); text-align: center; position: relative; border-bottom: 1px solid #ccc; padding: 3em 0 2em; font-weight: 400; color: #999; }
@@ -50,7 +53,7 @@ tbody tr:last-child td { border-bottom: 0 none; }
     z-index: 1000
 }
 
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { line-height: 1.5em; margin-left: 1em}
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { line-height: 1.5em;}
 .container--skill, .skillGroup { cursor: pointer }
 .clear {clear: both}
 

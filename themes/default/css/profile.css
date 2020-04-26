@@ -49,7 +49,7 @@ div.videoDetailsContainer { overflow: hidden }
 }
 .list--media-title {}
 .list--media-poster {}
-.typography .list--media-poster img { background-image: url('/themes/default/images/blank.png')}
+.typography .list--media-poster img { background-image: url('/themes/default/images/blank.png'); float: left}
 .poster img {float: right}
 i.fa-search { cursor: pointer}
 .fa.fa-search  { line-height: 2 !important}
@@ -68,14 +68,6 @@ form textarea,
 form .textajaxuniquetext,
 form select {
     max-width: 100%;
-    color: #E5E5E5;
-    background: none;
-
-}
-/** tagit overrides */
-.ui-widget-content {
-    background: none !important;
-    color: #E5E5E5
 }
 
 .jplist-panel .jplist-pagination .jplist-current {
