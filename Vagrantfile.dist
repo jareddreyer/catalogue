@@ -1,0 +1,46 @@
+# Based on defaults for SilverStripe Ltd projects.
+# See https://silverstripe.atlassian.net/wiki/spaces/DEV/pages/401506576.
+
+Vagrant.configure(2) do |config|
+  WEBROOT_HOST = "."
+  WEBROOT_GUEST = "/var/www/"
+  config.vm.network "private_network", ip: "182.182.82.82"
+  config.vm.hostname = "catalog.test"
+  #config.vm.box = "silverstripeltd/dev-ssp"
+  config.vm.box = "sternpunkt/jimmybox"
+
+  config.vm.provider "virtualbox" do |v, override|
+    v.memory = 2048
+    v.cpus = 2
+    v.linked_clone = true
+  end
+
+  if Vagrant.has_plugin?("vagrant-bindfs") then
+    config.vm.synced_folder WEBROOT_HOST, "/vagrant-nfs", type: "nfs"
+    config.bindfs.bind_folder "/vagrant-nfs", WEBROOT_GUEST,
+    force_user:   'vagrant',
+    force_group:  'vagrant',
+    perms:        'u=rwX:g=rD:o=rD',
+    o:            'nonempty'
+  else
+    config.vm.synced_folder WEBROOT_HOST, WEBROOT_GUEST, type: "nfs"
+  end
+
+  config.vm.provider "parallels" do |prl, override|
+    prl.memory = 2048
+    prl.cpus = 2
+  end
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+    config.cache.enable :apt
+    config.cache.enable :composer
+    config.cache.enable :npm
+  end
+
+  config.ssh.forward_agent = true
+
+  config.vm.provision "shell",
+    inline: "echo 'cd #{WEBROOT_GUEST}' >> /home/vagrant/.bashrc",
+    name: "default dir"
+end

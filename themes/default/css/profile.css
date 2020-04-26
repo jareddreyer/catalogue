@@ -1,0 +1,137 @@
+.videoPoster
+{
+    width: 300px;
+    min-height: 400px;
+    margin-right: 2em;
+    float: left
+}
+
+p.hide { display: none }
+
+span.small { font-size: 80%}
+
+p.videoDetails { margin-top: -16px}
+ul.videoDetails li { list-style-type: none }
+ul.videoDetails { margin: 0 0 20px }
+div.videoDetailsContainer { overflow: hidden }
+.comments { cursor: pointer}
+.films li img { float: left}
+.imageList { clear: both}
+.imageList li
+{
+    list-style-type: none;
+    overflow: hidden;
+    padding: 1em 0 1em 1em;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+}
+.imageList img {
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 7px;
+}
+.imageList li p { float: left}
+.typography a:hover { border-bottom: 0}
+.imageList li:not(:last-child) { border-bottom: 1px dashed #ccc}
+.grid--recent-holder .imageList li { border-bottom: 0}
+.list--media-metadata { float: left}
+
+.list--media-maintenance
+{
+    margin: 0 2em;
+    height: 80px;
+    padding: 0 2em;
+    float: right;
+    border-left: 1px dashed #ccc;
+}
+.list--media-title {}
+.list--media-poster {}
+.typography .list--media-poster img { background-image: url('/themes/default/images/blank.png')}
+.poster img {float: right}
+i.fa-search { cursor: pointer}
+.fa.fa-search  { line-height: 2 !important}
+
+.jplist-panel
+{
+    border-bottom: 1px solid #e5e5e5;
+    height: 100px
+
+}
+.jplist-pagination { clear: both; margin: inherit }
+.content-container { min-height: 400px}
+
+form input.text,
+form textarea,
+form .textajaxuniquetext,
+form select {
+    max-width: 100%;
+    color: #E5E5E5;
+    background: none;
+
+}
+/** tagit overrides */
+.ui-widget-content {
+    background: none !important;
+    color: #E5E5E5
+}
+
+.jplist-panel .jplist-pagination .jplist-current {
+    color: #f03800;
+    font-weight: bold;
+}
+
+.ui-widget-content li a { color: #337ab7 !important}
+.ui-widget-content li a:hover { color: #000 !important }
+.jplist-drop-down.genre ul { height: 275px; overflow: auto}
+
+.grid--recent-holder .list-item .list--media-metadata
+{
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    background: #fff;
+    opacity: .6;
+    bottom: 0;
+}
+.grid--recent-holder .list-item { float: left}
+
+.grid--recent-holder .list-item .poster
+{
+    width: 100%;
+    text-align: center;
+    vertical-align: bottom;
+}
+.grid--recent-holder ul .list-box {
+    width: 100%;
+    float: right;
+    height: 350px
+}
+
+.grid--recent-holder .poster img:hover {border: 0}
+
+/** poster loader **/
+.poster .loader
+{
+    display: none;
+    width: 250px;
+    height: 420px;
+    float: right;
+    margin: 5px;
+    background-image: url('/themes/default/images/ajax-loader.gif');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: grey;
+}
+
+.broken
+{
+    background-image: none;
+    border: 5px dashed #666;
+    display: block;
+    color: #FFF;
+    padding: 25px 0;
+    text-align: center;
+}

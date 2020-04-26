@@ -1,0 +1,133 @@
+.row
+{
+    overflow: hide;
+    width: 100%;
+}
+.row__inner
+{
+    -webkit-transition: 450ms transform;
+    transition: 450ms transform;
+    font-size: 0;
+    white-space: nowrap;
+    width: 900px;
+    overflow: hidden;
+    padding-bottom: 10px;
+    float: left
+}
+.tile
+{
+    position: relative;
+    display: inline-block;
+    width: 150px;
+
+    font-size: 20px;
+    cursor: pointer;
+    -webkit-transition: 450ms all;
+    transition: 450ms all;
+    -webkit-transform-origin: center left;
+    transform-origin: center left;
+}
+.tile__img
+{
+    width: 150px;
+    height: 140.625px;
+    -o-object-fit: cover;
+    object-fit: cover;
+}
+.tile__details
+{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    font-size: 10px;
+    opacity: 0;
+    background: -webkit-linear-gradient(bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+    -webkit-transition: 450ms opacity;
+    transition: 450ms opacity;
+}
+.tile__details:after, .tile__details:before
+{
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: #000;
+}
+.tile__details:after
+{
+    margin-top: -25px;
+    margin-left: -25px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+
+    z-index: 1;
+}
+.tile__details:before
+{
+
+    left: 0;
+    width: 100%;
+    font-size: 30px;
+    margin-left: 7px;
+    margin-top: -18px;
+    text-align: center;
+    z-index: 2;
+}
+.tile:hover .tile__details
+{
+    opacity: 1;
+}
+.tile__title
+{
+    position: absolute;
+    bottom: 0;
+    padding: 10px;
+}
+
+.row__inner:hover .tile
+{
+    opacity: 0.3;
+}
+.row__inner:hover .tile:hover
+{
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+    opacity: 1;
+}
+.tile:hover ~
+.tile
+{
+    -webkit-transform: translate3d(50px, 0, 0);
+    transform: translate3d(50px, 0, 0);
+}
+
+div.row__inner div.tile div.tile__media a img { width: 170px; height: 220px; border: 0}
+
+
+a.scroll-arrow:hover {
+    opacity: 0.9;
+    text-decoration: none
+}
+a.scroll-arrow {
+    color: #fff;
+    cursor: default;
+    display: block;
+    float: left;
+    font-family: sans-serif;
+    font-size: 4em;
+    line-height: 200px;
+    margin: 0.2em;
+    opacity: 0.3;
+    padding: 0;
+    text-align: center;
+    transition: opacity 200ms ease 0s, background-color 200ms ease 0s, color 200ms ease 0s;
+    width: 30px;
+    z-index: 20;
+}
+#scroll-left { left: 6px }
+#scroll-right { left: 900px }
