@@ -18,9 +18,6 @@ class FilmsPage_Controller extends Page_Controller
     {
         parent::init();
 
-        //jplist css
-        Requirements::themedCSS('jplist.core.min');
-        Requirements::themedCSS('jplist.textbox-filter.min');
         Requirements::themedJavascript('catalogue-scripts');
     }
 
@@ -59,30 +56,25 @@ class FilmsPage_Controller extends Page_Controller
          ');
 
         // main SQL call
-	    $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
-                     FROM Catalogue 
-                     LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
-                     WHERE Catalogue.Type = 'films' 
-                     AND Catalogue.OwnerID = $this->slug
-                     ORDER BY Catalogue.Title";
+        $media = Catalogue::get()
+            ->filter(
+                [
+                    'Type'=>'films',
+                    'OwnerID' => $this->slug
+                ]);
 
-        $records = DB::query($sqlQuery);
+        $result = ArrayList::create();
 
-        if ($records)
-        {
-            $set = ArrayList::create();
-
-            foreach ($records as $record)
-            {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
-                $record['genres'] = $this->listFilmGenres($record['Genre']);
-                $record['posters'] = $this->getPosterImage($record['PosterID']);
-
-                $set->push(ArrayData::create($record));
-            }
-
-            return $this->customise(['movies' => $set]);
+        foreach ($media as $record) {
+            $record->genres = $this->getListFilmGenres($record->Genre);
+            $result->push($record);
         }
+
+        return $this->customise(
+            [
+                'films' => $result
+            ]
+        );
 	}
 
     /**
@@ -91,18 +83,17 @@ class FilmsPage_Controller extends Page_Controller
      * @param string
      * @return string
      */
-    private function listFilmGenres ($genre)
+    public function getListFilmGenres($genre)
     {
-        $explode = explode("|", $genre); //explode string to array by delimiter
+        $explode = explode(",", $genre); //explode string to array by delimiter
 
-        $listoption = "";
+        $listoption = '';
         foreach ($explode as $value)
         {
-            $listoption .= '<span class="hide genre '.str_replace(' ', '', $value).'">'.$value.'</span>';
+            $listoption .= '<span class="hide genre '.trim($value).'">'.$value.'</span>';
         }
 
         return $listoption;
-
     }
 
     /**
@@ -146,7 +137,7 @@ class FilmsPage_Controller extends Page_Controller
         {
 
             /** clean up keywords from DB **/
-            $_list = [parent::convertAndCleanList($result, '|')];
+            $_list = [parent::convertAndCleanList($result, ',')];
 
             $genreList = "";
             foreach($_list as $list)

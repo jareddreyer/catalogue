@@ -1,3 +1,7 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
 .navbar-brand { padding: 0 }
 .header {
     background-color: #141414;
@@ -65,6 +69,56 @@ tbody tr:last-child td { border-bottom: 0 none; }
 footer {
     padding: 30px 0;
 }
+
+/** jplist specific styling **/
+.list-media__container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.list-media__item {
+    clear: both;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    flex: 0 0 18%;
+}
+
+.list-media__title
+{
+
+    font-size: 1.2rem;
+}
+
+.list-media__title-status,
+.list-media__title-source {
+
+}
+
+.list-media__title-status {
+    bottom: 0;
+    left: 0;
+}
+
+.list-media__metadata-wrapper
+{
+    vertical-align: top;
+}
+.list-media__metadata
+{
+
+}
+
+.list-media__poster-wrapper {
+    display: inline-block;
+}
+.list-media__poster {
+    max-height: 250px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+
 
 @media screen and (max-width: 767px) {
     .row-offcanvas {

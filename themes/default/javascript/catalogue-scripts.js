@@ -1,8 +1,8 @@
 $(function()
 {
     $('.catalogue').jplist({
-        itemsBox: '.list'
-        ,itemPath: '.list-item'
+        itemsBox: '.list-media__container'
+        ,itemPath: '.list-media__item'
         ,panelPath: '.jplist-panel'
     });
 

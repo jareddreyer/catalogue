@@ -36,29 +36,25 @@ class ProfilePage_Controller extends Page_Controller
      */
     public function profile()
     {
-        $sqlQuery = "SELECT Catalogue.*, Member.ID as MID, Member.Email, Member.FirstName, Member.Surname 
-                     FROM Catalogue 
-                     LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
-                     WHERE Catalogue.ID = '$this->slug'";
+        $metadata = $this->getMetadata();
 
-        $records = DB::query($sqlQuery);
+        $title = Catalogue::get()->byID($this->slug);
 
-        $metadata = $this->getIMDBMetadata();
-
-        if ($records)
+        if ($title)
         {
-            $set = ArrayList::create();
-
-            foreach ($records as $record)
+            // @todo refactor this so the functions are called in the template and we dont need this ugly foreach.
+            foreach ($title as $record)
             {
-                $record['lastEditedAgo'] = parent::humanTiming($record['LastEdited']); // @todo refactor to remove this
-                $record['seasonLinks'] = $this->seasonLinks($record['Seasons']);
-                $record['displayComments'] = parent::displayComments($record['Comments']);
-
-                $set->push(ArrayData::create($record));
+                $record->seasonLinks = $this->seasonLinks($record->Seasons);
+                $record->displayComments = parent::displayComments($record->Comments);
             }
 
-            return $this->customise(['profile' => $set , 'getIMDBMetadata' => $metadata]);
+            return $this->customise(
+                [
+                    'profile' => $record,
+                    'getIMDBMetadata' => $metadata
+                ]
+            );
         }
 
     }
@@ -143,67 +139,79 @@ class ProfilePage_Controller extends Page_Controller
     }
 
     /**
-     * gets metadata from OMDBAPI and saves it to local server
+     * saves and gets metadata from OMDBAPI.
+     * This function will also create relationships and save a local file.
      *
      * @return ArrayList
      * @throws ValidationException
      */
-    public function getIMDBMetadata()
+    public function getMetadata()
     {
         //get video title and IMDBID values from Catalogue DB
-        $imdbMetadata = Catalogue::get()->setQueriedColumns(["Title" , "IMDBID"])->byID($this->slug);
+        $imdbMetadata = Catalogue::get()->setQueriedColumns(["Title" , "IMDBID", 'MetadataID'])->byID($this->slug);
 
-        //sanitize for disallowed filename characters
-        $jsonFilename = $this->cleanFilename($imdbMetadata->Title, $imdbMetadata->IMDBID, 'txt');
-        $posterFilename = $this->cleanFilename($imdbMetadata->Title, $imdbMetadata->IMDBID, 'image');
+        if ($imdbMetadata !== null) {
+            //sanitize for disallowed filename characters
+            $jsonFilename = $this->cleanFilename($imdbMetadata->Title, $imdbMetadata->IMDBID, 'txt');
 
-        if ($imdbMetadata->exists())
-        {
             //if title/ID exists
             $result = ArrayList::create();
 
-            $titleEncoded  = urlencode($imdbMetadata->Title); //urlencoded fields only allowed to web api
+            //check if metadata file already exists on server
+            if (!file_exists($this->jsonPath . $jsonFilename)) {
 
-            //check if metadata already exists on server
-            if(!file_exists($this->jsonPath. $jsonFilename))
-            {
-                //no json file found, load from API
-                if($imdbMetadata->IMDBID !== null) {
-                    //use imdb id if its there
-                    $url = "http://www.omdbapi.com/?apikey=".$this->apiKey."&i=" . $imdbMetadata->IMDBID;
+                //urlencoded fields only allowed to web api
+                $titleEncoded = urlencode($imdbMetadata->Title);
+
+                //Construct the API call
+                $url = "http://www.omdbapi.com/?apikey=" . $this->apiKey;
+
+                if ($imdbMetadata->IMDBID == null) {
+                    $url .= "&t=" . $titleEncoded;
                 } else {
-                    $url = "http://www.omdbapi.com/?apikey=".$this->apiKey."&t=" . $titleEncoded;
+                    $url .= "&i=" . $imdbMetadata->IMDBID;
+                }
+
+                if ($imdbMetadata->Year !== null && $imdbMetadata->IMDBID == null) {
+                    $url .= "&y=" . $imdbMetadata->Year;
                 }
 
                 //now create json file of api data
-                $json = file_get_contents($url);
+                try {
+                    $json = file_get_contents($url);
+                } catch (Exception $e) {
+                    user_error('There was an issue connecting to the omdb API: ' . $e);
+                }
+
                 $data = json_decode($json);
                 $title = [];
 
-                if($data->{'Response'} == "False")
-                {
+                if ($data->{'Response'} == "False") {
                     switch ($data->{'Error'}) {
                         case 'Incorrect IMDb ID.':
                             $title['error'] = "IMDB ID does not exist, you must have entered it directly to the database";
                             $title['errorType'] = "danger";
-                        break;
+                            break;
 
                         case 'Invalid API key!':
                             $title['error'] = "Could not connect to omdbapi.com api, requires authorization key.";
                             $title['errorType'] = "danger";
-                        break;
+                            break;
 
                         case 'Movie not found!':
                             $title['error'] = "Could not find this title, you must have entered incorrect to database.";
                             $title['errorType'] = "danger";
                     }
 
-                    $result->push( ArrayData::create($title));
+                    $result->push(ArrayData::create($title));
 
                 } else {
 
                     // create asset folder path
                     $parentID = Folder::find_or_make($this->jsonAssetsFolderName);
+
+                    // override jsonfilename because we dont have ImdbID in the database
+                    $jsonFilename = $this->cleanFilename($imdbMetadata->Title, $data->{'imdbID'}, 'txt');
 
                     // set entire path to file
                     $rawJsonPath = $this->jsonPath . $jsonFilename;
@@ -212,21 +220,31 @@ class ProfilePage_Controller extends Page_Controller
                     try {
                         file_put_contents($rawJsonPath, json_encode($data));
                     } catch (Exception $exception) {
-                        user_error('we had trouble saving poster metadata to ' . $rawJsonPath );
+                        user_error('we had trouble saving poster metadata to ' . $rawJsonPath);
                     }
 
                     // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-                    $poster = File::create();
-                    $poster->Title = $imdbMetadata->Title;
-                    $poster->ParentID = $parentID->ID;
-                    $poster->Filename = ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename;
-                    $poster->write();
+                    $metadata = File::create();
+                    $metadata->Title = $imdbMetadata->Title;
+                    $metadata->ParentID = $parentID->ID;
+                    $metadata->Filename = ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename;
+                    $metadata->write();
 
-                    $data->{'VideoPoster'} = $this->checkPosterExists($data, $posterFilename);
+                    // update the relation
+                    $updateCatalog = Catalogue::create();
+                    $updateCatalog->ID = $imdbMetadata->ID;
+                    $updateCatalog->IMDBID = $data->{'imdbID'};
+                    $updateCatalog->Year = $data->{'Year'};
+                    $updateCatalog->Genre = $data->{'Genre'};
+                    $updateCatalog->MetadataID = $metadata->ID;
+                    $updateCatalog->write();
+
+                    if ($data->{'Poster'} != "N/A") {
+                        $data->{'Poster'} = $this->checkPosterExists($data, $this->cleanFilename($imdbMetadata->Title, $data->{'imdbID'}, 'image'));
+                    }
 
                     $result->push(
-                            ArrayData::create($this->jsonDataToArray($data)
-                        )
+                        ArrayData::create($this->jsonDataToArray($data))
                     );
                 }
 
@@ -235,14 +253,11 @@ class ProfilePage_Controller extends Page_Controller
                 //json file found, load from server
                 try {
                     //get JSON data from local server
-                    $data = json_decode(file_get_contents($this->jsonPath.$jsonFilename));
+                    $data = json_decode(file_get_contents($this->jsonPath . $jsonFilename));
 
-                    if($data->{'Poster'} != "N/A")
-                    {
-                        $data->{'VideoPoster'} = $this->checkPosterExists($data, $posterFilename);
-                    } else {
-                        // API did not return a URI for poster, so use blank.png
-                        $data->{'VideoPoster'} = THEMES_PATH. '/simple/images/blank.png';
+                    // metadata exists but poster may not, so lets save and get it and add it to imdb scope
+                    if ($data->{'Poster'} != "N/A") {
+                        $data->{'Poster'} = $this->checkPosterExists($data, $this->cleanFilename($imdbMetadata->Title, $data->{'imdbID'}, 'image'));
                     }
 
                     $result->push(ArrayData::create($this->jsonDataToArray($data)));
@@ -250,29 +265,36 @@ class ProfilePage_Controller extends Page_Controller
                     return $result;
 
                 } catch (Exception $exception) {
-                    user_error('we had trouble saving posters to ' . $this->jsonPath );
+                    user_error('we had trouble saving posters to ' . $this->jsonPath);
                 }
             }
         }
+
+        return;
+
     }
 
     /**
      * resets the IMDBAPI result to arraylist for the template.
      * L = DBFieldname, R = APIFieldname
      *
+     * @todo refactor into a foreach loop so don't have specify all field names
+     *
      * @param $data
      * @return mixed
      */
     public function jsonDataToArray ($data)
     {
-        $title['errorType'] = "hide";
-        $title['VideoPoster'] = $data->{'VideoPoster'};
         $title['Year'] = $data->{'Year'};
+        $title['Poster'] = $data->{'Poster'};
         $title['Director'] = $data->{'Director'};
         $title['Actors'] = $data->{'Actors'};
         $title['Plot'] = $data->{'Plot'};
         $title['Runtime'] = $data->{'Runtime'};
         $title['IMDBID'] = $data->{'imdbID'};
+        $title['Rated'] = $data->{'Rated'};
+        $rating = explode('/', current($data->{'Ratings'})->{'Value'});
+        $title['Rating'] = $rating[0];
 
         return $title;
     }

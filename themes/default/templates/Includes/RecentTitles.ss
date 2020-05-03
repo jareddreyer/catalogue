@@ -1,4 +1,4 @@
-<% if $recentTitles('added').count > 1 %>
+<% if $recentTitles('added').count > 0 %>
     <h2>Recently Added</h2>
     <div id="added" class="row">
         <a id="scroll-left" class="scroll-arrow">&lt;</a>
@@ -16,7 +16,7 @@
         <a id="scroll-right" class="scroll-arrow">&gt;</a>
     </div>
 <% end_if %>
-<% if $recentTitles('updated').count > 1 %>
+<% if $recentTitles('updated').count > 0 %>
     <h2>Recently Updated</h2>
     <div id="updated" class="row">
         <a id="scroll-left" class="scroll-arrow">&lt;</a>

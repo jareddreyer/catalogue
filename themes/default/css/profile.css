@@ -7,8 +7,8 @@
 }
 
 p.hide { display: none }
-
-span.small { font-size: 80%}
+.rating { color: #c39400}
+span.small, .year { font-size: 60%}
 
 p.videoDetails { margin-top: -16px}
 ul.videoDetails li { list-style-type: none }
@@ -47,9 +47,7 @@ div.videoDetailsContainer { overflow: hidden }
     float: right;
     border-left: 1px dashed #ccc;
 }
-.list--media-title {}
-.list--media-poster {}
-.typography .list--media-poster img { background-image: url('/themes/default/images/blank.png'); float: left}
+
 .poster img {float: right}
 i.fa-search { cursor: pointer}
 .fa.fa-search  { line-height: 2 !important}
