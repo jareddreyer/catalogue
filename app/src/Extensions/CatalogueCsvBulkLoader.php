@@ -72,22 +72,22 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
         switch ($val)
         {
             case 'Matroska / WebM':
-                $obj->Source = 'web';
+                $obj->Source = 'WebM';
                 break;
             case ('MPEG-TS (MPEG-2 Program Stream)' && $record['Quality'] == '480p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '480p'):
             case ('QuickTime / MOV' && $record['Quality'] == '480p'):
-                $obj->Source = 'dvd';
+                $obj->Source = 'DVD';
                 break;
             case ('MPEG-TS (MPEG-2 Transport Stream)' && $record['Quality'] == '1080p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '1080p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '720p'):
             case ('QuickTime / MOV' && $record['Quality'] == '720p'):
             case ('QuickTime / MOV' && $record['Quality'] == '1080p'):
-                $obj->Source = 'bluray';
+                $obj->Source = 'Bluray';
                 break;
             default:
-                $obj->Source = 'bluray';
+                $obj->Source = 'Bluray';
         }
     }
 

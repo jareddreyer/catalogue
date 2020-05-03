@@ -97,12 +97,18 @@ class Page_Controller extends ContentController
                $themeDir . '/javascript/jquery-ui-1.10.4.custom.min.js',
                $themeDir . '/javascript/bootstrap.min.js',
                $themeDir . '/javascript/tag-it.min.js',
-               $themeDir . '/javascript/jplist.core.min.js',
-               $themeDir . '/javascript/jplist.pagination-bundle.min.js',
-               $themeDir . '/javascript/jplist.filter-dropdown-bundle.min.js',
-               $themeDir . '/jplist.textbox-filter.min.js',
-               $themeDir . '/javascript/jplist.history-bundle.min.js'
             ]);
+
+        // @todo refactor when jplist-es6 has same functionality as jquery jplist
+        if ($this->ClassName == 'FilmsPage' || $this->ClassName == 'TelevisionPage') {
+            Requirements::themedCSS('jplist.core.min');
+            Requirements::themedCSS('jplist.textbox-filter.min');
+            Requirements::themedJavascript('/jplist.core.min');
+            Requirements::themedJavascript('/jplist.pagination-bundle.min');
+            Requirements::themedJavascript('/jplist.filter-dropdown-bundle.min');
+            Requirements::themedJavascript('/jplist.textbox-filter.min');
+            Requirements::themedJavascript('/jplist.history-bundle.min');
+        }
 
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
@@ -128,10 +134,10 @@ class Page_Controller extends ContentController
 
         // set up routing slugs
         $this->member = Member::currentUserID();
-        $this->slug = (int)Controller::curr()->getRequest()->param('ID');
+        $this->slug = (int)Controller::curr()->getRequest()->param('ID') ?? $this->member;
 
         // check if slug is set, if not then use currentMember()
-        (!$this->slug) ? $this->slug = $this->member : $this->slug;
+
 
         // get config variables
         $this->apiKey = Config::inst()->get('Catalog', 'apiKey');
@@ -169,6 +175,16 @@ class Page_Controller extends ContentController
     }
 
     /**
+     * returns Member object so can call Firstname and Lastname of users catalog.
+     *
+     * @return DataObject
+     */
+    public function getMember()
+    {
+        return Member::get_by_id(Member::class, $this->slug);
+    }
+
+    /**
      * Returns object for either newly added titles or
      * updated titles
      *
@@ -195,47 +211,6 @@ class Page_Controller extends ContentController
 
             return $recentlyUpdated;
         }
-    }
-
-    /**
-     *
-     * @param string
-     *
-     * returns string in human readable time
-     *
-     * @return string
-     *
-     */
-    public function humanTiming($time)
-    {
-
-            $currtime = time();
-
-            $ago = abs($currtime - strtotime($time));
-
-            if($ago < 60 ) {
-                $result = 'less than a minute';
-            } elseif($ago < 3600) {
-                $span = round($ago/60);
-                $result = ($span != 1) ? "{$span} ". "mins" : "{$span} ". "min";
-            } elseif($ago < 86400) {
-                $span = round($ago/3600);
-                $result = ($span != 1) ? "{$span} ". "hours" : "{$span} ". "hour";
-            } elseif($ago < 86400*30) {
-                $span = round($ago/86400);
-                $result = ($span != 1) ? "{$span} ". "days" : "{$span} ". "day";
-            } elseif($ago < 86400*365) {
-                $span = round($ago/86400/30);
-                $result = ($span != 1) ? "{$span} ". "months" : "{$span} ". "month";
-            } elseif($ago > 86400*365) {
-                $span = round($ago/86400/365);
-                $result = ($span != 1) ? "{$span} ". "years" : "{$span} "."year";
-            }
-
-            // Replace duplicate spaces, backwards compat with existing translations
-            $result = preg_replace('/\s+/', ' ', $result);
-
-            return $result;
     }
 
     /**
@@ -336,7 +311,7 @@ class Page_Controller extends ContentController
         if(DataObject::get_one('Image', ['ID' => $cataloguePosterID->PosterID]) === false)
         {
             // save file and create dataobject image.
-            $poster = $this->savePosterImage($cataloguePosterID, $poster, $filename, $data->{'Title'} );
+            $poster = $this->savePosterImage($cataloguePosterID, $poster, $filename, $data->{'Title'}, $data->{'Year'} );
 
             return $poster;
         } else {
@@ -351,18 +326,18 @@ class Page_Controller extends ContentController
      * @param $src - base64 of Poster image data (from IMDBApi)
      * @param $filename - what the image dataobject filename and local filename will be
      * @param $Title - Name and Title of media (from data sources)
-     *
+     * @param $year - adds the year to the title if possible.
      * @return Image
      * @throws ValidationException
-     *
      * @see Catalogue::class
      */
     public function savePosterImage($cataloguePosterID = null,
                                     $src = null,
                                     $filename = null,
-                                    $Title = null)
+                                    $Title = null,
+                                    $year = null)
     {
-        // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
+        // @todo this needs refactoring in SS4 to use assetsFileStore class
         if(($poster = DataObject::get_one('Image', ['Title' => $Title])) !== false)
         {
             $poster = DataObject::get_one('Image', ['Title' => $Title]);
@@ -381,7 +356,8 @@ class Page_Controller extends ContentController
             }
 
             $poster = Image::create();
-            $poster->Title = $Title;
+
+            $poster->Title = $Title . ' (' . $year . ')';
             $poster->ParentID = $assetsParentID->ID;
             $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $filename;
             $poster->write();
