@@ -64,7 +64,10 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
 
         // remove any underscores thats not captured and removed already
         $title = str_replace("_", " ", $title);
-        $obj->Title = str_replace("[", "", $title);
+        $title = str_replace("[", "", $title);
+
+        // Finally title case everything so it looks clean.
+        $obj->Title = ucwords($title);
     }
 
     public static function importSource(&$obj, $val, $record)

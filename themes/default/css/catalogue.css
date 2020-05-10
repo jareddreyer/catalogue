@@ -73,26 +73,21 @@ footer {
 /** jplist specific styling **/
 .list-media__container {
     margin-top: 2rem;
-    display: flex;
+    display: grid;
     justify-content: space-evenly;
-    flex-wrap: wrap;
+    grid-template-columns: repeat(auto-fill, 200px);
+    border-top: 1px solid #e5e5e5;
+    padding-top: 3rem;
 }
+
 .list-media__item {
     clear: both;
-    margin-right: 1rem;
+    margin-left: 1rem;
     margin-bottom: 1rem;
-    flex: 0 0 18%;
 }
 
-.list-media__title
-{
-
-    font-size: 1.2rem;
-}
-
-.list-media__title-status,
-.list-media__title-source {
-
+.list-media__metadata-wrapper {
+    margin-top: 1rem;
 }
 
 .list-media__title-status {
@@ -100,25 +95,71 @@ footer {
     left: 0;
 }
 
-.list-media__metadata-wrapper
-{
-    vertical-align: top;
-}
-.list-media__metadata
-{
-
+.list-media__metadata {
+    margin-top: .8rem;
 }
 
-.list-media__poster-wrapper {
-    display: inline-block;
+p.list-media__maintenance {
+    font-size: 1rem;
 }
 .list-media__poster {
-    max-height: 250px;
+    height: 250px;
+    width: 170px;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: cover;
+    background-position: center;
+    transition: all .3s;
 }
 
+.list-media__poster:hover,
+.list-media__poster:focus,
+.list-media__poster:active {
+    transform: scale(1.05);
+}
 
+/** jplist overrides **/
+.jplist-panel
+{
+    margin-bottom: 3rem;
+}
+.catalogue .jplist-no-results {
+    padding: 6rem;
+    text-align: center;
+    clear: both;
+
+}
+.catalogue .jplist-no-results p {
+    font-size: 2rem;
+    font-weight: 700;
+}
+.jplist-pagination { clear: both; margin: inherit }
+
+.catalogue .jplist-panel .text-filter-box {
+    width: 30%;
+}
+
+.catalogue .jplist-panel input[type="text"] {
+    width: 81%;
+}
+
+.catalogue .jplist-checkbox-dropdown .jplist-dd-panel {
+    width: 100%;
+}
+
+.catalogue .jplist-checkbox-dropdown {
+    width: 30%;
+}
+
+.catalogue .jplist-checkbox-dropdown ul {
+    width: 100%;
+    max-height: 290px;
+    height: auto;
+    overflow-y: auto;
+}
+
+.catalogue .jplist-checkbox-dropdown ul li {
+    width: 100%;
+}
 
 @media screen and (max-width: 767px) {
     .row-offcanvas {

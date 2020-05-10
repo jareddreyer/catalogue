@@ -74,14 +74,17 @@ class Page_Controller extends ContentController
         Requirements::set_write_js_to_body(true);
         Requirements::set_force_js_to_bottom(true);
         Requirements::set_combined_files_folder($themeDir.'/dist');
+        // this needs to be higher up load order so blank images display before actual posts download
+        Requirements::customCSS('.list-media__poster {background-image: url(\'/themes/default/images/blank.png\');}');
         Requirements::combine_files(
             'site.css',
             [
-                $themeDir . '/css/bootstrap.min.css',
+
                 $themeDir . '/css/reset.css',
                 $themeDir . '/css/typography.css',
                 $themeDir . '/css/form.css',
                 $themeDir . '/css/layout.css',
+                $themeDir . '/css/bootstrap.min.css',
                 $themeDir . '/css/profile.css',
                 $themeDir . '/css/jquery.tagit.css',
                 $themeDir . '/css/jquery-ui-overrides.css',
@@ -101,13 +104,21 @@ class Page_Controller extends ContentController
 
         // @todo refactor when jplist-es6 has same functionality as jquery jplist
         if ($this->ClassName == 'FilmsPage' || $this->ClassName == 'TelevisionPage') {
+            Requirements::customCSS('.list-media__poster {background-image: url(\'/themes/default/images/blank.png\');}');
             Requirements::themedCSS('jplist.core.min');
             Requirements::themedCSS('jplist.textbox-filter.min');
-            Requirements::themedJavascript('/jplist.core.min');
-            Requirements::themedJavascript('/jplist.pagination-bundle.min');
-            Requirements::themedJavascript('/jplist.filter-dropdown-bundle.min');
-            Requirements::themedJavascript('/jplist.textbox-filter.min');
-            Requirements::themedJavascript('/jplist.history-bundle.min');
+            Requirements::themedCSS('jplist.filter-toggle-bundle.min');
+            Requirements::themedCSS('jplist.checkbox-dropdown.min');
+            Requirements::themedJavascript('jplist.core.min');
+            Requirements::themedJavascript('jplist.pagination-bundle.min');
+            Requirements::themedJavascript('jplist.bootstrap-filter-dropdown.min');
+            Requirements::themedJavascript('jplist.filter-dropdown-bundle.min');
+            Requirements::themedJavascript('jplist.filter-toggle-bundle.min');
+            Requirements::themedJavascript('jplist.checkbox-dropdown.min');
+            Requirements::themedJavascript('jplist.textbox-filter.min');
+            Requirements::themedJavascript('jplist.history-bundle.min');
+            Requirements::themedJavascript('jplist.counter-control.min');
+            Requirements::themedJavascript('catalogue-scripts');
         }
 
         Requirements::customScript('
@@ -220,14 +231,15 @@ class Page_Controller extends ContentController
      * @param $pipe <string>
      * @return array
      */
-    public function convertAndCleanList($array, $pipe)
+    public function convertAndCleanList($item, $pipe)
     {
         /** clean up keywords from DB **/
+        if(is_array($item)) $implode = implode($pipe, $item);
+        $csv = str_getcsv($implode ?? $item, $pipe);
 
-        $implode = implode($pipe, $array); //implode array to string, saves foreaching
-        $csv = str_getcsv($implode, $pipe);
         array_walk($csv, function(&$csv){ return $csv = trim($csv); } );
         $unique = array_keys(array_flip($csv));  //get only unique elements
+        sort($unique, SORT_FLAG_CASE | SORT_STRING);
 
         return $unique;
     }
@@ -278,17 +290,14 @@ class Page_Controller extends ContentController
     /**
      * returns count of titles in catalogue by member
      *
+     * @param $type string
      * @return string
      */
-    public function countTitles()
+    public function getCountTitles($type)
     {
-
-        $type = ($this->Title == 'Movies') ? 'films' : 'series';
-
-        if($count = Catalogue::get()->filter(['Type'=> $type, 'OwnerID' => $this->slug])->count()) {
+        if($count = Catalogue::get()->filter(['Type' => $type, 'OwnerID' => $this->slug])->count()) {
             return $count;
         }
-
 
         return false;
     }
@@ -403,5 +412,96 @@ class Page_Controller extends ContentController
         $filetype = ($fileType == 'image') ? '.jpg' : '.txt';
 
         return $sanitized .'-'. $IMDBID . $filetype;
+    }
+
+    /**
+     * Creates filter of $type by 'Owner', and video 'Type', then returns as string ready
+     * for json inclusion on the JpList panel.
+     * Also sorts and removes duplicates
+     *
+     * @param $ClassName <string> - Used to set type ov media lookup
+     * @param $filter <string> - Select Genres or Keywords.
+     * @return string|void
+     */
+    public function getMetadataFilters($ClassName, $filter)
+    {
+        $result = Catalogue::get();
+        $type = ($ClassName == 'FilmsPage') ? 'film' : 'series';
+
+        // films
+        if($filter == 'Keywords') {
+            $filtersResult = $result->filter(
+                [
+                    'Type' => $type,
+                    'OwnerID' => $this->slug,
+                    'Keywords:not' => ''
+                ]
+            )->column('Keywords');
+        }
+
+        if($filter == 'Genre') {
+            $filtersResult = $result->filter(
+                [
+                    'Type' => $type,
+                    'OwnerID' => $this->slug,
+                    'Genre:not' => ''
+                ]
+            )->column('Genre');
+        }
+
+        if($result->exists() === true )
+        {
+            if(!empty($filtersResult) ) {
+                // clean up and return distinct keywords from DB
+                $filterArr = self::convertAndCleanList($filtersResult, ',');
+                $filtersList = ArrayList::create();
+
+                // build json string for both Keywords or Genres
+                foreach ($filterArr as $filters) {
+
+                    $filtersList->push(ArrayData::create(
+                        [
+                            'filters' =>
+                                '<input id="'.$filters.'" data-path=".'. str_replace(' ', '', $filters).'" type="checkbox">'."\n\r".
+                                '<label for="'.$filters.'">'.$filters.' '.
+                                '<span
+                                     data-control-type="counter"
+                                     data-control-action="counter"
+                                     data-control-name="'.$filters.'-counter"
+                                     data-format="({count})"
+                                     data-path=".'.str_replace(' ', '', $filters).'"
+                                     data-mode="filter"
+                                     data-type="path"></span>'.
+                                '</label>'
+                        ]
+                    ));
+                }
+
+                return $filtersList;
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * Takes genres string element and splits them into array element for each genre
+     *
+     * @param $filter
+     * @param $field
+     * @return string
+     */
+    public function getFieldFiltersList($filter, $field)
+    {
+        $explode = explode(",", $field); //explode string to array by delimiter
+
+        $listoption = '';
+
+        foreach ($explode as $value)
+        {
+            $listoption .= '<span class="hidden '.str_replace(' ', '', $value).'">'.$value.'</span>';
+        }
+
+        return $listoption;
     }
 }

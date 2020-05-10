@@ -28,18 +28,18 @@ class MaintenanceFormPage_Controller extends Page_Controller
     {
          $genres = $this->getGenres();
 
-         ($genres !== null) ? $clean = parent::convertAndCleanList($genres, $pipe='|') : $clean = null;
+         ($genres !== null) ? $clean = parent::convertAndCleanList($genres, $pipe=',') : $clean = null;
          ($clean !== null) ?  $genresJson = json_encode($clean) : $genresJson = json_encode(["Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"]);
 
          Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
-                    singleFieldDelimiter: " | ",    
+                    singleFieldDelimiter: ",",    
                     allowSpaces: true,
                     availableTags: ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5", "Season 6", "Season 7", "Season 8", "Season 9" , "Season 10", "Season 11", "Season 12", "Season 13", "Season 14", "Season 15", "Season 16"]
                 });
                 
                 $("#Form_Form_Genre").tagit({
-                    singleFieldDelimiter: " | ",    
+                    singleFieldDelimiter: ",",    
                     availableTags: '.$genresJson.'
                 });
                                      
@@ -55,7 +55,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
             Requirements::customScript('
               $("#Form_Form_Keywords").tagit({
-                    singleFieldDelimiter: " , ",
+                    singleFieldDelimiter: ",",
                     allowSpaces: true,
                     availableTags: '. $json .'
                 });
@@ -64,7 +64,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
         } else {
             Requirements::customScript('
               $("#Form_Form_Keywords").tagit({
-                    singleFieldDelimiter: " , ",
+                    singleFieldDelimiter: ",",
                     allowSpaces: true,
                 });
             ');
@@ -74,7 +74,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
         $automap = ($this->slug) ? $automap = Catalogue::get()->byID($this->slug) : false;
 
-        $submitCaption = ($automap) ? 'Edit' : 'Add';
+        $submitCaption = ($automap) ? 'Update' : 'Add';
 
         if(isset($automap->Type)) {
             if($automap->Type == 'film') {
@@ -94,22 +94,22 @@ class MaintenanceFormPage_Controller extends Page_Controller
             TextField::create('Seasons', 'Seasons')->setDescription('Select a Season or type Seasons owned e.g. Season 1'),
             DropDownField::create('Status', 'Current Status of title',
                 [
-                'Downloaded' => 'Downloaded - file complete',
-                'Physical' => 'Phyiscal copy - hard copy only',
-                'Downloading' => 'Dowloading - in progress',
-                'Wanted' => 'Wanted - need a copy of',
-                'No Torrents' => 'No Torrents - cannot find video',
+                    'Downloaded'  => 'Downloaded - file complete',
+                    'Physical'    => 'Phyiscal copy - hard copy only',
+                    'Downloading' => 'Dowloading - in progress',
+                    'Wanted'      => 'Wanted - need a copy of',
+                    'No Torrents' => 'No Torrents - cannot find video',
                 ]
             )->setEmptyString('Select status'),
-            DropDownField::create('Source', 'Source of download', (isset($sourceArr)) ? $sourceArr : $this->getSourceTypes(null))->setEmptyString('Select source'),
+            DropDownField::create('Source', 'Source of download', $sourceArr ?? $this->getSourceTypes())->setEmptyString('Select source'),
+            // @todo refactor this into global array
             DropDownField::create('Quality', 'Resolution of download (quality)',
                 [
-                '4k' => '4k',
-                '1440p' => '1440p',
-                '1080p' => '1080p',
-                '720p' => '720p',
-                '420p' => '420p',
-                '320p' => '320p'
+                    '4k'    => '4k',
+                    '1440p' => '1440p',
+                    '1080p' => '1080p',
+                    '720p'  => '720p',
+                    '480p'  => '480p',
                 ]
             )->setEmptyString('Select quality'),
             HiddenField::create('OwnerID', '', Member::currentUserID()),
@@ -225,37 +225,37 @@ class MaintenanceFormPage_Controller extends Page_Controller
      * @param $type <string>
      * @return mixed
      */
-    public function getSourceTypes($type)
+    public function getSourceTypes($type = null)
     {
         switch ($type) {
             case 'film':
                 $source = [
                     'Bluray'      => 'BD/BRRip',
-                    'DVD'         => 'DVD-R',
+                    'DVD'         => 'DVD',
                     'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
                     'cam'         => 'CAMRip/CAM/TS/TELESYNC',
                     'vod'         => 'VODRip/VODR',
-                    'web'         => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
+                    'WebM'        => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
                 ];
                 break;
 
-            case 'tv':
+            case 'series':
                 $source = [
                     'Bluray'  => 'BD/BRRip',
-                    'DVD'     => 'DVD-R',
+                    'DVD'     => 'DVD',
                     'HDTV'    => 'HD TV',
                     'SDTV'    => 'SD TV',
-                    'web'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
+                    'WebM'    => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
                 ];
                 break;
             default:
                 $source = [
                     'Bluray'   => 'BD/BRRip',
-                    'DVD'      => 'DVD-R',
+                    'DVD'      => 'DVD',
                     'screener' => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
                     'cam'      => 'CAMRip/CAM/TS/TELESYNC',
                     'vod'      => 'VODRip/VODR',
-                    'web'      => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
+                    'WebM'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
                     'HDTV'     => 'HD TV',
                     'SDTV'     => 'SD TV'
                 ];
