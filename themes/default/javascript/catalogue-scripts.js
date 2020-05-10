@@ -1,5 +1,5 @@
-$(function()
-{
+$('Document').ready(function(){
+
     $('.catalogue').jplist({
         itemsBox: '.list-media__container'
         ,itemPath: '.list-media__item'

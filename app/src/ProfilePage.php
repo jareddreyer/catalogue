@@ -6,27 +6,12 @@ class ProfilePage extends Page
 
 class ProfilePage_Controller extends Page_Controller
 {
-    public $keywordsArr, $video;
 
     private static $allowed_actions = ['profile'];
 
     private static $url_handlers = [
         'title/$ID' => 'profile'
     ];
-
-    public function init()
-    {
-        parent::init();
-
-        $keywords = Catalogue::get()
-                                ->where(array('id = '.$this->slug))
-                                ->column('Keywords');
-
-        $this->keywordsArr = parent::convertAndCleanList($keywords, ','); // creates array into pieces
-        $this->video = Catalogue::get()
-                                    ->setQueriedColumns(["Title" , "Trilogy"])
-                                    ->byID($this->slug); //get title
-    }
 
     /**
      * main call to build profile of title
@@ -45,6 +30,7 @@ class ProfilePage_Controller extends Page_Controller
             // @todo refactor this so the functions are called in the template and we dont need this ugly foreach.
             foreach ($title as $record)
             {
+                $record->genres = $this->getCleanGenresList($record->Genre);
                 $record->seasonLinks = $this->seasonLinks($record->Seasons);
                 $record->displayComments = parent::displayComments($record->Comments);
             }
@@ -52,7 +38,6 @@ class ProfilePage_Controller extends Page_Controller
             return $this->customise(
                 [
                     'profile' => $record,
-                    'getIMDBMetadata' => $metadata
                 ]
             );
         }
@@ -69,7 +54,7 @@ class ProfilePage_Controller extends Page_Controller
     {
         if($string != null)
         {
-            $imdb = $this->getIMDBMetadata(); //get all metadata for title
+            $imdb = $this->getMetadata(); //get all metadata for title
 
             $pattern = '/[^\d|]/';
             $numbers = preg_replace($pattern,'', $string);
@@ -91,14 +76,18 @@ class ProfilePage_Controller extends Page_Controller
      */
     public function relatedTitles()
     {
-       if($this->video->Trilogy !== null)
-       {
+        //get title
+        $video = Catalogue::get()->byID($this->slug);
+
+        if($video->Trilogy !== null)
+        {
            return Catalogue::get()
-                                ->where(["Trilogy='" . $this->video->Trilogy."'"])
+                                ->filter(['Trilogy' => $video->Trilogy])
                                 ->exclude('ID', $this->slug)
                                 ->sort('Year');
-       }
-       return false;
+        }
+
+        return false;
     }
 
     /**
@@ -108,34 +97,45 @@ class ProfilePage_Controller extends Page_Controller
      */
     public function seeAlsoTitles()
     {
-        //check how many keywords
-        //if keywords <= 1 then check trilogy == keyword
-        $trilogy = [$this->video->Trilogy];
-        $trilogy = array_map('strtolower', $trilogy);
-        $array = array_diff(array_map('strtolower', $this->keywordsArr), $trilogy);
+        $video = Catalogue::get();
+        $keywords = $video->byID($this->slug);
 
-        //loop over values so we can create WHERE like clauses
-        $clauses = [];
-        foreach ($array as $value)
-        {
-          $clauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+        if($keywords != '') {
+            $keywordsArr = parent::convertAndCleanList($keywords->Keywords, ','); // creates array into pieces
+
+            //check how many keywords
+            //if keywords <= 1 then check trilogy == keyword
+            $trilogy = [$video->Trilogy];
+            $trilogy = array_map('strtolower', $trilogy);
+            $array = array_diff(array_map('strtolower', $keywordsArr), $trilogy);
+
+            //loop over values so we can create WHERE like clauses
+            $clauses = [];
+            foreach ($array as $value)
+            {
+                $clauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+            }
+
+            if($video->Trilogy == null && count($keywordsArr) > 1)
+                return $video
+                            ->where(implode(' OR ', $clauses))
+                            ->exclude('ID', $this->slug);
+
+            if(count($keywordsArr) <= 1)
+            {
+                return false; //nothing to return so return a false so view doesn't display anything.
+
+            } else {
+                //keywords are only 1, so we will return back array of keyword results.
+                //get all titles related to itself (e.g. 'wolverine') and exclude itself from result.
+
+                return $video
+                            ->where(implode(' OR ', $clauses))
+                            ->exclude('Trilogy', $video->Trilogy);
+            }
         }
 
-        if($this->video->Trilogy == null && count($this->keywordsArr) > 1)
-            return Catalogue::get()->where(implode(' OR ', $clauses))->exclude('ID', $this->slug);
-
-        if(count($this->keywordsArr) <= 1)
-        {
-            return false; //nothing to return so return a false so view doesn't display anything.
-
-        } else {
-           //keywords are only 1, so we will return back array of keyword results.
-            //get all titles related to itself (e.g. 'wolverine') and exclude itself from result.
-
-           return Catalogue::get()
-               ->where(implode(' OR ', $clauses))
-               ->exclude('Trilogy', $this->video->Trilogy);
-        }
+        return;
     }
 
     /**
@@ -225,19 +225,29 @@ class ProfilePage_Controller extends Page_Controller
 
                     // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
                     $metadata = File::create();
-                    $metadata->Title = $imdbMetadata->Title;
-                    $metadata->ParentID = $parentID->ID;
-                    $metadata->Filename = ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename;
-                    $metadata->write();
+                    $metadata
+                        ->update(
+                            [
+                                'Title'     => $imdbMetadata->Title . ' (' . $data->{'Year'} . ')',
+                                'ParentID'  => $parentID->ID,
+                                'Filename ' => ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename,
+                            ]
+                        )
+                        ->write();
 
                     // update the relation
                     $updateCatalog = Catalogue::create();
-                    $updateCatalog->ID = $imdbMetadata->ID;
-                    $updateCatalog->IMDBID = $data->{'imdbID'};
-                    $updateCatalog->Year = $data->{'Year'};
-                    $updateCatalog->Genre = $data->{'Genre'};
-                    $updateCatalog->MetadataID = $metadata->ID;
-                    $updateCatalog->write();
+                    $updateCatalog
+                        ->update(
+                            [
+                                'ID'         => $imdbMetadata->ID,
+                                'IMDBID'     => $data->{'imdbID'},
+                                'Year'       => $data->{'Year'},
+                                'Genre'      => $data->{'Genre'},
+                                'MetadataID' => $metadata->ID,
+                            ]
+                        )
+                        ->write();
 
                     if ($data->{'Poster'} != "N/A") {
                         $data->{'Poster'} = $this->checkPosterExists($data, $this->cleanFilename($imdbMetadata->Title, $data->{'imdbID'}, 'image'));
@@ -261,17 +271,13 @@ class ProfilePage_Controller extends Page_Controller
                     }
 
                     $result->push(ArrayData::create($this->jsonDataToArray($data)));
-
-                    return $result;
-
                 } catch (Exception $exception) {
                     user_error('we had trouble saving posters to ' . $this->jsonPath);
                 }
             }
         }
 
-        return;
-
+        return $result;
     }
 
     /**
@@ -294,8 +300,19 @@ class ProfilePage_Controller extends Page_Controller
         $title['IMDBID'] = $data->{'imdbID'};
         $title['Rated'] = $data->{'Rated'};
         $rating = explode('/', current($data->{'Ratings'})->{'Value'});
+        // first rating (if available) is always the IMDB.com ratings, otherwise this will take whatever rating is available.
         $title['Rating'] = $rating[0];
 
         return $title;
+    }
+
+    /**
+     * Helper function to tidy up the csv value of genres.
+     * @param $genres
+     * @return mixed
+     */
+    public function getCleanGenresList ($genres)
+    {
+        return str_replace(',', ', ', $genres);
     }
 }

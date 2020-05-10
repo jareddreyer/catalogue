@@ -13,7 +13,43 @@ span.small, .year { font-size: 60%}
 p.videoDetails { margin-top: -16px}
 ul.videoDetails li { list-style-type: none }
 ul.videoDetails { margin: 0 0 20px }
-div.videoDetailsContainer { overflow: hidden }
+
+.videoDetailsContainer {
+
+}
+.view-also__container {
+}
+
+.related-titles__titles,
+.see-also__titles {
+    display: flex;
+    flex-wrap: wrap;
+}
+.related-titles__container img {
+
+}
+.related-titles__poster,
+.see-also__poster {
+    height: 120px;
+    width: 80px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    transition: all .3s;
+}
+
+.related-titles__poster:hover,
+.related-titles__poster:focus,
+.related-titles__poster:active,
+.see-also__poster:hover,
+.see-also__poster:focus,
+.see-also__poster:active
+{
+    transform: scale(1.05);
+}
+.videoDetailsContainer .name {
+    margin-bottom: 1rem;
+}
 .comments { cursor: pointer}
 .films li img { float: left}
 .imageList { clear: both}
@@ -37,28 +73,12 @@ div.videoDetailsContainer { overflow: hidden }
 .typography a:hover { border-bottom: 0}
 .imageList li:not(:last-child) { border-bottom: 1px dashed #ccc}
 .grid--recent-holder .imageList li { border-bottom: 0}
-.list--media-metadata { float: left}
-
-.list--media-maintenance
-{
-    margin: 0 2em;
-    height: 80px;
-    padding: 0 2em;
-    float: right;
-    border-left: 1px dashed #ccc;
-}
 
 .poster img {float: right}
 i.fa-search { cursor: pointer}
 .fa.fa-search  { line-height: 2 !important}
 
-.jplist-panel
-{
-    border-bottom: 1px solid #e5e5e5;
-    height: 100px
 
-}
-.jplist-pagination { clear: both; margin: inherit }
 .content-container { min-height: 400px}
 
 form input.text,
