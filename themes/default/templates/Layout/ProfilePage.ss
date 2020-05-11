@@ -43,7 +43,7 @@
                     </ul>
                 </div>
             <% end_loop %>
-            <% if $relatedTitles && $seeAlsoTitles %>
+            <% if $relatedTitles || $seeAlsoTitles %>
                 <div class="view-also__container clear">
                     <% if $relatedTitles %>
                         <div class="related-titles__container">
@@ -65,7 +65,7 @@
                     <div class="see-also__container">
                         <h4>See also:</h4>
                         <div class="see-also__titles">
-                            <% loop $seeAlsoTitles.Sort('Title', 'ASC') %>
+                            <% loop $seeAlsoTitles %>
                                 <a href="{$Top.ProfileURL}title/$ID" title="Browse {$Title} (Updated {$LastEdited.Ago})">
                                     <div
                                         class="see-also__poster"

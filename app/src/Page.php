@@ -226,14 +226,14 @@ class Page_Controller extends ContentController
 
     /**
      * takes an array list and cleans it up ready to output as unique string
+     * and sorts alphabetically.
      *
-     * @param $array <array>
-     * @param $pipe <string>
+     * @param array $item
+     * @param string $pipe
      * @return array
      */
     public function convertAndCleanList($item, $pipe)
     {
-        /** clean up keywords from DB **/
         if(is_array($item)) $implode = implode($pipe, $item);
         $csv = str_getcsv($implode ?? $item, $pipe);
 

@@ -37,6 +37,7 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
         'Title'   => '->importTitle',
         'Year'    => '->importYear',
         'Source'  => '->importSource',
+        'Seasons' => '->importSeasons',
         'Quality' => 'Quality',
         'Type'    => 'Type',
         'Status'  => 'Status',
@@ -109,6 +110,23 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
             } else {
                 $obj->Year = $val;
             }
+        }
+    }
+
+    public static function importSeasons(&$obj, $val, $record)
+    {
+        if(is_numeric($val)) {
+            $seasonsTmpArr = range(1, $val + 1);
+
+            $seasonsArray = [];
+            foreach($seasonsTmpArr as $seasonKey => $seasonValue ){
+               $seasonsArray[] = 'Season ' . $seasonKey;
+            }
+
+            array_shift($seasonsArray);
+            $obj->Seasons = implode(',', $seasonsArray);
+        } else {
+            $obj->Seasons = $val;
         }
     }
 }
