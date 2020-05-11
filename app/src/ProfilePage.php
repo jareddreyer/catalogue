@@ -27,7 +27,6 @@ class ProfilePage_Controller extends Page_Controller
 
         if ($title)
         {
-            // @todo refactor this so the functions are called in the template and we dont need this ugly foreach.
             foreach ($title as $record)
             {
                 $record->genres = $this->getCleanGenresList($record->Genre);
@@ -92,46 +91,60 @@ class ProfilePage_Controller extends Page_Controller
 
     /**
      * returns an array of results that contain titles based on keyword metadata
+     * Excludes the Trilogy from the array set seeing as that will be included in the
+     * relatedTitles(), so does not need to be included twice.
+     *
+     * @todo needs refactoring, too heavy on the if statements
+     *
+     * @see \ProfilePage_Controller::relatedTitles()
+     * @see \Page_Controller::convertAndCleanList()
      *
      * @return mixed
      */
     public function seeAlsoTitles()
     {
+        // First set the lazy loading.
         $video = Catalogue::get();
         $keywords = $video->byID($this->slug);
 
-        if($keywords != '') {
-            $keywordsArr = parent::convertAndCleanList($keywords->Keywords, ','); // creates array into pieces
+        // check keywords exist and continue
+        if($keywords->Keywords) {
+            // create a clean array for us
+            $keywordsArr = parent::convertAndCleanList($keywords->Keywords, ',');
+            $keywordsArrCount = count($keywordsArr);
 
-            //check how many keywords
-            //if keywords <= 1 then check trilogy == keyword
-            $trilogy = [$video->Trilogy];
-            $trilogy = array_map('strtolower', $trilogy);
-            $array = array_diff(array_map('strtolower', $keywordsArr), $trilogy);
+            // we have more than one keyword
+            if($keywordsArrCount >= 1  ) {
 
-            //loop over values so we can create WHERE like clauses
-            $clauses = [];
-            foreach ($array as $value)
-            {
-                $clauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
-            }
+                // grab us all the keywords that does not = Trilogy
+                if($trilogy = [$keywords->Trilogy]) {
 
-            if($video->Trilogy == null && count($keywordsArr) > 1)
+                    $includeTitles = array_diff($keywordsArr, $trilogy);
+                    $trilogyClause = '("Trilogy" <> \''. $keywords->Trilogy .'\' OR "Trilogy" IS NULL) AND (';
+                }
+
+                //loop over values so we can create WHERE like clauses
+                $includeClauses = [];
+                foreach ($includeTitles as $value) {
+                    $includeClauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+                }
+
+                // close off the sql properly
+                if($trilogy) {
+                    $trilogyClause .= implode(' OR ', $includeClauses) . ')';
+                }  else {
+                    $trilogyClause .= implode(' OR ', $includeClauses);
+                }
+
                 return $video
-                            ->where(implode(' OR ', $clauses))
-                            ->exclude('ID', $this->slug);
-
-            if(count($keywordsArr) <= 1)
-            {
-                return false; //nothing to return so return a false so view doesn't display anything.
+                    ->where($trilogyClause)
+                    ->exclude('ID', $this->slug);
 
             } else {
-                //keywords are only 1, so we will return back array of keyword results.
-                //get all titles related to itself (e.g. 'wolverine') and exclude itself from result.
-
+                // we only have one keyword
                 return $video
-                            ->where(implode(' OR ', $clauses))
-                            ->exclude('Trilogy', $video->Trilogy);
+                    ->where('"Keywords = \'' . $keywords->Keywords . '\'')
+                    ->exclude('ID', $this->slug);
             }
         }
 
@@ -308,6 +321,8 @@ class ProfilePage_Controller extends Page_Controller
 
     /**
      * Helper function to tidy up the csv value of genres.
+     * @todo this is legacy to help with incorrect tagIt jquery plugin setting for whitespaces after commas
+     *
      * @param $genres
      * @return mixed
      */
