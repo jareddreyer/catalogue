@@ -62,7 +62,8 @@ class Catalogue extends DataObject
             ->filter(
             [
                 'Title' => $this->Title,
-                'Year' => $this->Year
+                'Year'  => $this->Year,
+                'Type'  => $this->Type
             ])
             ->exclude('ID', $this->ID)
             ->first()

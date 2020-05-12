@@ -161,6 +161,9 @@ p.list-media__maintenance {
     width: 100%;
 }
 
+div.jplist-drop-down > ul > li > a {
+    color: #337ab7
+}
 @media screen and (max-width: 767px) {
     .row-offcanvas {
         position: relative;
