@@ -38,7 +38,7 @@ class FilmsPage_Controller extends Page_Controller
                     'Type'=>'film',
                     'OwnerID' => $this->slug
                 ])
-        ->sort('Title', 'ASC');
+            ->sort('Title', 'ASC');
 
         $result = ArrayList::create();
 

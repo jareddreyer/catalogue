@@ -21,8 +21,10 @@ class ProfilePage_Controller extends Page_Controller
      */
     public function profile()
     {
-        $metadata = $this->getMetadata();
+        // get metadata for downloading and displaying
+        $this->getMetadata();
 
+        // get db record
         $title = Catalogue::get()->byID($this->slug);
 
         if ($title)
@@ -30,7 +32,6 @@ class ProfilePage_Controller extends Page_Controller
             foreach ($title as $record)
             {
                 $record->genres = $this->getCleanGenresList($record->Genre);
-                $record->seasonLinks = $this->seasonLinks($record->Seasons);
                 $record->displayComments = parent::displayComments($record->Comments);
             }
 
@@ -49,23 +50,24 @@ class ProfilePage_Controller extends Page_Controller
      * @return string
      * @throws ValidationException
      */
-    public function seasonLinks($string)
+    public function seasonLinks()
     {
-        if($string != null)
+        $title = Catalogue::get()->byID($this->slug);
+
+        if($title->Seasons != null)
         {
-            $imdb = $this->getMetadata(); //get all metadata for title
 
-            $pattern = '/[^\d|]/';
-            $numbers = preg_replace($pattern,'', $string);
-            $arraySeasons = explode("|",$numbers); //explode the season string into array of season numbers.
-            $imdbID = $imdb->imdbID; //assign variable for use in annoymous function.
+            // remove season word so we get a list of just numbers csv
+            $seasons = str_replace('Season ', '', $title->Seasons);
+            $arraySeasons = explode(',', $seasons);
 
-            $seasonLinksArray = array_map(function ($v) use ($imdbID) { return '<a href="http://www.imdb.com/title/'.$imdbID.'/episodes?season='.$v.'">'. $v. '</a>';}, $arraySeasons); //apply callback annoymous function over the array elements, adding anchor links
-            $result = implode(' | ', $seasonLinksArray); //implode back to array of 1 string.
+            $seasonLinksArray = array_map(function(&$arraySeasons) use ($title) { return '<a href="http://www.imdb.com/title/'.$title->IMDBID.'/episodes?season='.$arraySeasons.'">'. $arraySeasons. '</a>'; }, $arraySeasons );
 
-            return $result;
-
+            //implode back to array of 1 string.
+            return implode(' | ', $seasonLinksArray);
         }
+
+        return;
     }
 
     /**
