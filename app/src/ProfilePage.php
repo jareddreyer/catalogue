@@ -180,13 +180,13 @@ class ProfilePage_Controller extends Page_Controller
                 $url = "http://www.omdbapi.com/?apikey=" . $this->apiKey;
 
                 if ($imdbMetadata->IMDBID == null) {
-                    $url .= "&t=" . $titleEncoded;
+                    $url .= '&t=' . $titleEncoded . '&type='.$imdbMetadata->Type;
                 } else {
-                    $url .= "&i=" . $imdbMetadata->IMDBID;
+                    $url .= '&i=' . $imdbMetadata->IMDBID;
                 }
 
                 if ($imdbMetadata->Year !== null && $imdbMetadata->IMDBID == null) {
-                    $url .= "&y=" . $imdbMetadata->Year;
+                    $url .= '&y=' . $imdbMetadata->Year;
                 }
 
                 //now create json file of api data
