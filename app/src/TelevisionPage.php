@@ -17,12 +17,7 @@ class TelevisionPage_Controller extends Page_Controller
 
     public function init()
     {
-
         parent::init();
-
-        //jplist css
-        Requirements::themedCSS('jplist.core.min');
-        Requirements::themedCSS('jplist.textbox-filter.min');
     }
 
     /**
@@ -50,7 +45,6 @@ class TelevisionPage_Controller extends Page_Controller
 
         foreach ($media as $record) {
             $record->genres = $this->getFieldFiltersList('genres', $record->Genre);
-            $record->seasonLinks = str_replace('Season', '', $record->Seasons);
             $record->keywords = $this->getFieldFiltersList('keywords', $record->Keywords);
             $result->push($record);
         }
@@ -61,9 +55,4 @@ class TelevisionPage_Controller extends Page_Controller
             ]
         );
     }
-
-
-
-
-
 }

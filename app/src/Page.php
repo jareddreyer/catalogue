@@ -75,11 +75,10 @@ class Page_Controller extends ContentController
         Requirements::set_force_js_to_bottom(true);
         Requirements::set_combined_files_folder($themeDir.'/dist');
         // this needs to be higher up load order so blank images display before actual posts download
-        Requirements::customCSS('.list-media__poster {background-image: url(\'/themes/default/images/blank.png\');}');
-        Requirements::combine_files(
-            'site.css',
-            [
 
+        Requirements::combine_files(
+            'app.css',
+            [
                 $themeDir . '/css/reset.css',
                 $themeDir . '/css/typography.css',
                 $themeDir . '/css/form.css',
@@ -104,16 +103,13 @@ class Page_Controller extends ContentController
 
         // @todo refactor when jplist-es6 has same functionality as jquery jplist
         if ($this->ClassName == 'FilmsPage' || $this->ClassName == 'TelevisionPage') {
-            Requirements::customCSS('.list-media__poster {background-image: url(\'/themes/default/images/blank.png\');}');
             Requirements::themedCSS('jplist.core.min');
             Requirements::themedCSS('jplist.textbox-filter.min');
             Requirements::themedCSS('jplist.filter-toggle-bundle.min');
             Requirements::themedCSS('jplist.checkbox-dropdown.min');
             Requirements::themedJavascript('jplist.core.min');
             Requirements::themedJavascript('jplist.pagination-bundle.min');
-            Requirements::themedJavascript('jplist.bootstrap-filter-dropdown.min');
             Requirements::themedJavascript('jplist.filter-dropdown-bundle.min');
-            Requirements::themedJavascript('jplist.filter-toggle-bundle.min');
             Requirements::themedJavascript('jplist.checkbox-dropdown.min');
             Requirements::themedJavascript('jplist.textbox-filter.min');
             Requirements::themedJavascript('jplist.history-bundle.min');

@@ -4,7 +4,7 @@
     <% if $getCountTitles('series') > 0 %>
     <p>$getCountTitles('series')
         <% loop $Member %>
-            movies are listed in $FirstName {$Surname}'s catalogue.</p>
+            series are listed in $FirstName {$Surname}'s catalogue.</p>
         <% end_loop %>
 
         <div class="content">
@@ -24,7 +24,7 @@
                             </div>
                             <div class="list-media__metadata">
                                 <span class="list-media__metadata-source badge">$Source</span>
-                                <span class="list-media__metadata-status {$Status} badge badge-pill">$Status</span>
+                                <span class="list-media__metadata-status {$Status} badge">$Status</span>
                                 <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
                                 <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
                                 <p class="list-media__maintenance">Updated $LastEdited.Ago by <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a></p>
@@ -36,7 +36,7 @@
                 </div>
                 <!-- no results found -->
                 <div class="jplist-no-results jplist-hidden">
-                    <p>No films were found</p>
+                    <p>No series were found</p>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
     <% else %>
         <div class="catalogue">
             <div class="jplist-panel">
-                <p>User does not have any films in their catalogue. Try another user?</p>
+                <p>User does not have any series in their catalogue. Try another user?</p>
 
                 <div class="jplist-drop-down" data-control-type="filter-drop-down" data-control-name="profile-filter">
                     <ul>
