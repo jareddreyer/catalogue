@@ -7,42 +7,49 @@
         <% end_loop %>
 
         <% if $profile %>
-            <% loop $Metadata %>
+            <% loop $profile %>
                 <div class="videoPoster">
                     $Poster.setWidth(250)
                 </div>
 
-                <div class="videoDetailsContainer">
-                    <h2 class="name"><% loop $Up.profile %>$Title<% end_loop %> <span class="year">($Year)</span></h2>
-                    <p class="videoDetails">$Rated | $Runtime | <% loop $Up.profile %>$genres<% end_loop %> | <span title="IMDB rating">$Rating <i class="fa fa-star rating" aria-hidden="true"></i></span></p>
-                    <p>$Plot</p>
-                    <hr>
-                    <ul class="videoDetails">
-                        <li class="director">
-                            <strong>Director(s):</strong> $Director
-                        </li>
-                        <li class="starring"><strong>Stars:</strong> $Actors</li>
-                        <% loop $Up.profile %>
-                            <% if $Status %>
-                                <li class="status"><strong>Status:</strong> $Status</li>
-                            <% end_if %>
-                            <% if $Source %>
-                               <li class="source"><strong>Source:</strong> $Source</li>
-                            <% end_if %>
-                            <% if $Quality %>
-                                <li class="quality"><strong>Quality:</strong> $Quality</li>
-                            <% end_if %>
-                            <li>Last updated $LastEdited.Ago</li>
-                        <% end_loop %>
-                        <li>
-                            <a href="mailto: $Email?subject=Can I get $Title off you?<eom>">Request a copy</a>
-                        </li>
-                        <li>
-                            <a href="{$Up.MaintenanceFormPageLink}edit/<% loop $Up.profile %>$ID<% end_loop %>">[ edit ]</a>
-                        </li>
-                    </ul>
+                <div class="video-details__container">
+                    <h2 class="video-details__title">$Title <span class="year">($Year)</span></h2>
+                    <p class="video-details__ratings">
+                        <% loop $Up.Metadata %>$Rated<% end_loop%> |
+                        <% loop $Up.Metadata %>$Runtime<% end_loop%> |
+                        $genres |
+                        <% loop $Up.Metadata %><span title="IMDB rating">$Rating <i class="fa fa-star rating" aria-hidden="true"></i></span><% end_loop%>
+                    </p>
+
+                    <% loop $Up.Metadata %>
+                        <p>$Plot</p>
+
+                        <ul class="video-details__credits">
+                            <li class="director">
+                                <strong>Director(s):</strong> $Director
+                            </li>
+                            <li class="starring"><strong>Stars:</strong> $Actors</li>
+                            <% if $Top.seasonLinks %><li><strong>Seasons: </strong>$Top.seasonLinks</li><% end_if %>
+                        </ul>
+                    <% end_loop %>
+                    <div class="video-details__utilities">
+                        <a href="mailto: $Email?subject=Can I get $Title off you?<eom>" title="Request a copy of {$Title}"><i class="fa fa-plus-circle"></i></a>
+                        <a href="{$Up.MaintenanceFormPageLink}edit/$ID" title="Edit {$Title}"><i class="fa fa-pencil-square-o"></i></a>
+                    </div>
+                    <div class="video-details__metadata">
+                        <p class="video-details__metadata-updated">Updated $LastEdited.Ago by <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a></p>
+                        <% if $Status %>
+                            <span class="badge" title="The title availability is $Status">$Status</span>
+                        <% end_if %>
+                        <% if $Source %>
+                            <span class="badge" title="Source of media">$Source</span>
+                        <% end_if %>
+                        <% if $Quality %>
+                            <span class="badge" title="Quality of download:">$Quality</span>
+                        <% end_if %>
+                    </div>
                 </div>
-            <% end_loop %>
+            <% end_loop%>
             <% if $relatedTitles || $seeAlsoTitles %>
                 <div class="view-also__container clear">
                     <% if $relatedTitles %>

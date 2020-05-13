@@ -10,14 +10,30 @@ p.hide { display: none }
 .rating { color: #c39400}
 span.small, .year { font-size: 60%}
 
-p.videoDetails { margin-top: -16px}
-ul.videoDetails li { list-style-type: none }
-ul.videoDetails { margin: 0 0 20px }
-
-.videoDetailsContainer {
-
+ul.video-details__credits li { list-style-type: none }
+.video-details__metadata {
+    margin: 0 0 20px;
+    margin-top: 10rem;
+    text-align: right;
 }
-.view-also__container {
+p.video-details__metadata-updated { font-size: 1rem; margin: 0 }
+.video-details__container h2 {
+    margin-bottom: 0;
+}
+
+.video-details__utilities {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-left: 2rem;
+    font-size: 1.6rem;
+}
+
+.video-details__container {
+    position: relative;
+}
+
+.video-details__containerr {
 }
 
 .related-titles__titles,
@@ -47,9 +63,7 @@ ul.videoDetails { margin: 0 0 20px }
 {
     transform: scale(1.05);
 }
-.videoDetailsContainer .name {
-    margin-bottom: 1rem;
-}
+
 .comments { cursor: pointer}
 .films li img { float: left}
 .imageList { clear: both}
