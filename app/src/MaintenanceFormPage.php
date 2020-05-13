@@ -77,24 +77,30 @@ class MaintenanceFormPage_Controller extends Page_Controller
         $submitCaption = ($automap) ? 'Update' : 'Add';
 
         if(isset($automap->Type)) {
-            if($automap->Type == 'film') {
-                $sourceArr = $this->getSourceTypes('film');
+            if($automap->Type == 'movie') {
+                $sourceArr = $this->getSourceTypes('movie');
             } else {
-                $sourceArr = $this->getSourceTypes('tv');
+                $sourceArr = $this->getSourceTypes('series');
             }
         }
 
         // Create fields
         $fields = FieldList::create(
             TextField::create('Title', 'Video Title'),
-            DropDownField::create('Type', 'Type of Video', ['series' =>'Series (TV/Web)' , 'film' =>'Film'])->setEmptyString('Select type of media'),
-            TextField::create('Genre', 'Genre')->setDescription('Select a genre by typing a keyword e.g. Comedy'),
-            TextField::create('Keywords', 'Keywords')->setDescription('Add a keyword/tag to the title e.g. Marvel'),
-            TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine"'),
-            TextField::create('Seasons', 'Seasons')->setDescription('Select a Season or type Seasons owned e.g. Season 1'),
+            DropDownField::create('Type', 'Type of Video',
+                [
+                    'series' => 'Series (TV/Web)',
+                    'movie'  => 'Movie'
+                ]
+            )->setEmptyString('Select type of media'),
+            TextField::create('Genre', 'Genre')->setDescription('Tag a genre by typing e.g. Comedy'),
+            TextField::create('Keywords', 'Keywords')->setDescription('Tag the title with a keyword e.g. Marvel'),
+            TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine". This should match one of your keywords'),
+            TextField::create('Seasons', 'Seasons')->setDescription('Select seasons you have e.g. Season 2'),
             DropDownField::create('Status', 'Current Status of title',
                 [
                     'Downloaded'  => 'Downloaded - file complete',
+                    'Online'      => 'Online - streaming',
                     'Physical'    => 'Phyiscal copy - hard copy only',
                     'Downloading' => 'Dowloading - in progress',
                     'Wanted'      => 'Wanted - need a copy of',
@@ -105,11 +111,11 @@ class MaintenanceFormPage_Controller extends Page_Controller
             // @todo refactor this into global array
             DropDownField::create('Quality', 'Resolution of download (quality)',
                 [
-                    '4k'    => '4k',
-                    '1440p' => '1440p',
-                    '1080p' => '1080p',
-                    '720p'  => '720p',
-                    '480p'  => '480p',
+                    '4k'    => '4k - top quality',
+                    '1440p' => '1440p - amazing quality',
+                    '1080p' => '1080p - great quality',
+                    '720p'  => '720p - good quality',
+                    '480p'  => '480p - average quality',
                 ]
             )->setEmptyString('Select quality'),
             HiddenField::create('OwnerID', '', Member::currentUserID()),
@@ -222,13 +228,15 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
     /**
      * Builds source arrays for maintenance forms
+     * @todo make sure this list is outputted to a JS var so the javascript usage uses same values.
+     *
      * @param $type <string>
      * @return mixed
      */
     public function getSourceTypes($type = null)
     {
         switch ($type) {
-            case 'film':
+            case 'movie':
                 $source = [
                     'Bluray'      => 'BD/BRRip',
                     'DVD'         => 'DVD',

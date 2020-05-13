@@ -102,12 +102,13 @@
             data-control-type="checkbox-dropdown"
             data-control-action="filter"
             data-no-selected-text="Filter by keywords"
+            data-logic="and"
             data-one-item-text="Filtered by {selected}"
             data-many-items-text="{num} filters selected"
             data-control-name="list-media__metadata-keywords"
         >
             <ul>
-                <% loop $getMetadataFilters($ClassName,'Keywords') %><li class="jplist-group-item">$filters</li><% end_loop %>
+                <% loop $getMetadataFilters($ClassName,'Keywords') %><li>$filters</li><% end_loop %>
             </ul>
         </div>
     <% end_if %>
@@ -119,10 +120,11 @@
         data-control-action="paging"
         data-control-name="paging"
         data-control-type="items-per-page-drop-down"
+        data-default="false"
     >
         <div class="jplist-dd-panel">3 per page</div>
         <ul>
-            <li class="active"><span data-number="10"> 10 per page </span></li>
+            <li><span data-number="10"> 10 per page </span></li>
             <li><span data-number="20"> 20 per page </span></li>
             <li><span data-number="20"> 30 per page </span></li>
             <li><span data-number="all"> View All </span></li>
@@ -141,6 +143,7 @@
         data-control-action="paging"
         data-control-name="paging"
         data-control-type="pagination"
+        data-range="10"
     ></div>
 
 </div>

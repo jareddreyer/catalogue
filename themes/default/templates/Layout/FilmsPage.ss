@@ -1,8 +1,8 @@
 <div class="content-container unit size3of4 lastUnit">
     <h1>$Title</h1>
 
-    <% if $getCountTitles('film') > 0 %>
-    <p>$getCountTitles('film')
+    <% if $getCountTitles('movie') > 0 %>
+    <p>$getCountTitles('movie')
         <% loop $Member %>
             movies are listed in $FirstName {$Surname}'s catalogue.</p>
         <% end_loop %>
@@ -11,7 +11,7 @@
             <div class="catalogue">
                 <% include SearchHeader %>
                 <div class="list-media__container">
-                    <% loop $films %>
+                    <% loop $movies %>
                         <div class="list-media__item">
                             <div class="list-media__poster-wrapper">
                                 <a href="{$Up.ProfileURL}title/{$ID}" class="list-media__title hvr-grow" title="Browse {$Title} (Updated {$LastEdited.Ago})">

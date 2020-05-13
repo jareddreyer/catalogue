@@ -35,8 +35,8 @@ class FilmsPage_Controller extends Page_Controller
         $media = Catalogue::get()
             ->filter(
                 [
-                    'Type'=>'film',
-                    'OwnerID' => $this->slug
+                    'Type'      => 'movie',
+                    'OwnerID'   => $this->slug
                 ])
             ->sort('Title', 'ASC');
 
@@ -50,7 +50,7 @@ class FilmsPage_Controller extends Page_Controller
 
         return $this->customise(
             [
-                'films' => $result
+                'movies' => $result
             ]
         );
 	}

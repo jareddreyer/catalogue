@@ -205,7 +205,7 @@ class Page_Controller extends ContentController
             $recentlyAdded = Catalogue::get()
                 ->where('Created BETWEEN (CURRENT_DATE() - INTERVAL 1 MONTH) AND CURRENT_DATE()')
                 ->limit(15)
-                ->sort('LastEdited DESC');
+                ->sort('Created DESC');
 
             return $recentlyAdded;
         }
@@ -316,7 +316,7 @@ class Page_Controller extends ContentController
         if(DataObject::get_one('Image', ['ID' => $cataloguePosterID->PosterID]) === false)
         {
             // save file and create dataobject image.
-            $poster = $this->savePosterImage($cataloguePosterID, $poster, $filename, $data->{'Title'}, $data->{'Year'} );
+            $poster = $this->savePosterImage($cataloguePosterID->ID, $poster, $filename, $data->{'Title'}, $data->{'Year'} );
 
             return $poster;
         } else {
@@ -369,10 +369,13 @@ class Page_Controller extends ContentController
 
             // update the catalogue record to now use a dataobject relationship ID if Catalogue record exists.
             if($cataloguePosterID !== null) {
-                $updateCatalog = Catalogue::create();
-                $updateCatalog->ID = $cataloguePosterID->ID;
-                $updateCatalog->PosterID = $poster->ID;
-                $updateCatalog->write();
+                Catalogue::create()
+                    ->update(
+                        [
+                            'ID'        => $cataloguePosterID,
+                            'PosterID'  => $poster->ID,
+                        ]
+                    )->write();
             }
         }
 
@@ -422,14 +425,14 @@ class Page_Controller extends ContentController
     public function getMetadataFilters($ClassName, $filter)
     {
         $result = Catalogue::get();
-        $type = ($ClassName == 'FilmsPage') ? 'film' : 'series';
+        $type = ($ClassName == 'FilmsPage') ? 'movie' : 'series';
 
         // films
         if($filter == 'Keywords') {
             $filtersResult = $result->filter(
                 [
-                    'Type' => $type,
-                    'OwnerID' => $this->slug,
+                    'Type'         => $type,
+                    'OwnerID'      => $this->slug,
                     'Keywords:not' => ''
                 ]
             )->column('Keywords');
@@ -438,8 +441,8 @@ class Page_Controller extends ContentController
         if($filter == 'Genre') {
             $filtersResult = $result->filter(
                 [
-                    'Type' => $type,
-                    'OwnerID' => $this->slug,
+                    'Type'      => $type,
+                    'OwnerID'   => $this->slug,
                     'Genre:not' => ''
                 ]
             )->column('Genre');
@@ -458,15 +461,15 @@ class Page_Controller extends ContentController
                     $filtersList->push(ArrayData::create(
                         [
                             'filters' =>
-                                '<input id="'.$filters.'" data-path=".'. str_replace(' ', '', $filters).'" type="checkbox">'."\n\r".
+                                '<input id="'.$filters.'" data-path=".'. str_replace([' ',':'], '', $filters).'" type="checkbox">'."\n\r".
                                 '<label for="'.$filters.'">'.$filters.' '.
                                 '<span
                                      data-control-type="counter"
                                      data-control-action="counter"
                                      data-control-name="'.$filters.'-counter"
                                      data-format="({count})"
-                                     data-path=".'.str_replace(' ', '', $filters).'"
-                                     data-mode="filter"
+                                     data-path=".'.str_replace([' ',':'], '', $filters).'"
+                                     data-mode="all"
                                      data-type="path"></span>'.
                                 '</label>'
                         ]
@@ -495,7 +498,7 @@ class Page_Controller extends ContentController
 
         foreach ($explode as $value)
         {
-            $listoption .= '<span class="hidden '.str_replace(' ', '', $value).'">'.$value.'</span>';
+            $listoption .= '<span class="hidden '.str_replace([' ', ':'], '', $value).'">'.$value.'</span>';
         }
 
         return $listoption;

@@ -56,7 +56,6 @@ class ProfilePage_Controller extends Page_Controller
 
         if($title->Seasons != null)
         {
-
             // remove season word so we get a list of just numbers csv
             $seasons = str_replace('Season ', '', $title->Seasons);
             $arraySeasons = explode(',', $seasons);
@@ -243,6 +242,7 @@ class ProfilePage_Controller extends Page_Controller
                     $metadata
                         ->update(
                             [
+                                'Name'      => $jsonFilename,
                                 'Title'     => $imdbMetadata->Title . ' (' . $data->{'Year'} . ')',
                                 'ParentID'  => $parentID->ID,
                                 'Filename ' => ASSETS_DIR . $this->jsonAssetsFolderName . $jsonFilename,

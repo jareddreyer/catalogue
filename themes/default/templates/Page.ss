@@ -9,15 +9,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	$MetaTags(false)
-	<style type="text/css">
-		.list-media__poster {background-image: url('/themes/default/images/blank.png')};
-	</style>
+
 	<% require css('http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css') %>
 	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="prefetch" as="image" href="/themes/default/Images/blank.png">
 
 </head>
 
 <body class="$ClassName<% if not $Menu(2) %> no-sidebar<% end_if %>" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
+
+<img class="hidden" src="/themes/default/Images/blank.png">
 <% include Header %>
 <div class="main" role="main">
 	<div class="inner typography line">

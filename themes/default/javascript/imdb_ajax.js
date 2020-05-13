@@ -1,7 +1,7 @@
 //arrays of select options
 var filmarr = [
 	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD-R'},
+	  {val : 'DVD', text: 'DVD'},
 	  {val : 'screener', text: 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR'},
 	  {val : 'cam', text: 'CAMRip/CAM/TS/TELESYNC'},
 	  {val : 'vod', text: 'VODRip/VODR'},
@@ -10,7 +10,7 @@ var filmarr = [
 
 var tvarr = [
 	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD-R'},
+	  {val : 'DVD', text: 'DVD'},
 	  {val : 'HDTV', text: 'HD TV'},
 	  {val : 'SDTV', text: 'SD TV'},
 	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
@@ -89,7 +89,7 @@ $(function()
 				populateSelect(tvarr, '#Form_Form_Source');
 			}
 
-			if($('#Form_Form_Type').val() == 'film')
+			if($('#Form_Form_Type').val() == 'movie')
 			{
 				$('#Form_Form_Seasons_Holder').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
@@ -177,7 +177,7 @@ function imdblookup(id)
 
 				 	if(data.Type == 'movie')
 				 	{
-				 		$('#Form_Form_Type').val('film');
+				 		$('#Form_Form_Type').val('movie');
 				 		$('#Form_Form_Seasons_Holder').hide();
 				 		$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 				 		populateSelect(filmarr, '#Form_Form_Source');
