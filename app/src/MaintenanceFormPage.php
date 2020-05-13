@@ -17,10 +17,40 @@ class MaintenanceFormPage_Controller extends Page_Controller
         'Poster/$poster' => 'savePosterPreview'
     ];
 
+    //set up types of sources for movies
+    private static $moviesSourceArray = [
+        'Bluray'      => 'BD/BRRip',
+        'DVD'         => 'DVD',
+        'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
+        'cam'         => 'CAMRip/CAM/TS/TELESYNC',
+        'vod'         => 'VODRip/VODR',
+        'WebM'        => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
+    ];
+
+    // set up types of sources for television
+    private static $seriesSourceArray = [
+        'Bluray'  => 'BD/BRRip',
+        'DVD'     => 'DVD',
+        'HDTV'    => 'HD TV',
+        'SDTV'    => 'SD TV',
+        'WebM'    => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
+    ];
+
     public function init()
     {
          parent::init();
          Requirements::themedJavascript('tag-it.min');
+         Requirements::customScript('
+           let filmarr = [
+                '. $this->getSourceArrayTypes('moviesSourceArray')
+           .'];
+
+           let tvarr = [
+                '. $this->getSourceArrayTypes('seriesSourceArray').
+           '];
+          
+         ');
+
          Requirements::themedJavascript('imdb_ajax');
     }
 
@@ -78,9 +108,9 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
         if(isset($automap->Type)) {
             if($automap->Type == 'movie') {
-                $sourceArr = $this->getSourceTypes('movie');
+                $sourceArr = self::$moviesSourceArray;
             } else {
-                $sourceArr = $this->getSourceTypes('series');
+                $sourceArr = self::$seriesSourceArray;
             }
         }
 
@@ -107,7 +137,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
                     'No Torrents' => 'No Torrents - cannot find video',
                 ]
             )->setEmptyString('Select status'),
-            DropDownField::create('Source', 'Source of download', $sourceArr ?? $this->getSourceTypes())->setEmptyString('Select source'),
+            DropDownField::create('Source', 'Source of download', $sourceArr ?? self::$moviesSourceArray)->setEmptyString('Select source'),
             // @todo refactor this into global array
             DropDownField::create('Quality', 'Resolution of download (quality)',
                 [
@@ -228,48 +258,21 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
     /**
      * Builds source arrays for maintenance forms
-     * @todo make sure this list is outputted to a JS var so the javascript usage uses same values.
-     *
      * @param $type <string>
-     * @return mixed
+     * @return string
      */
-    public function getSourceTypes($type = null)
+    public function getSourceArrayTypes($type)
     {
-        switch ($type) {
-            case 'movie':
-                $source = [
-                    'Bluray'      => 'BD/BRRip',
-                    'DVD'         => 'DVD',
-                    'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
-                    'cam'         => 'CAMRip/CAM/TS/TELESYNC',
-                    'vod'         => 'VODRip/VODR',
-                    'WebM'        => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
-                ];
-                break;
+        if(is_array(self::$$type)) {
+            $jsArray = '';
 
-            case 'series':
-                $source = [
-                    'Bluray'  => 'BD/BRRip',
-                    'DVD'     => 'DVD',
-                    'HDTV'    => 'HD TV',
-                    'SDTV'    => 'SD TV',
-                    'WebM'    => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
-                ];
-                break;
-            default:
-                $source = [
-                    'Bluray'   => 'BD/BRRip',
-                    'DVD'      => 'DVD',
-                    'screener' => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
-                    'cam'      => 'CAMRip/CAM/TS/TELESYNC',
-                    'vod'      => 'VODRip/VODR',
-                    'WebM'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
-                    'HDTV'     => 'HD TV',
-                    'SDTV'     => 'SD TV'
-                ];
-                break;
+            foreach (self::$$type as $key => $value) {
+                $jsArray .= '{val : \''.$key.'\', text: \''.$value.'\'},'."\r\t\t\t\t";
+            }
+            return $jsArray;
         }
 
-        return $source;
+        return;
     }
+
 }

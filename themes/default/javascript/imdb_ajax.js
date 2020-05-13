@@ -1,21 +1,3 @@
-//arrays of select options
-var filmarr = [
-	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD'},
-	  {val : 'screener', text: 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR'},
-	  {val : 'cam', text: 'CAMRip/CAM/TS/TELESYNC'},
-	  {val : 'vod', text: 'VODRip/VODR'},
-	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-	];
-
-var tvarr = [
-	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD'},
-	  {val : 'HDTV', text: 'HD TV'},
-	  {val : 'SDTV', text: 'SD TV'},
-	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-	];
-
 //OMDBAPI key string www.omdbapi.com - get your own free key
 // @todo: refactor to use base64 encryption and move this var into the template.
 let apikeyString = 'a0f02af4';
