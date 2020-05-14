@@ -1,6 +1,3 @@
-//OMDBAPI key string www.omdbapi.com - get your own free key
-// @todo: refactor to use base64 encryption and move this var into the template.
-let apikeyString = 'a0f02af4';
 let posterContainer = $('.loader');
 
 $(function()
@@ -14,7 +11,7 @@ $(function()
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
 						s: $('#Form_Form_Title').val(),
-						apikey: apikeyString
+						apikey: omdbAPIKey
 					},
 					 function(data)
 					 {
@@ -92,7 +89,7 @@ $(function()
 		$('#Form_Form_Keywords').on('change', function()
 		{
 			 $("#Form_Form_Trilogy").tagit({
-					singleFieldDelimiter: " , ",
+					singleFieldDelimiter: ",",
 					allowSpaces: true,
 					tagLimit: 1,
 					availableTags: $('#Form_Form_Keywords').tagit('assignedTags')
@@ -109,8 +106,8 @@ function getPosterThumb (poster, title, filename, year, IMDBID)
 	$.ajax({
 		type: "GET",
 		url: posterlink,
-
 		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
+
 		beforeSend: function() {
 			posterContainer.show();
 			console.log(filename);
@@ -131,7 +128,7 @@ function imdblookup(id)
 {
 	$.getJSON("http://www.omdbapi.com", {
 				i: id,
-				apikey: apikeyString
+				apikey: omdbAPIKey
 			 },
 			 function(data)
 			 {

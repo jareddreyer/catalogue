@@ -64,8 +64,14 @@ class Page extends SiteTree
 
 class Page_Controller extends ContentController
 {
-    public $member, $slug, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+    public $member, $slug, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+
     private static $omdbAPIKey;
+
+    private static $genresDefaultList = [
+        "Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller",
+        "Crime", "Documentary", "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"
+    ];
 
 	public function init()
     {
@@ -144,13 +150,11 @@ class Page_Controller extends ContentController
 
         // set up routing slugs
         $this->member = Member::currentUserID();
-        $this->slug = (int)Controller::curr()->getRequest()->param('ID') ?? $this->member;
-
-        // check if slug is set, if not then use currentMember()
+        $this->slug = (int)Controller::curr()->getRequest()->param('ID');
+        $this->slug = ($this->slug == 0) ? $this->member : $this->slug; // set slug if slug is 0 or missing.
 
 
         // get config variables
-        $this->apiKey = Config::inst()->get('Catalog', 'apiKey');
         $this->postersAssetsFolderName = Config::inst()->get('Catalog', 'postersAssetsFolderName');
         $this->jsonAssetsFolderName = Config::inst()->get('Catalog', 'jsonAssetsFolderName');
         $this->jsonPath = ASSETS_PATH . $this->jsonAssetsFolderName;
@@ -417,20 +421,34 @@ class Page_Controller extends ContentController
     }
 
     /**
-     * Creates filter of $type by 'Owner', and video 'Type', then returns as string ready
-     * for json inclusion on the JpList panel.
-     * Also sorts and removes duplicates
+     * Creates filter of $Type by 'Owner', and video 'Type', then returns as string ready
+     * for inclusion on the JpList panel.
      *
-     * @param $ClassName <string> - Used to set type ov media lookup
+     * If the $outputType flag is set then it will filter by all video 'Type's and output as a json_encoded string.
+     *
+     * This function also sorts and removes duplicates
+     *
+     * @param string $ClassName - Used to set type ov media lookup
      * @param $filter <string> - Select Genres or Keywords.
+     * @param mixed $outputType - jplist filter or tagit filter e.g. 'json' - Default is null ('html')
      * @return string|void
      */
-    public function getMetadataFilters($ClassName, $filter)
+    public function getMetadataFilters($ClassName, $filter, $outputType = null)
     {
         $result = Catalogue::get();
-        $type = ($ClassName == 'FilmsPage') ? 'movie' : 'series';
 
-        // films
+        switch ($ClassName){
+            case 'FilmsPage':
+                $type = 'movie';
+                break;
+            case 'TelevisionPage':
+                $type = 'series';
+                break;
+            case 'MaintenanceFormPage':
+                $type = ['movie', 'series'];
+                break;
+        }
+
         if($filter == 'Keywords') {
             $filtersResult = $result->filter(
                 [
@@ -458,25 +476,30 @@ class Page_Controller extends ContentController
                 $filterArr = self::convertAndCleanList($filtersResult, ',');
                 $filtersList = ArrayList::create();
 
-                // build json string for both Keywords or Genres
-                foreach ($filterArr as $filters) {
+                if($outputType == 'json') {
+                    $filterArr = preg_replace("/[^a-zA-Z]/", '', $filterArr);
+                    array_walk($filterArr, function(&$filterArr){ return $filterArr = json_encode($filterArr); } );
+                    $filtersList = implode(',', $filterArr);
 
-                    $filtersList->push(ArrayData::create(
-                        [
-                            'filters' =>
-                                '<input id="'.$filters.'" data-path=".'. str_replace([' ',':'], '', $filters).'" type="checkbox">'."\n\r".
-                                '<label for="'.$filters.'">'.$filters.' '.
-                                '<span
-                                     data-control-type="counter"
-                                     data-control-action="counter"
-                                     data-control-name="'.$filters.'-counter"
-                                     data-format="({count})"
-                                     data-path=".'.str_replace([' ',':'], '', $filters).'"
-                                     data-mode="all"
-                                     data-type="path"></span>'.
-                                '</label>'
-                        ]
-                    ));
+                } else {
+                    foreach ($filterArr as $filters) {
+                        $filtersList->push(ArrayData::create(
+                            [
+                                'filters' =>
+                                    '<input id="'.$filters.'" data-path=".'.preg_replace("/[^a-zA-Z]/", '', $filters).'" type="checkbox">'."\n\r".
+                                    '<label for="'.$filters.'">'.$filters.' '.
+                                    '<span
+                                         data-control-type="counter"
+                                         data-control-action="counter"
+                                         data-control-name="'.$filters.'-counter"
+                                         data-format="({count})"
+                                         data-path=".'.preg_replace("/[^a-zA-Z]/", '', $filters).'"
+                                         data-mode="all"
+                                         data-type="path"></span>'.
+                                    '</label>'
+                            ]
+                        ));
+                    }
                 }
 
                 return $filtersList;
@@ -487,21 +510,21 @@ class Page_Controller extends ContentController
     }
 
     /**
-     * Takes genres string element and splits them into array element for each genre
+     * Takes string from either Genres or Keywords field and splits them into array element
+     * then returns back as a string for display in frontend as individual <span> items.
      *
-     * @param $filter
-     * @param $field
+     * @param string $field - value of Genre or Keywords
      * @return string
      */
-    public function getFieldFiltersList($filter, $field)
+    public function getFieldFiltersList($field)
     {
-        $explode = explode(",", $field); //explode string to array by delimiter
+        $explode = explode(",", $field);
 
         $listoption = '';
 
         foreach ($explode as $value)
         {
-            $listoption .= '<span class="hidden '.str_replace([' ', ':'], '', $value).'">'.$value.'</span>';
+            $listoption .= '<span class="hidden '.preg_replace("/[^a-zA-Z]/", '', $value).'">'.$value.'</span>';
         }
 
         return $listoption;

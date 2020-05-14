@@ -44,8 +44,8 @@ class TelevisionPage_Controller extends Page_Controller
         $result = ArrayList::create();
 
         foreach ($media as $record) {
-            $record->genres = $this->getFieldFiltersList('genres', $record->Genre);
-            $record->keywords = $this->getFieldFiltersList('keywords', $record->Keywords);
+            $record->genres = $this->getFieldFiltersList($record->Genre);
+            $record->keywords = $this->getFieldFiltersList($record->Keywords);
             $result->push($record);
         }
 

@@ -56,38 +56,33 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
     public function Form()
     {
-         $genres = $this->getGenres();
-
-         ($genres !== null) ? $clean = parent::convertAndCleanList($genres, $pipe=',') : $clean = null;
-         ($clean !== null) ?  $genresJson = json_encode($clean) : $genresJson = json_encode(["Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"]);
+         $genres = $this->getMetadataFilters($this->ClassName, 'Genre', 'json') ?? json_encode(static::$genresDefaultList);
+         $keywords = $this->getMetadataFilters($this->ClassName, 'Keywords', 'json');
 
          Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
                     singleFieldDelimiter: ",",    
                     allowSpaces: true,
-                    availableTags: ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5", "Season 6", "Season 7", "Season 8", "Season 9" , "Season 10", "Season 11", "Season 12", "Season 13", "Season 14", "Season 15", "Season 16"]
+                    availableTags: ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5", "Season 6", "Season 7", 
+                    "Season 8", "Season 9" , "Season 10", "Season 11", "Season 12", "Season 13", "Season 14", 
+                    "Season 15", "Season 16", "Season 17", "Season 18", "Season 19", "Season 20", "Season 21"]
                 });
                 
                 $("#Form_Form_Genre").tagit({
                     singleFieldDelimiter: ",",    
-                    availableTags: '.$genresJson.'
+                    availableTags: ['. $genres .']
                 });
                                      
             ');
 
-        //include js
-        $keywords = $this->getKeywords();
-
         if($keywords != null)
         {
-            $clean = parent::convertAndCleanList($keywords, $pipe=',');
-            $json = json_encode($clean); // turn into json array for jquery library
 
             Requirements::customScript('
               $("#Form_Form_Keywords").tagit({
                     singleFieldDelimiter: ",",
                     allowSpaces: true,
-                    availableTags: '. $json .'
+                    availableTags: ['. $keywords .']
                 });
             ');
 
@@ -226,34 +221,6 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
             return $image = '<img data-posterid="'.$result->ID.'" src="'.$result->scaleWidth(250)->Link().'" alt="'.$result->Title.'">';
         }
-    }
-
-    /**
-     * gets distinct all keywords from records
-     *
-     * @return array|bool
-     */
-    public function getKeywords()
-    {
-        $result = Catalogue::get();
-
-        if($result->exists()) {
-            return $result->sort('Keywords')->where('Keywords is not null')->column(  "Keywords");
-        }
-
-        return false;
-    }
-
-    /**
-     * gets distinct all Genres from records
-     *
-     * @return object
-     */
-    public function getGenres()
-    {
-        $result = Catalogue::get();
-
-        return ($result->exists()) ? $result->sort('Genre')->where('Genre is not null')->column( "Genre") : $result = null;
     }
 
     /**
