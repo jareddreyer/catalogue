@@ -65,16 +65,19 @@ class Page extends SiteTree
 class Page_Controller extends ContentController
 {
     public $member, $slug, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+    private static $omdbAPIKey;
 
 	public function init()
     {
 		parent::init();
 
+        self::$omdbAPIKey = omdbAPIKey;
+        Requirements::customScript('let omdbAPIKey = \''.self::$omdbAPIKey.'\'');
+
         $themeDir = $this->ThemeDir();
         Requirements::set_write_js_to_body(true);
         Requirements::set_force_js_to_bottom(true);
         Requirements::set_combined_files_folder($themeDir.'/dist');
-        // this needs to be higher up load order so blank images display before actual posts download
 
         Requirements::combine_files(
             'app.css',

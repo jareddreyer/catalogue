@@ -7,6 +7,5 @@ SSViewer:
 Catalog:
   postersAssetsFolderName: '/posters/'
   jsonAssetsFolderName: '/posters/json-metadata/'
-  apiKey: 'a0f02af4'
 GDBackend:
   default_Quality: 80
