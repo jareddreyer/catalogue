@@ -96,7 +96,7 @@
     </div>
 
     <!-- keywords filters -->
-    <% if $getMetadataFilters($ClassName,'Keywords') %>
+    <% if $getMetadataFilters($ClassName,'Keywords', null) %>
         <div
             class="jplist-checkbox-dropdown"
             data-control-type="checkbox-dropdown"
@@ -108,7 +108,7 @@
             data-control-name="list-media__metadata-keywords"
         >
             <ul>
-                <% loop $getMetadataFilters($ClassName,'Keywords') %><li>$filters</li><% end_loop %>
+                <% loop $getMetadataFilters($ClassName,'Keywords', null) %><li>$filters</li><% end_loop %>
             </ul>
         </div>
     <% end_if %>

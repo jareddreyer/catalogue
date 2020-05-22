@@ -24,6 +24,9 @@ class ProfilePage_Controller extends Page_Controller
         // get metadata for downloading and displaying
         $this->getMetadata();
 
+        // get trailers for this title
+
+
         // get db record
         $title = Catalogue::get()->byID($this->slug);
 
@@ -31,13 +34,15 @@ class ProfilePage_Controller extends Page_Controller
         {
             foreach ($title as $record)
             {
-                $record->genres = $this->getCleanGenresList($record->Genre);
+                $record->genres = $this->getFieldFiltersList($record->Genre, 'badge filters');
+                $record->keywords = $this->getFieldFiltersList($record->Keywords, 'badge filters');
                 $record->displayComments = parent::displayComments($record->Comments);
             }
 
             return $this->customise(
                 [
-                    'profile' => $record,
+                    'profile'   => $record,
+                    'trailers'  => $this->getTrailers()
                 ]
             );
         }
@@ -115,7 +120,7 @@ class ProfilePage_Controller extends Page_Controller
             $keywordsArrCount = count($keywordsArr);
 
             // we have more than one keyword
-            if($keywordsArrCount >= 1  ) {
+            if($keywordsArrCount >= 1 && $keywords->Keywords != $keywords->Trilogy  ) {
 
                 // grab us all the keywords that does not = Trilogy
                 if($trilogy = [$keywords->Trilogy]) {
@@ -127,7 +132,7 @@ class ProfilePage_Controller extends Page_Controller
                 //loop over values so we can create WHERE like clauses
                 $includeClauses = [];
                 foreach ($includeTitles as $value) {
-                    $includeClauses[] = 'Keywords LIKE \'%' . Convert::raw2sql($value) . '%\'';
+                    $includeClauses[] = '"Keywords" LIKE \'%' . Convert::raw2sql($value) . '%\'';
                 }
 
                 // close off the sql properly
@@ -143,8 +148,8 @@ class ProfilePage_Controller extends Page_Controller
 
             } else {
                 // we only have one keyword
-                return $video
-                    ->where('"Keywords = \'' . $keywords->Keywords . '\'')
+                $video
+                    ->where('"Keywords" = \'' . $keywords->Keywords . '\' AND "Trilogy" != "Keywords"')
                     ->exclude('ID', $this->slug);
             }
         }
@@ -178,12 +183,12 @@ class ProfilePage_Controller extends Page_Controller
                 $titleEncoded = urlencode($imdbMetadata->Title);
 
                 //Construct the API call
-                $url = "http://www.omdbapi.com/?apikey=" . $this->apiKey;
+                $url = "http://www.omdbapi.com/?apikey=" . self::$OMDBAPIKey;
 
                 if ($imdbMetadata->IMDBID == null) {
-                    $url .= '&t=' . $titleEncoded . '&type='.$imdbMetadata->Type;
+                    $url .= '&t=' . $titleEncoded . '&type='. $imdbMetadata->Type . '&plot=full';
                 } else {
-                    $url .= '&i=' . $imdbMetadata->IMDBID;
+                    $url .= '&i=' . $imdbMetadata->IMDBID . '&plot=full';
                 }
 
                 if ($imdbMetadata->Year !== null && $imdbMetadata->IMDBID == null) {
@@ -325,11 +330,69 @@ class ProfilePage_Controller extends Page_Controller
      * Helper function to tidy up the csv value of genres.
      * @todo this is legacy to help with incorrect tagIt jquery plugin setting for whitespaces after commas
      *
+     * @deprecated no longer required as tagIT should always use a pipe with no spaces.     *
      * @param $genres
      * @return mixed
      */
     public function getCleanGenresList ($genres)
     {
         return str_replace(',', ', ', $genres);
+    }
+
+    /**
+     * returns data for trailers from themoviedb.org
+     */
+    public function getTrailers()
+    {
+        //get video title and IMDBID values from Catalogue DB
+        $imdbMetadata = Catalogue::get()->setQueriedColumns(['Title' , 'IMDBID', 'Type'])->byID($this->slug);
+
+        if ($imdbMetadata !== null) {
+
+            //set type because tmdb uses 'tv' instead of 'series'
+            $type = $imdbMetadata->Type;
+            if($imdbMetadata->Type == 'series'){
+                $type = 'tv';
+            }
+
+            $apiSetupString = 'https://api.themoviedb.org/3/';
+            $tmdbAPIKey = 'api_key=' . self::$TMDBAPIKey;
+
+            // get ID from tmddb.org
+            try {
+
+                $apiURL = $apiSetupString. 'find/'.$imdbMetadata->IMDBID.'?'.$tmdbAPIKey.'&external_source=imdb_id';
+
+                $json = file_get_contents($apiURL);
+                $data = json_decode($json);
+
+            } catch (Exception $e) {
+                user_error('There was an issue connecting to the omdb API: ' . $e);
+            }
+
+            // now get trailers from id
+            try {
+                $id = $data->{$type.'_results'}[0]->{'id'};
+
+                $apiURL = $apiSetupString. $type.'/'.$id.'/videos?'.$tmdbAPIKey;
+                $json = file_get_contents($apiURL);
+                $data = json_decode($json);
+
+
+                $trailerKeysArray = array_keys(array_column($data->{'results'}, 'type'), 'Trailer');
+                $trailersArray = ArrayList::create();
+
+                foreach($trailerKeysArray as $value){
+                    $trailersArray->push(ArrayData::create((array)$data->{'results'}[$value]));
+                }
+
+                return $trailersArray;
+            } catch (Exception $e) {
+                user_error('There was an issue connecting to the tmdb API: ' . $e);
+            }
+
+            return;
+
+        }
     }
 }

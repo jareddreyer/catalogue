@@ -56,8 +56,8 @@ class MaintenanceFormPage_Controller extends Page_Controller
 
     public function Form()
     {
-         $genres = $this->getMetadataFilters($this->ClassName, 'Genre', 'json') ?? json_encode(static::$genresDefaultList);
-         $keywords = $this->getMetadataFilters($this->ClassName, 'Keywords', 'json');
+         $genres = $this->getMetadataFilters($this->ClassName, 'Genre', 'javascript') ?? json_encode(static::$genresDefaultList);
+         $keywords = $this->getMetadataFilters($this->ClassName, 'Keywords', 'javascript');
 
          Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
@@ -95,7 +95,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
             ');
         }
 
-        // override slug cause we need to check for null values specifically
+        // override slug because we need to check if we're logged in and if we have an ID slug
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
         $automap = ($this->slug) ? $automap = Catalogue::get()->byID($this->slug) : false;
 
@@ -143,7 +143,7 @@ class MaintenanceFormPage_Controller extends Page_Controller
                     '480p'  => '480p - average quality',
                 ]
             )->setEmptyString('Select quality'),
-            HiddenField::create('OwnerID', '', Member::currentUserID()),
+            HiddenField::create('OwnerID', '', $this->member),
             HiddenField::create('Comments'),
             HiddenField::create('IMDBID'),
             HiddenField::create('Year'),

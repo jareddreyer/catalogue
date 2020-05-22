@@ -66,9 +66,10 @@ class Page_Controller extends ContentController
 {
     public $member, $slug, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
 
-    private static $omdbAPIKey;
+    public static $OMDBAPIKey = OMDBAPIKey;
+    public static $TMDBAPIKey = TMDBAPIKey;
 
-    private static $genresDefaultList = [
+    public static $genresDefaultList = [
         "Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller",
         "Crime", "Documentary", "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"
     ];
@@ -77,8 +78,7 @@ class Page_Controller extends ContentController
     {
 		parent::init();
 
-        self::$omdbAPIKey = omdbAPIKey;
-        Requirements::customScript('let omdbAPIKey = \''.self::$omdbAPIKey.'\'');
+        Requirements::customScript('let OMDBAPIKey = \''.self::$OMDBAPIKey.'\'');
 
         $themeDir = $this->ThemeDir();
         Requirements::set_write_js_to_body(true);
@@ -119,6 +119,7 @@ class Page_Controller extends ContentController
             Requirements::themedJavascript('jplist.core.min');
             Requirements::themedJavascript('jplist.pagination-bundle.min');
             Requirements::themedJavascript('jplist.filter-dropdown-bundle.min');
+            Requirements::themedJavascript('jplist.filter-toggle-bundle.min');
             Requirements::themedJavascript('jplist.checkbox-dropdown.min');
             Requirements::themedJavascript('jplist.textbox-filter.min');
             Requirements::themedJavascript('jplist.history-bundle.min');
@@ -151,8 +152,18 @@ class Page_Controller extends ContentController
         // set up routing slugs
         $this->member = Member::currentUserID();
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
-        $this->slug = ($this->slug == 0) ? $this->member : $this->slug; // set slug if slug is 0 or missing.
 
+        // we have a currentUserID and no slug
+        if($this->member !== 0 && $this->slug === 0)
+        {
+            $this->slug = $this->member;
+        }
+
+        // we have a slug and no currentUserID
+        if($this->member === 0 && $this->slug !== 0)
+        {
+            $this->member = $this->slug;
+        }
 
         // get config variables
         $this->postersAssetsFolderName = Config::inst()->get('Catalog', 'postersAssetsFolderName');
@@ -453,7 +464,7 @@ class Page_Controller extends ContentController
             $filtersResult = $result->filter(
                 [
                     'Type'         => $type,
-                    'OwnerID'      => $this->slug,
+                    'OwnerID'      => $this->member,
                     'Keywords:not' => ''
                 ]
             )->column('Keywords');
@@ -463,7 +474,7 @@ class Page_Controller extends ContentController
             $filtersResult = $result->filter(
                 [
                     'Type'      => $type,
-                    'OwnerID'   => $this->slug,
+                    'OwnerID'   => $this->member,
                     'Genre:not' => ''
                 ]
             )->column('Genre');
@@ -476,8 +487,7 @@ class Page_Controller extends ContentController
                 $filterArr = self::convertAndCleanList($filtersResult, ',');
                 $filtersList = ArrayList::create();
 
-                if($outputType == 'json') {
-                    $filterArr = preg_replace("/[^a-zA-Z]/", '', $filterArr);
+                if($outputType == 'javascript') {
                     array_walk($filterArr, function(&$filterArr){ return $filterArr = json_encode($filterArr); } );
                     $filtersList = implode(',', $filterArr);
 
@@ -486,14 +496,14 @@ class Page_Controller extends ContentController
                         $filtersList->push(ArrayData::create(
                             [
                                 'filters' =>
-                                    '<input id="'.$filters.'" data-path=".'.preg_replace("/[^a-zA-Z]/", '', $filters).'" type="checkbox">'."\n\r".
+                                    '<input id="'.$filters.'" data-path=".'.$this->filterSafeCSS($filters).'" type="checkbox">'."\n\r".
                                     '<label for="'.$filters.'">'.$filters.' '.
                                     '<span
                                          data-control-type="counter"
                                          data-control-action="counter"
                                          data-control-name="'.$filters.'-counter"
                                          data-format="({count})"
-                                         data-path=".'.preg_replace("/[^a-zA-Z]/", '', $filters).'"
+                                         data-path=".'.$this->filterSafeCSS($filters).'"
                                          data-mode="all"
                                          data-type="path"></span>'.
                                     '</label>'
@@ -514,19 +524,36 @@ class Page_Controller extends ContentController
      * then returns back as a string for display in frontend as individual <span> items.
      *
      * @param string $field - value of Genre or Keywords
+     * @param string $classes - adds a css class name to the string
      * @return string
      */
-    public function getFieldFiltersList($field)
+    public function getFieldFiltersList($field, $classes)
     {
-        $explode = explode(",", $field);
-
-        $listoption = '';
-
-        foreach ($explode as $value)
+        if($explode = explode(",", $field))
         {
-            $listoption .= '<span class="hidden '.preg_replace("/[^a-zA-Z]/", '', $value).'">'.$value.'</span>';
+            $listoption = '';
+
+            foreach ($explode as $value)
+            {
+                $listoption .= '<span class="'.$classes.' '.$this->filterSafeCSS($value).'">'.$value.'</span> ';
+            }
+            return $listoption;
         }
 
-        return $listoption;
+
+
+        return;
+    }
+
+    /**
+     * Helper method to remove special chars and numbers out of metadata fields
+     * making it safe for css selectors
+     *
+     * @param string $string
+     * @return string|string[]|null
+     */
+    public function filterSafeCSS(string $string)
+    {
+        return preg_replace("/[^a-zA-Z]/", '', $string);
     }
 }

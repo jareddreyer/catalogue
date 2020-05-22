@@ -11,7 +11,7 @@ $(function()
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
 						s: $('#Form_Form_Title').val(),
-						apikey: omdbAPIKey
+						apikey: OMDBAPIKey
 					},
 					 function(data)
 					 {
@@ -128,7 +128,7 @@ function imdblookup(id)
 {
 	$.getJSON("http://www.omdbapi.com", {
 				i: id,
-				apikey: omdbAPIKey
+				apikey: OMDBAPIKey
 			 },
 			 function(data)
 			 {

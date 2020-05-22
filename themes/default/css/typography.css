@@ -149,7 +149,6 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 /* IMAGES
 -------------------------------------------- */
 .typography img {
-    border: 5px solid #d7d7d7;
     height: auto; /* resets the image height so that it maintains its aspect ratio when width is set */
 }
 .typography img.left {
