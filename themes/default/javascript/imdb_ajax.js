@@ -1,24 +1,3 @@
-//arrays of select options
-var filmarr = [
-	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD-R'},
-	  {val : 'screener', text: 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR'},
-	  {val : 'cam', text: 'CAMRip/CAM/TS/TELESYNC'},
-	  {val : 'vod', text: 'VODRip/VODR'},
-	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-	];
-
-var tvarr = [
-	  {val : 'Bluray', text: 'BD/BRRip'},
-	  {val : 'DVD', text: 'DVD-R'},
-	  {val : 'HDTV', text: 'HD TV'},
-	  {val : 'SDTV', text: 'SD TV'},
-	  {val : 'web', text: 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'}
-	];
-
-//OMDBAPI key string www.omdbapi.com - get your own free key
-// @todo: refactor to use base64 encryption and move this var into the template.
-let apikeyString = 'a0f02af4';
 let posterContainer = $('.loader');
 
 $(function()
@@ -32,7 +11,7 @@ $(function()
 				source: function(request, response) {
 					$.getJSON("http://www.omdbapi.com", {
 						s: $('#Form_Form_Title').val(),
-						apikey: apikeyString
+						apikey: OMDBAPIKey
 					},
 					 function(data)
 					 {
@@ -89,7 +68,7 @@ $(function()
 				populateSelect(tvarr, '#Form_Form_Source');
 			}
 
-			if($('#Form_Form_Type').val() == 'film')
+			if($('#Form_Form_Type').val() == 'movie')
 			{
 				$('#Form_Form_Seasons_Holder').hide();
 				populateSelect(filmarr, '#Form_Form_Source');
@@ -110,7 +89,7 @@ $(function()
 		$('#Form_Form_Keywords').on('change', function()
 		{
 			 $("#Form_Form_Trilogy").tagit({
-					singleFieldDelimiter: " , ",
+					singleFieldDelimiter: ",",
 					allowSpaces: true,
 					tagLimit: 1,
 					availableTags: $('#Form_Form_Keywords').tagit('assignedTags')
@@ -127,8 +106,8 @@ function getPosterThumb (poster, title, filename, year, IMDBID)
 	$.ajax({
 		type: "GET",
 		url: posterlink,
-
 		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
+
 		beforeSend: function() {
 			posterContainer.show();
 			console.log(filename);
@@ -149,7 +128,7 @@ function imdblookup(id)
 {
 	$.getJSON("http://www.omdbapi.com", {
 				i: id,
-				apikey: apikeyString
+				apikey: OMDBAPIKey
 			 },
 			 function(data)
 			 {
@@ -177,7 +156,7 @@ function imdblookup(id)
 
 				 	if(data.Type == 'movie')
 				 	{
-				 		$('#Form_Form_Type').val('film');
+				 		$('#Form_Form_Type').val('movie');
 				 		$('#Form_Form_Seasons_Holder').hide();
 				 		$('#Form_Form_Source').find('option:not(:first)').remove(); //remove all options except for placeholder option
 				 		populateSelect(filmarr, '#Form_Form_Source');

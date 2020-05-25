@@ -17,102 +17,133 @@ class MaintenanceFormPage_Controller extends Page_Controller
         'Poster/$poster' => 'savePosterPreview'
     ];
 
+    //set up types of sources for movies
+    private static $moviesSourceArray = [
+        'Bluray'      => 'BD/BRRip',
+        'DVD'         => 'DVD',
+        'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
+        'cam'         => 'CAMRip/CAM/TS/TELESYNC',
+        'vod'         => 'VODRip/VODR',
+        'WebM'        => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
+    ];
+
+    // set up types of sources for television
+    private static $seriesSourceArray = [
+        'Bluray'  => 'BD/BRRip',
+        'DVD'     => 'DVD',
+        'HDTV'    => 'HD TV',
+        'SDTV'    => 'SD TV',
+        'WebM'    => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
+    ];
+
     public function init()
     {
          parent::init();
          Requirements::themedJavascript('tag-it.min');
+         Requirements::customScript('
+           let filmarr = [
+                '. $this->getSourceArrayTypes('moviesSourceArray')
+           .'];
+
+           let tvarr = [
+                '. $this->getSourceArrayTypes('seriesSourceArray').
+           '];
+          
+         ');
+
          Requirements::themedJavascript('imdb_ajax');
     }
 
     public function Form()
     {
-         $genres = $this->getGenres();
-
-         ($genres !== null) ? $clean = parent::convertAndCleanList($genres, $pipe='|') : $clean = null;
-         ($clean !== null) ?  $genresJson = json_encode($clean) : $genresJson = json_encode(["Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller", "Crime", "Documentary" , "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"]);
+         $genres = $this->getMetadataFilters($this->ClassName, 'Genre', 'javascript') ?? json_encode(static::$genresDefaultList);
+         $keywords = $this->getMetadataFilters($this->ClassName, 'Keywords', 'javascript');
 
          Requirements::customScript('
                 $("#Form_Form_Seasons").tagit({
-                    singleFieldDelimiter: " | ",    
+                    singleFieldDelimiter: ",",    
                     allowSpaces: true,
-                    availableTags: ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5", "Season 6", "Season 7", "Season 8", "Season 9" , "Season 10", "Season 11", "Season 12", "Season 13", "Season 14", "Season 15", "Season 16"]
+                    availableTags: ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5", "Season 6", "Season 7", 
+                    "Season 8", "Season 9" , "Season 10", "Season 11", "Season 12", "Season 13", "Season 14", 
+                    "Season 15", "Season 16", "Season 17", "Season 18", "Season 19", "Season 20", "Season 21"]
                 });
                 
                 $("#Form_Form_Genre").tagit({
-                    singleFieldDelimiter: " | ",    
-                    availableTags: '.$genresJson.'
+                    singleFieldDelimiter: ",",    
+                    availableTags: ['. $genres .']
                 });
                                      
             ');
 
-        //include js
-        $keywords = $this->getKeywords();
-
         if($keywords != null)
         {
-            $clean = parent::convertAndCleanList($keywords, $pipe=',');
-            $json = json_encode($clean); // turn into json array for jquery library
 
             Requirements::customScript('
               $("#Form_Form_Keywords").tagit({
-                    singleFieldDelimiter: " , ",
+                    singleFieldDelimiter: ",",
                     allowSpaces: true,
-                    availableTags: '. $json .'
+                    availableTags: ['. $keywords .']
                 });
             ');
 
         } else {
             Requirements::customScript('
               $("#Form_Form_Keywords").tagit({
-                    singleFieldDelimiter: " , ",
+                    singleFieldDelimiter: ",",
                     allowSpaces: true,
                 });
             ');
         }
 
-        // override slug cause we need to check for null values specifically
+        // override slug because we need to check if we're logged in and if we have an ID slug
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
         $automap = ($this->slug) ? $automap = Catalogue::get()->byID($this->slug) : false;
 
-        $submitCaption = ($automap) ? 'Edit' : 'Add';
+        $submitCaption = ($automap) ? 'Update' : 'Add';
 
         if(isset($automap->Type)) {
-            if($automap->Type == 'film') {
-                $sourceArr = $this->getSourceTypes('film');
+            if($automap->Type == 'movie') {
+                $sourceArr = self::$moviesSourceArray;
             } else {
-                $sourceArr = $this->getSourceTypes('tv');
+                $sourceArr = self::$seriesSourceArray;
             }
         }
 
         // Create fields
         $fields = FieldList::create(
             TextField::create('Title', 'Video Title'),
-            DropDownField::create('Type', 'Type of Video', ['series' =>'Series (TV/Web)' , 'film' =>'Film'])->setEmptyString('Select type of media'),
-            TextField::create('Genre', 'Genre')->setDescription('Select a genre by typing a keyword e.g. Comedy'),
-            TextField::create('Keywords', 'Keywords')->setDescription('Add a keyword/tag to the title e.g. Marvel'),
-            TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine"'),
-            TextField::create('Seasons', 'Seasons')->setDescription('Select a Season or type Seasons owned e.g. Season 1'),
+            DropDownField::create('Type', 'Type of Video',
+                [
+                    'series' => 'Series (TV/Web)',
+                    'movie'  => 'Movie'
+                ]
+            )->setEmptyString('Select type of media'),
+            TextField::create('Genre', 'Genre')->setDescription('Tag a genre by typing e.g. Comedy'),
+            TextField::create('Keywords', 'Keywords')->setDescription('Tag the title with a keyword e.g. Marvel'),
+            TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine". This should match one of your keywords'),
+            TextField::create('Seasons', 'Seasons')->setDescription('Select seasons you have e.g. Season 2'),
             DropDownField::create('Status', 'Current Status of title',
                 [
-                'Downloaded' => 'Downloaded - file complete',
-                'Physical' => 'Phyiscal copy - hard copy only',
-                'Downloading' => 'Dowloading - in progress',
-                'Wanted' => 'Wanted - need a copy of',
-                'No Torrents' => 'No Torrents - cannot find video',
+                    'Downloaded'  => 'Downloaded - file complete',
+                    'Online'      => 'Online - streaming',
+                    'Physical'    => 'Phyiscal copy - hard copy only',
+                    'Downloading' => 'Dowloading - in progress',
+                    'Wanted'      => 'Wanted - need a copy of',
+                    'No Torrents' => 'No Torrents - cannot find video',
                 ]
             )->setEmptyString('Select status'),
-            DropDownField::create('Source', 'Source of download', (isset($sourceArr)) ? $sourceArr : $this->getSourceTypes(null))->setEmptyString('Select source'),
+            DropDownField::create('Source', 'Source of download', $sourceArr ?? self::$moviesSourceArray)->setEmptyString('Select source'),
+            // @todo refactor this into global array
             DropDownField::create('Quality', 'Resolution of download (quality)',
                 [
-                '4k' => '4k',
-                '1440p' => '1440p',
-                '1080p' => '1080p',
-                '720p' => '720p',
-                '420p' => '420p',
-                '320p' => '320p'
+                    '4k'    => '4k - top quality',
+                    '1440p' => '1440p - amazing quality',
+                    '1080p' => '1080p - great quality',
+                    '720p'  => '720p - good quality',
+                    '480p'  => '480p - average quality',
                 ]
             )->setEmptyString('Select quality'),
-            HiddenField::create('OwnerID', '', Member::currentUserID()),
+            HiddenField::create('OwnerID', '', $this->member),
             HiddenField::create('Comments'),
             HiddenField::create('IMDBID'),
             HiddenField::create('Year'),
@@ -193,75 +224,22 @@ class MaintenanceFormPage_Controller extends Page_Controller
     }
 
     /**
-     * gets distinct all keywords from records
-     *
-     * @return array|bool
-     */
-    public function getKeywords()
-    {
-        $result = Catalogue::get();
-
-        if($result->exists()) {
-            return $result->sort('Keywords')->where('Keywords is not null')->column(  "Keywords");
-        }
-
-        return false;
-    }
-
-    /**
-     * gets distinct all Genres from records
-     *
-     * @return object
-     */
-    public function getGenres()
-    {
-        $result = Catalogue::get();
-
-        return ($result->exists()) ? $result->sort('Genre')->where('Genre is not null')->column( "Genre") : $result = null;
-    }
-
-    /**
      * Builds source arrays for maintenance forms
      * @param $type <string>
-     * @return mixed
+     * @return string
      */
-    public function getSourceTypes($type)
+    public function getSourceArrayTypes($type)
     {
-        switch ($type) {
-            case 'film':
-                $source = [
-                    'Bluray'      => 'BD/BRRip',
-                    'DVD'         => 'DVD-R',
-                    'screener'    => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
-                    'cam'         => 'CAMRip/CAM/TS/TELESYNC',
-                    'vod'         => 'VODRip/VODR',
-                    'web'         => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
-                ];
-                break;
+        if(is_array(self::$$type)) {
+            $jsArray = '';
 
-            case 'tv':
-                $source = [
-                    'Bluray'  => 'BD/BRRip',
-                    'DVD'     => 'DVD-R',
-                    'HDTV'    => 'HD TV',
-                    'SDTV'    => 'SD TV',
-                    'web'     => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL'
-                ];
-                break;
-            default:
-                $source = [
-                    'Bluray'   => 'BD/BRRip',
-                    'DVD'      => 'DVD-R',
-                    'screener' => 'SCR/SCREENER/DVDSCR/DVDSCREENER/BDSCR',
-                    'cam'      => 'CAMRip/CAM/TS/TELESYNC',
-                    'vod'      => 'VODRip/VODR',
-                    'web'      => 'WEB-Rip/WEBRIP/WEB Rip/WEB-DL',
-                    'HDTV'     => 'HD TV',
-                    'SDTV'     => 'SD TV'
-                ];
-                break;
+            foreach (self::$$type as $key => $value) {
+                $jsArray .= '{val : \''.$key.'\', text: \''.$value.'\'},'."\r\t\t\t\t";
+            }
+            return $jsArray;
         }
 
-        return $source;
+        return;
     }
+
 }

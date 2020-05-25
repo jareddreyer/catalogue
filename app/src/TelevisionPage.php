@@ -17,12 +17,7 @@ class TelevisionPage_Controller extends Page_Controller
 
     public function init()
     {
-
         parent::init();
-
-        //jplist css
-        Requirements::themedCSS('jplist.core.min');
-        Requirements::themedCSS('jplist.textbox-filter.min');
     }
 
     /**
@@ -37,149 +32,27 @@ class TelevisionPage_Controller extends Page_Controller
 
     public function television()
     {
-        $keywords = $this -> getKeywords();
+        // main SQL call
+        $media = Catalogue::get()
+            ->filter(
+                [
+                    'Type'      => 'series',
+                    'OwnerID'   => $this->slug
+                ])
+            ->sort('Title', 'ASC');
 
-        Requirements::customScript('
-            var availableKeywords = [
-            '. $keywords .'
-            ];
-            $(function() {
-     
-                $(".keywordsText").autocomplete({
-                    source: availableKeywords,
-                    minLength: 3,
-                    select: function(event, ui) {
-                        $(".keywordsText").trigger("input");
-                    },
-             
-                    html: true, // optional (jquery.ui.autocomplete.html.js required)
-                    
-                });
-            });
-         ');
-        Requirements::themedJavascript('catalogue-scripts');
+        $result = ArrayList::create();
 
-        $sqlQuery = "SELECT Catalogue.*, Member.ID AS MID, Member.Email, Member.FirstName, Member.Surname 
-                     FROM Catalogue 
-                     LEFT JOIN Member ON Catalogue.OwnerID = Member.ID 
-                     WHERE Catalogue.Type = 'series'
-                     AND Catalogue.OwnerID = $this->slug
-                     ORDER BY Catalogue.Title";
-
-        $records = DB::query($sqlQuery);
-
-        if ($records)
-        {
-            $set = ArrayList::create();
-
-            foreach ($records as $record)
-            {
-                $record['lastupdatedreadable'] = parent::humanTiming($record['LastEdited']);
-                $record['seasonLinks'] = str_replace('Season', '', $record['Seasons']);
-                $record['genres'] = $this->listFilmGenres($record['Genre']);
-                $record['posters'] = $this->getPosterImage($record['PosterID']);
-
-                $set->push(ArrayData::create($record));
-            }
-
-            //return $set;
-            return $this->customise(array('television' => $set) );
+        foreach ($media as $record) {
+            $record->genres = $this->getFieldFiltersList($record->Genre, 'hidden');
+            $record->keywords = $this->getFieldFiltersList($record->Keywords, ' hidden');
+            $result->push($record);
         }
 
+        return $this->customise(
+            [
+                'television' => $result
+            ]
+        );
     }
-
-    /**
-     * gets keywords as a separate query
-     */
-    public function getKeywords()
-    {
-        $result = Catalogue::get()->sort('Keywords')->where('Keywords is not null')->column("Keywords");
-
-        if($result != null)
-        {
-
-            /** clean up keywords from DB **/
-            $_list = array(parent::convertAndCleanList($result, ','));
-
-            $listoption = "";
-            foreach($_list as $list)
-            {
-                foreach ($list as $value)
-                {
-                    $listoption .= '"'. $value.'",';
-                }
-            }
-
-            return $listoption;
-        }
-    }
-
-
-     /**
-     * @param string
-     *
-     * @desc takes genres string element and splits them into array element for each genre
-     *
-     * @return array
-     */
-    private function listFilmGenres ($genre)
-    {
-
-        $explode = explode("|", $genre); //explode string to array by comma
-
-        $listoption = "";
-        foreach ($explode as $value)
-        {
-            $listoption .= '<span class="hide genre '.str_replace(' ', '', $value).'">'.$value.'</span>';
-
-        }
-
-        return $listoption;
-
-    }
-
-    /**
-     * gets genres as a separate query
-     */
-    public function getGenres()
-    {
-
-        $result = Catalogue::get()->sort('Genre')->where('Genre is not null')->column($colName = "Genre");
-
-        if($result != null)
-        {
-
-            /** clean up keywords from DB **/
-            $implode = implode("|", $result); //implode array to string, saves foreaching
-            $trim = preg_replace('/\s+/', '', $implode); //remove white spaces before and after commas
-            $explode = explode("|", $trim); //explode string to array by comma
-            sort($explode); //sort the array alphabetically
-            $_list = array(array_keys(array_flip($explode)));  //get only unique elements
-
-
-            $genreList = "";
-            foreach($_list as $list)
-            {
-                foreach ($list as $value)
-                {
-                    $genreList .= "<li><span data-path=\".".$value."\">".$value."</span></li>";
-                }
-            }
-
-            return $genreList;
-        }
-    }
-
-    /**
-     * returns $this->members from parent::__getAllMembers
-     *
-     * @return object
-     *
-     */
-    public function getMembers()
-    {
-        return parent::getAllMembers(); // get all the members;
-    }
-
-
 }

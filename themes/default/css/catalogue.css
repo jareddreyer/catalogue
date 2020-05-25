@@ -1,3 +1,7 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
 .navbar-brand { padding: 0 }
 .header {
     background-color: #141414;
@@ -66,6 +70,108 @@ footer {
     padding: 30px 0;
 }
 
+/** jplist specific styling **/
+.list-media__container {
+    margin-top: 2rem;
+    display: grid;
+    justify-content: space-evenly;
+    grid-template-columns: repeat(auto-fill, 200px);
+    border-top: 1px solid #e5e5e5;
+    padding-top: 3rem;
+}
+
+.list-media__item {
+    clear: both;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.list-media__metadata-wrapper {
+    margin-top: 1rem;
+}
+
+.list-media__title-status {
+    bottom: 0;
+    left: 0;
+}
+
+.list-media__metadata {
+    margin-top: .8rem;
+}
+
+p.list-media__maintenance {
+    font-size: 1rem;
+}
+.list-media__poster {
+    height: 250px;
+    width: 170px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    transition: all .3s;
+}
+
+.list-media__poster:hover,
+.list-media__poster:focus,
+.list-media__poster:active {
+    transform: scale(1.05);
+}
+
+/** jplist overrides **/
+.jplist-panel
+{
+    margin-bottom: 3rem;
+}
+.catalogue .jplist-no-results {
+    padding: 6rem;
+    text-align: center;
+    clear: both;
+
+}
+.catalogue .jplist-no-results p {
+    font-size: 2rem;
+    font-weight: 700;
+}
+.jplist-pagination { clear: both; margin: inherit }
+
+.catalogue .jplist-panel .text-filter-box {
+    width: 30%;
+}
+
+.catalogue .jplist-panel input[type="text"] {
+    width: 81%;
+}
+
+.catalogue .jplist-checkbox-dropdown .jplist-dd-panel {
+    width: 100%;
+}
+
+.catalogue .jplist-checkbox-dropdown {
+    width: 30%;
+}
+
+.catalogue .jplist-checkbox-dropdown ul {
+    width: 100%;
+    max-height: 290px;
+    height: auto;
+    overflow-y: auto;
+}
+
+.catalogue .jplist-checkbox-dropdown ul li {
+    width: 100%;
+}
+
+div.jplist-drop-down > ul > li > a {
+    color: #337ab7
+}
+
+.badge.filters {
+    background-color: rgba(0,0,0,0.1);
+    border: 1px solid #D7D7D7;
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
 @media screen and (max-width: 767px) {
     .row-offcanvas {
         position: relative;

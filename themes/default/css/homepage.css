@@ -1,6 +1,6 @@
 .row
 {
-    overflow: hide;
+    overflow: hidden;
     width: 100%;
 }
 .row__inner
@@ -24,8 +24,8 @@
     cursor: pointer;
     -webkit-transition: 450ms all;
     transition: 450ms all;
-    -webkit-transform-origin: center left;
-    transform-origin: center left;
+    -webkit-transform-origin: center;
+    transform-origin: center;
 }
 .tile__img
 {
@@ -111,6 +111,7 @@ div.row__inner div.tile div.tile__media a img { width: 170px; height: 220px; bor
 a.scroll-arrow
 {
     color: #343434;
+    cursor: pointer;
     float: left;
     font-family: sans-serif;
     font-size: 4em;

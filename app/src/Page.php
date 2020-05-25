@@ -64,24 +64,35 @@ class Page extends SiteTree
 
 class Page_Controller extends ContentController
 {
-    public $member, $slug, $apiKey, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+    public $member, $slug, $postersAssetsFolderName, $jsonAssetsFolderName, $jsonPath, $postersPath;
+
+    public static $OMDBAPIKey = OMDBAPIKey;
+    public static $TMDBAPIKey = TMDBAPIKey;
+
+    public static $genresDefaultList = [
+        "Comedy", "Drama", "Horror", "Science Fiction", "Comic/Super Heroes", "Action", "Thriller",
+        "Crime", "Documentary", "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"
+    ];
 
 	public function init()
     {
 		parent::init();
 
+        Requirements::customScript('let OMDBAPIKey = \''.self::$OMDBAPIKey.'\'');
+
         $themeDir = $this->ThemeDir();
         Requirements::set_write_js_to_body(true);
         Requirements::set_force_js_to_bottom(true);
         Requirements::set_combined_files_folder($themeDir.'/dist');
+
         Requirements::combine_files(
-            'site.css',
+            'app.css',
             [
-                $themeDir . '/css/bootstrap.min.css',
                 $themeDir . '/css/reset.css',
                 $themeDir . '/css/typography.css',
                 $themeDir . '/css/form.css',
                 $themeDir . '/css/layout.css',
+                $themeDir . '/css/bootstrap.min.css',
                 $themeDir . '/css/profile.css',
                 $themeDir . '/css/jquery.tagit.css',
                 $themeDir . '/css/jquery-ui-overrides.css',
@@ -97,12 +108,24 @@ class Page_Controller extends ContentController
                $themeDir . '/javascript/jquery-ui-1.10.4.custom.min.js',
                $themeDir . '/javascript/bootstrap.min.js',
                $themeDir . '/javascript/tag-it.min.js',
-               $themeDir . '/javascript/jplist.core.min.js',
-               $themeDir . '/javascript/jplist.pagination-bundle.min.js',
-               $themeDir . '/javascript/jplist.filter-dropdown-bundle.min.js',
-               $themeDir . '/jplist.textbox-filter.min.js',
-               $themeDir . '/javascript/jplist.history-bundle.min.js'
             ]);
+
+        // @todo refactor when jplist-es6 has same functionality as jquery jplist
+        if ($this->ClassName == 'FilmsPage' || $this->ClassName == 'TelevisionPage') {
+            Requirements::themedCSS('jplist.core.min');
+            Requirements::themedCSS('jplist.textbox-filter.min');
+            Requirements::themedCSS('jplist.filter-toggle-bundle.min');
+            Requirements::themedCSS('jplist.checkbox-dropdown.min');
+            Requirements::themedJavascript('jplist.core.min');
+            Requirements::themedJavascript('jplist.pagination-bundle.min');
+            Requirements::themedJavascript('jplist.filter-dropdown-bundle.min');
+            Requirements::themedJavascript('jplist.filter-toggle-bundle.min');
+            Requirements::themedJavascript('jplist.checkbox-dropdown.min');
+            Requirements::themedJavascript('jplist.textbox-filter.min');
+            Requirements::themedJavascript('jplist.history-bundle.min');
+            Requirements::themedJavascript('jplist.counter-control.min');
+            Requirements::themedJavascript('catalogue-scripts');
+        }
 
         Requirements::customScript('
                 $("a.scroll-arrow").mousedown( function(e) {
@@ -130,11 +153,19 @@ class Page_Controller extends ContentController
         $this->member = Member::currentUserID();
         $this->slug = (int)Controller::curr()->getRequest()->param('ID');
 
-        // check if slug is set, if not then use currentMember()
-        (!$this->slug) ? $this->slug = $this->member : $this->slug;
+        // we have a currentUserID and no slug
+        if($this->member !== 0 && $this->slug === 0)
+        {
+            $this->slug = $this->member;
+        }
+
+        // we have a slug and no currentUserID
+        if($this->member === 0 && $this->slug !== 0)
+        {
+            $this->member = $this->slug;
+        }
 
         // get config variables
-        $this->apiKey = Config::inst()->get('Catalog', 'apiKey');
         $this->postersAssetsFolderName = Config::inst()->get('Catalog', 'postersAssetsFolderName');
         $this->jsonAssetsFolderName = Config::inst()->get('Catalog', 'jsonAssetsFolderName');
         $this->jsonPath = ASSETS_PATH . $this->jsonAssetsFolderName;
@@ -169,6 +200,16 @@ class Page_Controller extends ContentController
     }
 
     /**
+     * returns Member object so can call Firstname and Lastname of users catalog.
+     *
+     * @return DataObject
+     */
+    public function getMember()
+    {
+        return Member::get_by_id(Member::class, $this->slug);
+    }
+
+    /**
      * Returns object for either newly added titles or
      * updated titles
      *
@@ -182,7 +223,7 @@ class Page_Controller extends ContentController
             $recentlyAdded = Catalogue::get()
                 ->where('Created BETWEEN (CURRENT_DATE() - INTERVAL 1 MONTH) AND CURRENT_DATE()')
                 ->limit(15)
-                ->sort('LastEdited DESC');
+                ->sort('Created DESC');
 
             return $recentlyAdded;
         }
@@ -198,61 +239,21 @@ class Page_Controller extends ContentController
     }
 
     /**
-     *
-     * @param string
-     *
-     * returns string in human readable time
-     *
-     * @return string
-     *
-     */
-    public function humanTiming($time)
-    {
-
-            $currtime = time();
-
-            $ago = abs($currtime - strtotime($time));
-
-            if($ago < 60 ) {
-                $result = 'less than a minute';
-            } elseif($ago < 3600) {
-                $span = round($ago/60);
-                $result = ($span != 1) ? "{$span} ". "mins" : "{$span} ". "min";
-            } elseif($ago < 86400) {
-                $span = round($ago/3600);
-                $result = ($span != 1) ? "{$span} ". "hours" : "{$span} ". "hour";
-            } elseif($ago < 86400*30) {
-                $span = round($ago/86400);
-                $result = ($span != 1) ? "{$span} ". "days" : "{$span} ". "day";
-            } elseif($ago < 86400*365) {
-                $span = round($ago/86400/30);
-                $result = ($span != 1) ? "{$span} ". "months" : "{$span} ". "month";
-            } elseif($ago > 86400*365) {
-                $span = round($ago/86400/365);
-                $result = ($span != 1) ? "{$span} ". "years" : "{$span} "."year";
-            }
-
-            // Replace duplicate spaces, backwards compat with existing translations
-            $result = preg_replace('/\s+/', ' ', $result);
-
-            return $result;
-    }
-
-    /**
      * takes an array list and cleans it up ready to output as unique string
+     * and sorts alphabetically.
      *
-     * @param $array <array>
-     * @param $pipe <string>
+     * @param array $item
+     * @param string $pipe
      * @return array
      */
-    public function convertAndCleanList($array, $pipe)
+    public function convertAndCleanList($item, $pipe)
     {
-        /** clean up keywords from DB **/
+        if(is_array($item)) $implode = implode($pipe, $item);
+        $csv = str_getcsv($implode ?? $item, $pipe);
 
-        $implode = implode($pipe, $array); //implode array to string, saves foreaching
-        $csv = str_getcsv($implode, $pipe);
         array_walk($csv, function(&$csv){ return $csv = trim($csv); } );
         $unique = array_keys(array_flip($csv));  //get only unique elements
+        sort($unique, SORT_FLAG_CASE | SORT_STRING);
 
         return $unique;
     }
@@ -303,17 +304,14 @@ class Page_Controller extends ContentController
     /**
      * returns count of titles in catalogue by member
      *
+     * @param $type string
      * @return string
      */
-    public function countTitles()
+    public function getCountTitles($type)
     {
-
-        $type = ($this->Title == 'Movies') ? 'films' : 'series';
-
-        if($count = Catalogue::get()->filter(['Type'=> $type, 'OwnerID' => $this->slug])->count()) {
+        if($count = Catalogue::get()->filter(['Type' => $type, 'OwnerID' => $this->slug])->count()) {
             return $count;
         }
-
 
         return false;
     }
@@ -336,7 +334,7 @@ class Page_Controller extends ContentController
         if(DataObject::get_one('Image', ['ID' => $cataloguePosterID->PosterID]) === false)
         {
             // save file and create dataobject image.
-            $poster = $this->savePosterImage($cataloguePosterID, $poster, $filename, $data->{'Title'} );
+            $poster = $this->savePosterImage($cataloguePosterID->ID, $poster, $filename, $data->{'Title'}, $data->{'Year'} );
 
             return $poster;
         } else {
@@ -351,18 +349,18 @@ class Page_Controller extends ContentController
      * @param $src - base64 of Poster image data (from IMDBApi)
      * @param $filename - what the image dataobject filename and local filename will be
      * @param $Title - Name and Title of media (from data sources)
-     *
+     * @param $year - adds the year to the title if possible.
      * @return Image
      * @throws ValidationException
-     *
      * @see Catalogue::class
      */
     public function savePosterImage($cataloguePosterID = null,
                                     $src = null,
                                     $filename = null,
-                                    $Title = null)
+                                    $Title = null,
+                                    $year = null)
     {
-        // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
+        // @todo this needs refactoring in SS4 to use assetsFileStore class
         if(($poster = DataObject::get_one('Image', ['Title' => $Title])) !== false)
         {
             $poster = DataObject::get_one('Image', ['Title' => $Title]);
@@ -381,17 +379,21 @@ class Page_Controller extends ContentController
             }
 
             $poster = Image::create();
-            $poster->Title = $Title;
+
+            $poster->Title = $Title . ' (' . $year . ')';
             $poster->ParentID = $assetsParentID->ID;
             $poster->Filename = ASSETS_DIR . $this->postersAssetsFolderName . $filename;
             $poster->write();
 
             // update the catalogue record to now use a dataobject relationship ID if Catalogue record exists.
             if($cataloguePosterID !== null) {
-                $updateCatalog = Catalogue::create();
-                $updateCatalog->ID = $cataloguePosterID->ID;
-                $updateCatalog->PosterID = $poster->ID;
-                $updateCatalog->write();
+                Catalogue::create()
+                    ->update(
+                        [
+                            'ID'        => $cataloguePosterID,
+                            'PosterID'  => $poster->ID,
+                        ]
+                    )->write();
             }
         }
 
@@ -427,5 +429,131 @@ class Page_Controller extends ContentController
         $filetype = ($fileType == 'image') ? '.jpg' : '.txt';
 
         return $sanitized .'-'. $IMDBID . $filetype;
+    }
+
+    /**
+     * Creates filter of $Type by 'Owner', and video 'Type', then returns as string ready
+     * for inclusion on the JpList panel.
+     *
+     * If the $outputType flag is set then it will filter by all video 'Type's and output as a json_encoded string.
+     *
+     * This function also sorts and removes duplicates
+     *
+     * @param string $ClassName - Used to set type ov media lookup
+     * @param $filter <string> - Select Genres or Keywords.
+     * @param mixed $outputType - jplist filter or tagit filter e.g. 'json' - Default is null ('html')
+     * @return string|void
+     */
+    public function getMetadataFilters($ClassName, $filter, $outputType = null)
+    {
+        $result = Catalogue::get();
+
+        switch ($ClassName){
+            case 'FilmsPage':
+                $type = 'movie';
+                break;
+            case 'TelevisionPage':
+                $type = 'series';
+                break;
+            case 'MaintenanceFormPage':
+                $type = ['movie', 'series'];
+                break;
+        }
+
+        if($filter == 'Keywords') {
+            $filtersResult = $result->filter(
+                [
+                    'Type'         => $type,
+                    'OwnerID'      => $this->member,
+                    'Keywords:not' => ''
+                ]
+            )->column('Keywords');
+        }
+
+        if($filter == 'Genre') {
+            $filtersResult = $result->filter(
+                [
+                    'Type'      => $type,
+                    'OwnerID'   => $this->member,
+                    'Genre:not' => ''
+                ]
+            )->column('Genre');
+        }
+
+        if($result->exists() === true )
+        {
+            if(!empty($filtersResult) ) {
+                // clean up and return distinct keywords from DB
+                $filterArr = self::convertAndCleanList($filtersResult, ',');
+                $filtersList = ArrayList::create();
+
+                if($outputType == 'javascript') {
+                    array_walk($filterArr, function(&$filterArr){ return $filterArr = json_encode($filterArr); } );
+                    $filtersList = implode(',', $filterArr);
+
+                } else {
+                    foreach ($filterArr as $filters) {
+                        $filtersList->push(ArrayData::create(
+                            [
+                                'filters' =>
+                                    '<input id="'.$filters.'" data-path=".'.$this->filterSafeCSS($filters).'" type="checkbox">'."\n\r".
+                                    '<label for="'.$filters.'">'.$filters.' '.
+                                    '<span
+                                         data-control-type="counter"
+                                         data-control-action="counter"
+                                         data-control-name="'.$filters.'-counter"
+                                         data-format="({count})"
+                                         data-path=".'.$this->filterSafeCSS($filters).'"
+                                         data-mode="all"
+                                         data-type="path"></span>'.
+                                    '</label>'
+                            ]
+                        ));
+                    }
+                }
+
+                return $filtersList;
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * Takes string from either Genres or Keywords field and splits them into array element
+     * then returns back as a string for display in frontend as individual <span> items.
+     *
+     * @param string $field - value of Genre or Keywords
+     * @param string $classes - adds a css class name to the string
+     * @return string
+     */
+    public function getFieldFiltersList($field, $classes)
+    {
+        if($explode = explode(",", $field))
+        {
+            $listoption = '';
+
+            foreach ($explode as $value)
+            {
+                $listoption .= '<span class="'.$classes.' '.$this->filterSafeCSS($value).'">'.$value.'</span> ';
+            }
+            return $listoption;
+        }
+
+
+
+        return;
+    }
+
+    /**
+     * Helper method to remove special chars and numbers out of metadata fields
+     * making it safe for css selectors
+     *
+     * @param string $string
+     * @return string|string[]|null
+     */
+    public function filterSafeCSS(string $string)
+    {
+        return preg_replace("/[^a-zA-Z]/", '', $string);
     }
 }

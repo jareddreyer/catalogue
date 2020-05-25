@@ -18,8 +18,9 @@ class Catalogue extends DataObject
     ];
 
     private static $has_one = [
-        'Poster' => Image::class,
-        'Owner'  => Member::class
+        'Metadata' => File::class,
+        'Poster'   => Image::class,
+        'Owner'    => Member::class
     ];
 
     private static $summary_fields = [
@@ -57,13 +58,17 @@ class Catalogue extends DataObject
     {
         $result = parent::validate();
 
-        if($media = DataObject::get_one('Catalogue',
+        if($media = Catalogue::get()
+            ->filter(
             [
                 'Title' => $this->Title,
-                'Year' => $this->Year
-        ]
-        )) {
-            $result->error($media->Title . '(' . $media->Year .') has already been inserted to the catalogue.');
+                'Year'  => $this->Year,
+                'Type'  => $this->Type
+            ])
+            ->exclude('ID', $this->ID)
+            ->first()
+        ) {
+            $result->error($media->Title . ' (' . $media->Year .') has already been inserted to the catalogue.');
         }
 
         return $result;

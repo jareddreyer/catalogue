@@ -37,6 +37,7 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
         'Title'   => '->importTitle',
         'Year'    => '->importYear',
         'Source'  => '->importSource',
+        'Seasons' => '->importSeasons',
         'Quality' => 'Quality',
         'Type'    => 'Type',
         'Status'  => 'Status',
@@ -64,7 +65,10 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
 
         // remove any underscores thats not captured and removed already
         $title = str_replace("_", " ", $title);
-        $obj->Title = str_replace("[", "", $title);
+        $title = str_replace("[", "", $title);
+
+        // Finally title case everything so it looks clean.
+        $obj->Title = ucwords($title);
     }
 
     public static function importSource(&$obj, $val, $record)
@@ -72,22 +76,22 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
         switch ($val)
         {
             case 'Matroska / WebM':
-                $obj->Source = 'web';
+                $obj->Source = 'WebM';
                 break;
             case ('MPEG-TS (MPEG-2 Program Stream)' && $record['Quality'] == '480p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '480p'):
             case ('QuickTime / MOV' && $record['Quality'] == '480p'):
-                $obj->Source = 'dvd';
+                $obj->Source = 'DVD';
                 break;
             case ('MPEG-TS (MPEG-2 Transport Stream)' && $record['Quality'] == '1080p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '1080p'):
             case ('AVI (Audio Video Interleaved)' && $record['Quality'] == '720p'):
             case ('QuickTime / MOV' && $record['Quality'] == '720p'):
             case ('QuickTime / MOV' && $record['Quality'] == '1080p'):
-                $obj->Source = 'bluray';
+                $obj->Source = 'Bluray';
                 break;
             default:
-                $obj->Source = 'bluray';
+                $obj->Source = 'Bluray';
         }
     }
 
@@ -106,6 +110,23 @@ class CatalogueCsvBulkLoader extends CsvBulkLoader {
             } else {
                 $obj->Year = $val;
             }
+        }
+    }
+
+    public static function importSeasons(&$obj, $val, $record)
+    {
+        if(is_numeric($val)) {
+            $seasonsTmpArr = range(1, $val + 1);
+
+            $seasonsArray = [];
+            foreach($seasonsTmpArr as $seasonKey => $seasonValue ){
+               $seasonsArray[] = 'Season ' . $seasonKey;
+            }
+
+            array_shift($seasonsArray);
+            $obj->Seasons = implode(',', $seasonsArray);
+        } else {
+            $obj->Seasons = $val;
         }
     }
 }

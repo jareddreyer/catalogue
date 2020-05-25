@@ -10,5 +10,10 @@ define('SS_DATABASE_PASSWORD', 'root');
 define('SS_DATABASE_NAME', 'catalog');
 define('SS_DEFAULT_ADMIN_USERNAME', SS_DATABASE_USERNAME);
 define('SS_DEFAULT_ADMIN_PASSWORD', SS_DATABASE_PASSWORD);
-define('SS_PRIMARY_DOMAIN', 'http://catalog.test');
-$_FILE_TO_URL_MAPPING["/var/www/"] = SS_PRIMARY_DOMAIN;
+define('SS_PRIMARY_DOMAIN', 'http://yourdomain.test/');
+define('OMDBAPIKey', '#yourkeyhere');
+define('TMDBAPIKey', '#yourkeyhere');
+
+global $_FILE_TO_URL_MAPPING;
+$_FILE_TO_URL_MAPPING[__DIR__] = SS_PRIMARY_DOMAIN;
+

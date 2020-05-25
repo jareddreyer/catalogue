@@ -26,10 +26,12 @@ class CrawlCatalogue extends AbstractQueuedJob implements QueuedJob {
 
         foreach ($catalogue as $page) {
             $this->addMessage('Queued job for page ' .$page->Title .' (#'. $page->ID .')');
+            $poster = DataObject::get_by_id(Image::class, $page->PosterID);
 
-            $unpublish = new CrawlMediaPage($page);
-            singleton('QueuedJobService')->queueJob($unpublish);
-
+            if($poster === false) {
+                $unpublish = new CrawlMediaPage($page);
+                singleton('QueuedJobService')->queueJob($unpublish);
+            }
         }
 
         $this->addMessage(sprintf("%d Media pages are queued for jobs.",

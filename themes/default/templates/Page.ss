@@ -10,23 +10,15 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	$MetaTags(false)
 
-	<% require themedCSS('css') %>
-	<% require themedCSS('typography') %>
-	<% require themedCSS('form') %>
-	<% require themedCSS('layout') %>
-
-	<% require themedCSS('bootstrap.min') %>
-	<% require themedCSS('profile') %>
-	<% require themedCSS('jquery.tagit') %>
-	<% require themedCSS('jquery-ui-overrides') %>
-	<% require themedCSS('font-awesome.min') %>
-
 	<% require css('http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css') %>
 	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="prefetch" as="image" href="/themes/default/Images/blank.png">
 
 </head>
 
 <body class="$ClassName<% if not $Menu(2) %> no-sidebar<% end_if %>" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
+
+<img class="hidden" src="/themes/default/Images/blank.png">
 <% include Header %>
 <div class="main" role="main">
 	<div class="inner typography line">
