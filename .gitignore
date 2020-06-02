@@ -12,6 +12,7 @@ Vagrantfile
 /betterbuttons
 /cms
 /framework
+/gridfieldextensions
 /login-forms
 /multivaluefield
 /queuedjobs

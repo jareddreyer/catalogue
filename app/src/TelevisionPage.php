@@ -1,19 +1,17 @@
 <?php
 class TelevisionPage extends Page
 {
-    private static $allowed_children = array();
-
 }
 
 class TelevisionPage_Controller extends Page_Controller
 {
-    private static $allowed_actions = array (
-        'television'
-    );
+    private static $allowed_actions = [
+        'television',
+    ];
 
-    private static $url_handlers = array(
+    private static $url_handlers = [
         'user/$ID' => 'television'
-    );
+    ];
 
     public function init()
     {

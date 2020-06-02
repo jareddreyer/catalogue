@@ -120,14 +120,14 @@ class MaintenanceFormPage_Controller extends Page_Controller
             )->setEmptyString('Select type of media'),
             TextField::create('Genre', 'Genre')->setDescription('Tag a genre by typing e.g. Comedy'),
             TextField::create('Keywords', 'Keywords')->setDescription('Tag the title with a keyword e.g. Marvel'),
-            TextField::create('Trilogy', 'Is this a Trilogy?')->setDescription('Add a trilogy name e.g. "X-Men" or "Wolverine". This should match one of your keywords'),
+            TextField::create('Collection', 'Is this part of a collection?')->setDescription('This should match one of your keywords e.g. add a collection name "Skywalker Saga". '),
             TextField::create('Seasons', 'Seasons')->setDescription('Select seasons you have e.g. Season 2'),
             DropDownField::create('Status', 'Current Status of title',
                 [
                     'Downloaded'  => 'Downloaded - file complete',
-                    'Online'      => 'Online - streaming',
-                    'Physical'    => 'Phyiscal copy - hard copy only',
-                    'Downloading' => 'Dowloading - in progress',
+                    'Online'      => 'Online - streaming service only',
+                    'Physical'    => 'Physical - hard copy only',
+                    'Downloading' => 'Downloading - in progress',
                     'Wanted'      => 'Wanted - need a copy of',
                     'No Torrents' => 'No Torrents - cannot find video',
                 ]
@@ -147,13 +147,14 @@ class MaintenanceFormPage_Controller extends Page_Controller
             HiddenField::create('Comments'),
             HiddenField::create('IMDBID'),
             HiddenField::create('Year'),
-            TextareaField::create('CommentsEnter', 'Enter new comments on new line'),
             HiddenField::create('PosterID'),
             HiddenField::create('ID', 'ID')->setValue($this->slug)
         );
 
         $actions = FieldList::create(
              FormAction::create('submit', $submitCaption)
+                 ->setUseButtonTag(true)
+                 ->addExtraClass('btn btn-primary')
         );
 
         $validator = RequiredFields::create('Title');

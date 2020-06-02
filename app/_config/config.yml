@@ -1,10 +1,10 @@
 ---
-Name: catalog
+Name: Catalogue
 After: 'framework/*','cms/*'
 ---
 SSViewer:
   theme: 'default'
-Catalog:
+Catalogue:
   postersAssetsFolderName: '/posters/'
   jsonAssetsFolderName: '/posters/json-metadata/'
 GDBackend:
