@@ -204,6 +204,24 @@ div.jplist-drop-down > ul > li > a {
     padding: 0.2rem 0;
 }
 
+.comment-field {
+    min-height: 4rem;
+    max-height: 14rem;
+}
+.load-more {
+    display: flex;
+    justify-content: space-between;
+}
+
+.load-more__button {
+    color: #385898;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.load-more__button:hover {
+    text-decoration: underline;
+}
 .modal-footer {
     padding: 2rem;
 }

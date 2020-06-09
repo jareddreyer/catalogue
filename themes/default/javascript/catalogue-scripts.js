@@ -32,7 +32,7 @@ $('Document').ready(function(){
                 $('#myModal').find('.modal-footer').append('<div class="alert alert-warning">An error occurred: ' + errorThrown + '</div>');
             },
             success: function(data, textStatus, jqXHR) {
-
+                $('.no-comments').hide();
                 $.each(data, function(index, element) {
                     let htmlData =
                         '<div class="comment">' +
@@ -49,8 +49,45 @@ $('Document').ready(function(){
         });
         e.preventDefault();
     });
-
 });
+
+function getComments(url, extraParams=null, modal, currentPage, totalPages) {
+
+    //get comments
+    $.ajax({
+        type: "Get",
+        url: url,
+        data: (extraParams) ? extraParams : '',
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (data) {
+            if(!$.trim(data)){
+                modal.find('.modal-body').append('<div class="comment center no-comments"><h2>No comments available</h2></div>');
+
+            } else {
+                $.each(data.Comments, function(index, element) {
+                    let htmlData =
+                        '<div class="comment__content">' + element.Author + ' ' + element.Comment + '</div>' +
+                        '<div class="comment__date">' + element.Created + '</div>';
+                    modal.find('.modal-body').append('<div class="comment">' + htmlData + '</div>');
+                });
+
+                if(data.CommentsCount.TotalPages > 1 && $('.comment').length < data.CommentsCount.TotalItems ) {
+                    modal.find('.modal-body')
+                        .append(
+                            '<div class="load-more">' +
+                            '<span class="load-more__button" data-currentpage="'+ data.CommentsCount.CurrentPage +'" data-totalpages="' + data.CommentsCount.TotalPages + '" data-totalitems="' + data.CommentsCount.TotalItems + '">'
+                            + 'View more comments</span>' +
+                            '<span class="load-more__count">' + totalPages + ' of ' + data.CommentsCount.TotalItems + '</span></div>');
+                }
+            }
+        },
+        error: function(){
+            console.log("The request failed");
+        }
+    });
+};
+
 
 $('#myModal').on('show.bs.modal', function (event) {
     const button = $(event.relatedTarget); // Button that triggered the modal
@@ -61,26 +98,19 @@ $('#myModal').on('show.bs.modal', function (event) {
     // set catalogue id to the form
     $('.catalogueID').val(button.data('catalogueid'));
 
-    //get comments
-    $.ajax({
-        type: "Get",
-        url: url,
-        dataType: 'json',
-        success: function (data) {
-            if(!$.trim(data)){
-                modal.find('.modal-body').append('<div class="comment center"><h2>No comments available</h2></div>');
+    getComments(url,null, modal, 3, 3);
 
-            } else {
-                $.each(data, function(index, element) {
-                    let htmlData =
-                        '<div class="comment__content">' + element.Author + ' ' + element.Comment + '</div>' +
-                        '<div class="comment__date">' + element.Created + '</div>';
-                    modal.find('.modal-body').append('<div class="comment">' + htmlData + '</div>');
-                });
-            }
-        },
-        error: function(){
-            console.log("The request failed");
-        }
+    // neat auto sizer for text area fields
+    $('textarea').on('input', function() {
+        $(this).outerHeight(38).outerHeight(this.scrollHeight);
+    });
+
+    $(this).off('click').on('click', '.load-more__button', function(e) {
+        const currentPage = $(this).data('currentpage') + 3;
+        const totalPages = $(this).data('totalpages') + 3;
+        $('.load-more').hide();
+        getComments(url, {comments: currentPage}, modal, currentPage, totalPages );
     });
 });
+
+

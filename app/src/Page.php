@@ -554,10 +554,14 @@ class Page_Controller extends ContentController
     {
         if(Director::is_ajax()) {
             $comments = Comment::get()->filter('CatalogueID', $request->param('ID'));
+
             if($comments->exists()) {
+                $pageinatedComments = PaginatedList::create($comments, $request)
+                ->setPageLength(3)->setPaginationGetVar('comments');
+
                 $commentsList = ArrayList::create();
 
-                foreach ($comments as $comment){
+                foreach ($pageinatedComments as $comment){
                     // clean up date
                     $date = new SS_Datetime();
                     $date->setValue($comment->Created);
@@ -565,12 +569,23 @@ class Page_Controller extends ContentController
                     // get author object ready to be stringified
                     $author = DataObject::get_by_id(Member::class, $comment->AuthorID);
 
-                    $comment->Comment = $comment->Comment;
                     $comment->Created = $date->Ago();
                     $comment->Author = '<a href="'.$this->Link(). 'user/'. $comment->AuthorID .'">'. $author->FirstName . '</a>';
-                    $commentsList->add($comment);
+                    $commentsList->push($comment);
                 }
-                return json_encode($commentsList->toNestedArray());
+
+                // now wrap it in a comments array so total items can be separate
+                $commentsJson = [
+                        'CommentsCount' =>
+                                     [
+                                         'TotalItems' => $pageinatedComments->getTotalItems(),
+                                         'TotalPages' => $pageinatedComments->TotalPages(),
+                                         'CurrentPage' =>$pageinatedComments->getPageStart()
+                                     ]
+                ];
+                $commentsJson['Comments'] = $commentsList->toNestedArray();
+
+                return json_encode($commentsJson);
             } else {
 
                 return json_encode(null);
@@ -620,7 +635,10 @@ class Page_Controller extends ContentController
             'handleComment',
             FieldList::create(
                 TextareaField::create('Comment','')
-                    ->setAttribute('Placeholder', 'Comment*'),
+                    ->setAttribute('Placeholder', 'Comment*')
+                    ->addExtraClass('comment-field')
+                    ->setRows(0)
+                    ->setColumns(0),
                 HiddenField::create('CatalogueID', '')->addExtraClass('catalogueID')
             ),
 
