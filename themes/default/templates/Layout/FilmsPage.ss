@@ -25,9 +25,21 @@
                             <div class="list-media__metadata">
                                 <span class="list-media__metadata-source badge">$Source</span>
                                 <span class="list-media__metadata-status {$Status} badge badge-pill">$Status</span>
-                                <span title="view Comments here" class="comments glyphicon glyphicon-comment" data-toggle="modal" data-comments="<% if $Comments %>$Comments<% else %>No Comments available<% end_if%>" data-target="#myModal"></span>
-                                <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}"><span title="edit this title" class="glyphicon glyphicon-edit"></span></a>
-                                <p class="list-media__maintenance">Updated $LastEdited.Ago by <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a></p>
+                                <span title="view comments here" class="comments fa fa-comments"
+                                      data-toggle="modal"
+                                      data-target="#myModal"
+                                      data-commentsurl="{$Up.Link}comments/{$ID}"
+                                      data-catalogueID="{$ID}"
+                                      data-commentform="{$Up.Link}handleComment/"
+                                >
+                                </span>
+                                <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}">
+                                    <span title="edit this title" class="fa fa-wrench"></span>
+                                </a>
+                                <p class="list-media__maintenance">
+                                    Updated $LastEdited.Ago by
+                                    <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a>
+                                </p>
                                 <p class="list-media__metadata-keywords hidden">$keywords</p>
                                 <p class="list-media__metadata-genres hidden">$genres</p>
                             </div>
@@ -39,27 +51,7 @@
                     <p>No films were found</p>
                 </div>
             </div>
-
-            <div class="modal fade" id="myModal" role="dialog">
-                <div class="modal-dialog modal-md">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">
-                                &times;
-                            </button>
-                            <h4 class="modal-title">Comments</h4>
-                        </div>
-                        <div class="modal-body">
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <% include ModalPartial %>
         </div>
 
     <% else %>

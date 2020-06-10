@@ -77,7 +77,7 @@ $(function()
 
 		if($('#Form_Form_Keywords').val() != '')
 		{
-			$("#Form_Form_Trilogy").tagit({
+			$("#Form_Form_Collection").tagit({
 				singleFieldDelimiter: " , ",
 				allowSpaces: true,
 				tagLimit: 1,
@@ -88,7 +88,7 @@ $(function()
 
 		$('#Form_Form_Keywords').on('change', function()
 		{
-			 $("#Form_Form_Trilogy").tagit({
+			 $("#Form_Form_Collection").tagit({
 					singleFieldDelimiter: ",",
 					allowSpaces: true,
 					tagLimit: 1,

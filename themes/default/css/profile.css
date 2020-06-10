@@ -98,9 +98,6 @@ ul.video-details__trailers li {
     flex-wrap: wrap;
 }
 
-.related-titles__container img {
-
-}
 .related-titles__poster,
 .see-also__poster {
     height: 120px;
@@ -109,6 +106,10 @@ ul.video-details__trailers li {
     background-size: cover;
     background-position: center;
     transition: all .3s;
+}
+
+.see-also__container h3 {
+    margin-top: 0;
 }
 
 .related-titles__poster:hover,

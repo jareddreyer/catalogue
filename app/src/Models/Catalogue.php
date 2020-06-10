@@ -3,24 +3,27 @@
 class Catalogue extends DataObject
 {
     private static $db = [
-        'Title'    => 'Varchar(255)',
-        'IMDBID'   => 'Varchar(50)',
-        'Type'     => 'Varchar(100)',
-        'Year'     => 'Varchar(10)',
-        'Genre'    => 'Varchar(100)',
-        'Keywords' => 'Varchar(100)',
-        'Trilogy'  => 'Varchar(100)',
-        'Seasons'  => 'Varchar(200)',
-        'Status'   => 'Varchar(100)',
-        'Source'   => 'Varchar(50)',
-        'Quality'  => 'Varchar(50)',
-        'Comments' => 'Text',
+        'Title'      => 'Varchar(255)',
+        'IMDBID'     => 'Varchar(20)',
+        'Type'       => 'Varchar(10)',
+        'Year'       => 'Varchar(4)',
+        'Genre'      => 'Varchar(255)',
+        'Keywords'   => 'Varchar(255)',
+        'Collection' => 'Varchar(100)',
+        'Seasons'    => 'Text',
+        'Status'     => 'Varchar(50)',
+        'Source'     => 'Varchar(10)',
+        'Quality'    => 'Varchar(5)'
     ];
 
     private static $has_one = [
         'Metadata' => File::class,
         'Poster'   => Image::class,
         'Owner'    => Member::class
+    ];
+
+    private static $has_many = [
+        'Comments' => Comment::class
     ];
 
     private static $summary_fields = [
@@ -73,4 +76,19 @@ class Catalogue extends DataObject
 
         return $result;
     }
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        $comments = $fields->dataFieldByName('Comment');
+
+        if($comments) {
+            $comments->getConfig()->addComponent(new GridFieldDeleteAction());
+        }
+
+        return $fields;
+
+    }
+
 }

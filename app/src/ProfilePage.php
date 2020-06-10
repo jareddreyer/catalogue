@@ -36,7 +36,6 @@ class ProfilePage_Controller extends Page_Controller
             {
                 $record->genres = $this->getFieldFiltersList($record->Genre, 'badge filters');
                 $record->keywords = $this->getFieldFiltersList($record->Keywords, 'badge filters');
-                $record->displayComments = parent::displayComments($record->Comments);
             }
 
             return $this->customise(
@@ -84,10 +83,10 @@ class ProfilePage_Controller extends Page_Controller
         //get title
         $video = Catalogue::get()->byID($this->slug);
 
-        if($video->Trilogy !== null)
+        if($video->Collection !== null)
         {
            return Catalogue::get()
-                                ->filter(['Trilogy' => $video->Trilogy])
+                                ->filter(['Collection' => $video->Collection])
                                 ->exclude('ID', $this->slug)
                                 ->sort('Year');
         }
@@ -97,7 +96,7 @@ class ProfilePage_Controller extends Page_Controller
 
     /**
      * returns an array of results that contain titles based on keyword metadata
-     * Excludes the Trilogy from the array set seeing as that will be included in the
+     * Excludes the Collection from the array set seeing as that will be included in the
      * relatedTitles(), so does not need to be included twice.
      *
      * @todo needs refactoring, too heavy on the if statements
@@ -120,13 +119,13 @@ class ProfilePage_Controller extends Page_Controller
             $keywordsArrCount = count($keywordsArr);
 
             // we have more than one keyword
-            if($keywordsArrCount >= 1 && $keywords->Keywords != $keywords->Trilogy  ) {
+            if($keywordsArrCount >= 1 && $keywords->Keywords != $keywords->Collection  ) {
 
-                // grab us all the keywords that does not = Trilogy
-                if($trilogy = [$keywords->Trilogy]) {
+                // grab us all the keywords that does not = collection
+                if($collection = [$keywords->Collection]) {
 
-                    $includeTitles = array_diff($keywordsArr, $trilogy);
-                    $trilogyClause = '("Trilogy" <> \''. $keywords->Trilogy .'\' OR "Trilogy" IS NULL) AND (';
+                    $includeTitles = array_diff($keywordsArr, $collection);
+                    $collectionClause = '("Collection" <> \''. $keywords->Collection .'\' OR "Collection" IS NULL) AND (';
                 }
 
                 //loop over values so we can create WHERE like clauses
@@ -136,20 +135,20 @@ class ProfilePage_Controller extends Page_Controller
                 }
 
                 // close off the sql properly
-                if($trilogy) {
-                    $trilogyClause .= implode(' OR ', $includeClauses) . ')';
+                if($collection) {
+                    $collectionClause .= implode(' OR ', $includeClauses) . ')';
                 }  else {
-                    $trilogyClause .= implode(' OR ', $includeClauses);
+                    $collectionClause .= implode(' OR ', $includeClauses);
                 }
 
                 return $video
-                    ->where($trilogyClause)
+                    ->where($collectionClause)
                     ->exclude('ID', $this->slug);
 
             } else {
                 // we only have one keyword
                 $video
-                    ->where('"Keywords" = \'' . $keywords->Keywords . '\' AND "Trilogy" != "Keywords"')
+                    ->where('"Keywords" = \'' . $keywords->Keywords . '\' AND "Collection" != "Keywords"')
                     ->exclude('ID', $this->slug);
             }
         }

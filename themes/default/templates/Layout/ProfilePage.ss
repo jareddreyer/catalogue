@@ -76,7 +76,7 @@
                             <% if $Up.relatedTitles %>
                                 <div class="tab__content">
                                     <div class="related-titles__container">
-                                        <h2>Part of the $Trilogy collection...</h2>
+                                        <h2>Part of the $Collection collection...</h2>
                                         <div class="related-titles__titles">
                                             <% loop $Up.relatedTitles %>
                                                 <a href="{$Up.ProfileURL}title/$ID" title="Browse {$Title} (Updated {$LastEdited.Ago})">

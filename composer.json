@@ -10,7 +10,8 @@
         "symbiote/silverstripe-queuedjobs": "^3",
 		"gdmedia/ss-auto-git-ignore": "^1",
 		"silverstripe/login-forms": "3.0.0",
-		"unclecheese/betterbuttons": "1.3.14"
+		"unclecheese/betterbuttons": "1.3.14",
+		"symbiote/silverstripe-gridfieldextensions": "2.1.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7"

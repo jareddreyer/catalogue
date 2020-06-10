@@ -57,8 +57,8 @@ class Page extends SiteTree
         }
 
         //set up assets so its nice and clean
-        Folder::find_or_make(Config::inst()->get('Catalog', 'postersAssetsFolderName'));
-        Folder::find_or_make(Config::inst()->get('Catalog', 'jsonAssetsFolderName'));
+        Folder::find_or_make(Config::inst()->get('Catalogue', 'postersAssetsFolderName'));
+        Folder::find_or_make(Config::inst()->get('Catalogue', 'jsonAssetsFolderName'));
     }
 }
 
@@ -74,7 +74,16 @@ class Page_Controller extends ContentController
         "Crime", "Documentary", "Family", "Animated", "Romance", "Adventure", "War", "Sitcom"
     ];
 
-	public function init()
+    private static $allowed_actions = [
+        'getComments',
+        'handleComment'
+    ];
+
+    private static $url_handlers = [
+        'comments/$ID' => 'getComments'
+    ];
+
+    public function init()
     {
 		parent::init();
 
@@ -166,8 +175,8 @@ class Page_Controller extends ContentController
         }
 
         // get config variables
-        $this->postersAssetsFolderName = Config::inst()->get('Catalog', 'postersAssetsFolderName');
-        $this->jsonAssetsFolderName = Config::inst()->get('Catalog', 'jsonAssetsFolderName');
+        $this->postersAssetsFolderName = Config::inst()->get('Catalogue', 'postersAssetsFolderName');
+        $this->jsonAssetsFolderName = Config::inst()->get('Catalogue', 'jsonAssetsFolderName');
         $this->jsonPath = ASSETS_PATH . $this->jsonAssetsFolderName;
         $this->postersPath = ASSETS_PATH . $this->postersAssetsFolderName;
 	}
@@ -256,27 +265,6 @@ class Page_Controller extends ContentController
         sort($unique, SORT_FLAG_CASE | SORT_STRING);
 
         return $unique;
-    }
-
-    /**
-     * main call to return back cleaned up comments
-     * @param $comments <string>
-     * @return string
-     *
-     */
-    public function displayComments ($comments)
-    {
-        $search = array('(', ')', '-'); //search for pipes around date
-        $replace = array('</span><span class="timestamp">(', ')</span>', ' : <p>'); //surround them with html
-
-        $comments = str_replace($search, $replace, $comments); //replace each occurence with new values
-        $comments = explode(',', $comments); //break into array by comma
-
-        $comments = array_map(function($comment) { return trim($comment, "'" ); }, $comments); //trim array elements and remove quotes
-
-        $result = implode('</p><span class="name">',$comments); //break array into string
-
-        return $result;
     }
 
     /**
@@ -540,8 +528,6 @@ class Page_Controller extends ContentController
             return $listoption;
         }
 
-
-
         return;
     }
 
@@ -555,5 +541,142 @@ class Page_Controller extends ContentController
     public function filterSafeCSS(string $string)
     {
         return preg_replace("/[^a-zA-Z]/", '', $string);
+    }
+
+    /**
+     * This function is an ajax request that returns comments posted to a film or series
+     * as a json object back to the view.
+     *
+     * @param SS_HTTPRequest $request
+     * @return string $comments
+     */
+    public function getComments(SS_HTTPRequest $request)
+    {
+        if(Director::is_ajax()) {
+            $comments = Comment::get()->filter('CatalogueID', $request->param('ID'));
+
+            if($comments->exists()) {
+                $pageinatedComments = PaginatedList::create($comments, $request)
+                ->setPageLength(3)->setPaginationGetVar('comments');
+
+                $commentsList = ArrayList::create();
+
+                foreach ($pageinatedComments as $comment){
+                    // clean up date
+                    $date = new SS_Datetime();
+                    $date->setValue($comment->Created);
+
+                    // get author object ready to be stringified
+                    $author = DataObject::get_by_id(Member::class, $comment->AuthorID);
+
+                    $comment->Created = $date->Ago();
+                    $comment->Author = '<a href="'.$this->Link(). 'user/'. $comment->AuthorID .'">'. $author->FirstName . '</a>';
+                    $commentsList->push($comment);
+                }
+
+                // now wrap it in a comments array so total items can be separate
+                $commentsJson = [
+                        'CommentsCount' =>
+                                     [
+                                         'TotalItems' => $pageinatedComments->getTotalItems(),
+                                         'TotalPages' => $pageinatedComments->TotalPages(),
+                                         'CurrentPage' =>$pageinatedComments->getPageStart()
+                                     ]
+                ];
+                $commentsJson['Comments'] = $commentsList->toNestedArray();
+
+                return json_encode($commentsJson);
+            } else {
+
+                return json_encode(null);
+            }
+        }
+
+        return $this->redirect($this->Link);
+    }
+
+    /**
+     * Returns single comment record for use in an ajax request.
+     *
+     * @param int $commentID
+     * @return false|string|void
+     */
+    public function getComment(int $commentID)
+    {
+        $comment = DataObject::get_by_id(Comment::class, $commentID);
+
+        if($comment->exists()) {
+            $commentsList = ArrayList::create();
+
+            // get author object ready to be stringified
+            $author = DataObject::get_by_id(Member::class, $comment->AuthorID);
+
+            // clean up date
+            $createdDate = new SS_Datetime();
+            $createdDate->setValue($comment->Created);
+
+            $comment->Created = $createdDate->Ago();
+            $comment->Author = '<a href="'.$this->Link(). 'user/'. $comment->AuthorID .'">'. $author->FirstName . '</a>';
+            $commentsList->add($comment);
+
+            return json_encode($commentsList->toNestedArray());
+        } else {
+
+            return json_encode(null);
+        }
+
+        return;
+    }
+
+    public function commentForm()
+    {
+        $commentForm = Form::create(
+            $this,
+            'handleComment',
+            FieldList::create(
+                TextareaField::create('Comment','')
+                    ->setAttribute('Placeholder', 'Comment*')
+                    ->addExtraClass('comment-field')
+                    ->setRows(0)
+                    ->setColumns(0),
+                HiddenField::create('CatalogueID', '')->addExtraClass('catalogueID')
+            ),
+
+            FieldList::create(
+                FormAction::create('handleComment', 'Post')
+                    ->setUseButtonTag(true)
+                    ->setAttribute('url', $this->Link() . 'handleComment')
+                    ->addExtraClass('btn btn-primary')
+            ),
+
+            RequiredFields::create('Comment')
+        )->addExtraClass('commentForm');
+
+        return $commentForm;
+    }
+
+    public function handleComment($data)
+    {
+        if(Director::is_ajax()) {
+            $comment = Comment::create();
+            $comment->update(
+                [
+                    'AuthorID' => $this->member,
+                    'CatalogueID' => (int)$data['CatalogueID'],
+                    'Comment' => $data['Comment']
+                ]
+            );
+            $comment->write();
+
+            if ($comment->ID != null)
+            {
+                return $this->getComment($comment->ID);
+            } else {
+                return false;
+            }
+        }
+
+        // no ajax request so return 404 not found
+        return $this->httpError(404, 'Not Found');
     }
 }
