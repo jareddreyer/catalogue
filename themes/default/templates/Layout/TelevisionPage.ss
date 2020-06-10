@@ -25,7 +25,7 @@
                             <div class="list-media__metadata">
                                 <span class="list-media__metadata-source badge">$Source</span>
                                 <span class="list-media__metadata-status {$Status} badge">$Status</span>
-                                <span title="view comments here" class="comments fa fa-comments-o"
+                                <span title="view comments here" class="comments fa fa-comments"
                                       data-toggle="modal"
                                       data-target="#myModal"
                                       data-commentsurl="{$Up.Link}comments/{$ID}"
@@ -34,7 +34,7 @@
                                 >
                                 </span>
                                 <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}">
-                                    <span title="edit this title" class="fa fa-pencil-square"></span>
+                                    <span title="edit this title" class="fa fa-wrench"></span>
                                 </a>
                                 <p class="list-media__maintenance">
                                     Updated $LastEdited.Ago by

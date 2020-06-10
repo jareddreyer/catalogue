@@ -25,16 +25,21 @@
                             <div class="list-media__metadata">
                                 <span class="list-media__metadata-source badge">$Source</span>
                                 <span class="list-media__metadata-status {$Status} badge badge-pill">$Status</span>
-                                <span title="view comments here" class="comments fa fa-comments-o"
+                                <span title="view comments here" class="comments fa fa-comments"
                                       data-toggle="modal"
                                       data-target="#myModal"
                                       data-commentsurl="{$Up.Link}comments/{$ID}"
+                                      data-catalogueID="{$ID}"
+                                      data-commentform="{$Up.Link}handleComment/"
                                 >
                                 </span>
                                 <a href="{$Up.MaintenanceFormPageLink}edit/{$ID}">
-                                    <span title="edit this title" class="fa fa-pencil-square"></span>
+                                    <span title="edit this title" class="fa fa-wrench"></span>
                                 </a>
-                                <p class="list-media__maintenance">Updated $LastEdited.Ago by <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a></p>
+                                <p class="list-media__maintenance">
+                                    Updated $LastEdited.Ago by
+                                    <a href="mailto:{$Owner.Email}?subject=Can I get {$Title} off you?<eom>">$Owner.FirstName</a>
+                                </p>
                                 <p class="list-media__metadata-keywords hidden">$keywords</p>
                                 <p class="list-media__metadata-genres hidden">$genres</p>
                             </div>
