@@ -122,9 +122,9 @@
         data-control-type="items-per-page-drop-down"
         data-default="false"
     >
-        <div class="jplist-dd-panel">3 per page</div>
+        <div class="jplist-dd-panel">12 per page</div>
         <ul>
-            <li><span data-number="10"> 10 per page </span></li>
+            <li><span data-number="12"> 12 per page </span></li>
             <li><span data-number="20"> 20 per page </span></li>
             <li><span data-number="20"> 30 per page </span></li>
             <li><span data-number="all"> View All </span></li>
@@ -139,11 +139,19 @@
     <!-- pagination -->
     <div
         class="jplist-pagination"
+        data-mode="google-like"
         data-control-animate-to-top="true"
         data-control-action="paging"
         data-control-name="paging"
         data-control-type="pagination"
         data-range="10"
+    ></div>
+    <div
+        class="jplist-label"
+        data-type="of {all} results"
+        data-control-type="pagination-info"
+        data-control-name="paging"
+        data-control-action="paging"
     ></div>
 
 </div>

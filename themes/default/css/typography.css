@@ -56,8 +56,7 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 .typography h1 {
   font-size: 36px;
   line-height: 45px;
-  margin: 0 0 25px 0;
-  padding-bottom: 5px;
+  margin: 0;
 }
 .typography h2 { font-size: 28px; line-height: 35px; margin-bottom: 15px; }
 .typography h3 { font-size: 22px; line-height: 30px; margin-bottom: 10px; }
