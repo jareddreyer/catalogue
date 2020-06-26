@@ -1,5 +1,5 @@
 <!-- panel -->
-<div class="jplist-panel catalogue">
+<div class="jplist-panel box panel-top catalogue">
 
     <!-- title filter -->
     <div class="text-filter-box">
@@ -28,14 +28,25 @@
 
     <!-- Users catalogue navigation filter -->
     <div
-        class="jplist-drop-down"
-        data-control-type="filter-drop-down"
+        class="dropdown pull-left"
+        data-control-type="boot-filter-drop-down"
         data-control-name="profile-filter"
+        data-control-action="filter"
     >
-        <ul>
-            <li><span data-path="default"> Browse by User</span></li>
+        <button
+                class="btn btn-default dropdown-toggle"
+                type="button"
+                data-toggle="dropdown"
+                id="dropdown-menu-profile"
+                aria-expanded="true"
+        >
+            <span data-type="selected-text">Browse by user</span>
+            <span class="caret"></span>
+
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-menu-profile">
             <% loop $AllMembers %>
-                <li><a href="$link$ID">$FirstName $Surname </a></li>
+                <li role="presentation"><a tabindex="-1" href="$link$ID">$FirstName $Surname </a></li>
             <% end_loop %>
         </ul>
     </div>
@@ -49,7 +60,7 @@
         data-control-action="filter"
         data-control-name="downloaded-button"
     >
-        <i class="fa fa-caret-right"></i>Downloaded
+        <i class="fa fa-caret-right"></i> Downloaded
     </button>
     <button
         type="button"
@@ -58,7 +69,7 @@
         data-control-action="filter"
         data-control-name="downloading-button"
     >
-        <i class="fa fa-caret-right"></i>Downloading
+        <i class="fa fa-caret-right"></i> Downloading
     </button>
     <button
         type="button"
@@ -67,7 +78,7 @@
         data-control-action="filter"
         data-control-name="unavailable-button"
     >
-        <i class="fa fa-caret-right"></i>No Torrents
+        <i class="fa fa-caret-right"></i> No Torrents
     </button>
     <button
         type="button"
@@ -76,7 +87,7 @@
         data-control-action="filter"
         data-control-name="wanted-button"
     >
-        <i class="fa fa-caret-right"></i>Wanted
+        <i class="fa fa-caret-right"></i> Wanted
     </button>
 
 
@@ -113,24 +124,6 @@
         </div>
     <% end_if %>
 
-    <!-- pagination per page filter -->
-    <div
-        class="jplist-drop-down"
-        data-control-animate-to-top="true"
-        data-control-action="paging"
-        data-control-name="paging"
-        data-control-type="items-per-page-drop-down"
-        data-default="false"
-    >
-        <div class="jplist-dd-panel">3 per page</div>
-        <ul>
-            <li><span data-number="10"> 10 per page </span></li>
-            <li><span data-number="20"> 20 per page </span></li>
-            <li><span data-number="20"> 30 per page </span></li>
-            <li><span data-number="all"> View All </span></li>
-        </ul>
-    </div>
-
     <!-- reset button -->
     <button type="button" data-control-type="reset" data-control-name="reset" data-control-action="reset">
         Reset <i class="fa fa-share"></i>
@@ -139,11 +132,37 @@
     <!-- pagination -->
     <div
         class="jplist-pagination"
+        data-mode="google-like"
         data-control-animate-to-top="true"
         data-control-action="paging"
         data-control-name="paging"
         data-control-type="pagination"
         data-range="10"
     ></div>
+    <div
+        class="jplist-label"
+        data-type="of {all} results"
+        data-control-type="pagination-info"
+        data-control-name="paging"
+        data-control-action="paging"
+    ></div>
+
+    <!-- pagination per page filter -->
+    <div
+            class="jplist-drop-down"
+            data-control-animate-to-top="true"
+            data-control-action="paging"
+            data-control-name="paging"
+            data-control-type="items-per-page-drop-down"
+            data-default="false"
+    >
+        <div class="jplist-dd-panel">8 per page</div>
+        <ul>
+            <li><span data-number="8"> 8 per page </span></li>
+            <li><span data-number="20"> 20 per page </span></li>
+            <li><span data-number="20"> 30 per page </span></li>
+            <li><span data-number="all"> View All </span></li>
+        </ul>
+    </div>
 
 </div>

@@ -60,7 +60,11 @@ function getComments(url, extraParams=null, modal, currentPage, totalPages) {
         data: (extraParams) ? extraParams : '',
         contentType: 'application/json',
         dataType: 'json',
+        beforeSend: function(jqXHR,settings) {
+            modal.find('.modal-body').append('<div class="loader" style="width: 100%; text-align: center; padding: 10rem" role="status"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i> <span class="sr-only">Loading...</span></div>');
+        },
         success: function (data) {
+            modal.find('.loader').remove();
             if(!$.trim(data)){
                 modal.find('.modal-body').append('<div class="comment center no-comments"><h2>No comments available</h2></div>');
 
@@ -82,14 +86,15 @@ function getComments(url, extraParams=null, modal, currentPage, totalPages) {
                 }
             }
         },
-        error: function(){
+        error: function(jqXHR, textStatus, errorThrown){
             console.log("The request failed");
+            modal.find('.loader').remove();
+            modal.find('.modal-body').append('<div class="alert alert-warning">An error occurred: ' + errorThrown + '</div>');
         }
     });
 };
 
-
-$('#myModal').on('show.bs.modal', function (event) {
+$('#CommentsModal').on('show.bs.modal', function (event) {
     const button = $(event.relatedTarget); // Button that triggered the modal
     const url = button.data('commentsurl');
     const modal = $(this);
@@ -113,4 +118,27 @@ $('#myModal').on('show.bs.modal', function (event) {
     });
 });
 
+$('#CatalogueModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget); // Button that triggered the modal
+    const modal = $(this);
+    modal.find('.modal-body').empty(); // clear modal out before ajaxing
 
+    $.ajax({
+        beforeSend: function(jqXHR,settings) {
+           modal.find('.modal-body').append('<div style="width: 100%; text-align: center; padding: 10rem" role="status"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i> <span class="sr-only">Loading...</span></div>');
+        },
+        complete: function(jqXHR,textStatus) {
+
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(errorThrown);
+            modal.find('.modal-body').append('<div class="alert alert-warning">An error occurred: ' + errorThrown + '</div>');
+        },
+        success: function(data, textStatus, jqXHR) {
+            modal.find('.modal-body').html(data);
+        },
+        type: 'GET',
+        url: button.data('profileurl')
+    });
+
+});

@@ -127,6 +127,7 @@ class Page_Controller extends ContentController
             Requirements::themedCSS('jplist.checkbox-dropdown.min');
             Requirements::themedJavascript('jplist.core.min');
             Requirements::themedJavascript('jplist.pagination-bundle.min');
+            Requirements::themedJavascript('jplist.bootstrap-filter-dropdown.min');
             Requirements::themedJavascript('jplist.filter-dropdown-bundle.min');
             Requirements::themedJavascript('jplist.filter-toggle-bundle.min');
             Requirements::themedJavascript('jplist.checkbox-dropdown.min');

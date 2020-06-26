@@ -24,9 +24,6 @@ class ProfilePage_Controller extends Page_Controller
         // get metadata for downloading and displaying
         $this->getMetadata();
 
-        // get trailers for this title
-
-
         // get db record
         $title = Catalogue::get()->byID($this->slug);
 
@@ -38,12 +35,22 @@ class ProfilePage_Controller extends Page_Controller
                 $record->keywords = $this->getFieldFiltersList($record->Keywords, 'badge filters');
             }
 
-            return $this->customise(
-                [
-                    'profile'   => $record,
-                    'trailers'  => $this->getTrailers()
-                ]
-            );
+            if($this->request->isAjax()) {
+                return $this->customise(
+                    [
+                        'profile'   => $record,
+                        'trailers'  => $this->getTrailers()
+                    ]
+                )->renderWith(['ProfileAjax']);
+            } else {
+                return $this->customise(
+                    [
+                        'profile'   => $record,
+                        'trailers'  => $this->getTrailers()
+                    ]
+                );
+            }
+
         }
 
     }
