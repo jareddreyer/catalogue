@@ -99,8 +99,7 @@ body a:link { -webkit-tap-highlight-color: #b80000 } /* this sets the highlight 
 -------------------------------------------- */
 .typography ul,
 .typography ol,
-.typography dl { margin: 0 0 0 25px; }
-.typography ul li { list-style-type: disc; } /* adds disc style bullet to the list */
+.typography dl { margin: 0; }
   .typography li { margin-bottom: 5px; }
 
 

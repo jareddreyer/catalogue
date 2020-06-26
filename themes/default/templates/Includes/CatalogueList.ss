@@ -10,7 +10,7 @@
             <span class="list-media__metadata--source badge">$Source</span>
             <span class="list-media__metadata--quality badge">$Quality</span>
             <span class="list-media__metadata--status {$Status} badge">$Status</span>
-            <span title="view comments here" class="comments fa fa-comments"
+            <span title="view comments here" class="comments fa fa-comments fa-2x"
                   data-toggle="modal"
                   data-target="#CommentsModal"
                   data-commentsurl="{$ParentTop.Link}comments/{$ID}"
@@ -18,7 +18,7 @@
                   data-commentform="{$ParentTop.Link}handleComment/"
             ></span>
             <a class="list-media__metadata--edit" href="{$ParentTop.MaintenanceFormPageLink}edit/{$ID}">
-                <span title="edit {$Title}" class="fa fa-wrench"></span>
+                <span title="edit {$Title}" class="fa fa-wrench fa-2x"></span>
             </a>
             <p class="list-media__metadata--email">
                 Updated $LastEdited.Ago by

@@ -15,24 +15,6 @@
     width: 50%;
 }
 
-.sidebar
-{
-    border-right: 1px solid #eee;
-    bottom: 0;
-    display: block;
-    left: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 20px;
-    position: fixed;
-    top: 51px;
-    z-index: 1000
-}
-
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { line-height: 1.5em;}
-.container--skill, .skillGroup { cursor: pointer }
-.clear {clear: both}
-
 @media(max-width:768px)
 {
     div.sidebar { background-color: #FFF}
@@ -47,13 +29,12 @@ footer {
     justify-content: space-evenly;
     grid-template-columns: repeat(auto-fill, 240px);
     border-top: 1px solid #e5e5e5;
-    padding-top: 1rem;
+    padding-top: 2rem;
 }
 
 .list-media__item {
     clear: both;
     margin-bottom: 1rem;
-
 }
 
 .list-media__item a {
@@ -91,19 +72,20 @@ footer {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 0.6rem 1rem;
+    padding: 1rem;
 }
 .list-media__metadata--view{
     position: absolute;
-    bottom: 0;
+    bottom: 1rem;
     left: 0;
     right: 0;
     padding: 1rem;
 }
 
 .list-media__metadata .list-media__title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     line-height: 2.5rem;
+    margin-top: 10rem;
 }
 
 .list-media__title-status {
@@ -139,6 +121,9 @@ p.list-media__maintenance {
     text-align: center;
     clear: both;
 
+}
+.catalogue .jplist-drop-down .jplist-dd-panel::after {
+    z-index: 1;
 }
 .catalogue .jplist-no-results p {
     font-size: 2rem;
