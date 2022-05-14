@@ -137,27 +137,11 @@ class Page_Controller extends ContentController
             Requirements::themedJavascript('catalogue-scripts');
         }
 
-        Requirements::customScript('
-                $("a.scroll-arrow").mousedown( function(e) {
-                             e.preventDefault();              
-              			var container = $(this).parent().attr("id");                              
-                               var direction = $(this).is("#scroll-right") ? "+=" : "-=";
-                               var totalWidth = -$(".row__inner").width();
-                               $(".row__inner .tile").each(function() {
-                                   totalWidth += $(this).outerWidth(true);
-                               });
-                               
-                               $("#"+ container + " .row__inner").animate({
-                                   scrollLeft: direction + Math.min(totalWidth, 3000)
-                                   
-                               },{
-                                   duration: 2500,
-                                   easing: "swing", 
-                                   queue: false }
-                               );
-                           }).mouseup(function(e) {
-                             $(".row__inner").stop();
-               });');
+        // for carousel on homepage
+        Requirements::themedJavascript('slick.min');
+        Requirements::themedJavascript('homepage');
+        Requirements::css('//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css');
+        Requirements::css('//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css');
 
         // set up routing slugs
         $this->member = Member::currentUserID();
@@ -223,7 +207,7 @@ class Page_Controller extends ContentController
      * Returns object for either newly added titles or
      * updated titles
      *
-     * @param  string $type - 'added' or 'updated'
+     * @param string $type - 'added' or 'updated'
      *
      * @return object - titles
      */
@@ -235,7 +219,8 @@ class Page_Controller extends ContentController
                 ->limit(15)
                 ->sort('Created DESC');
 
-            return $recentlyAdded;
+            return PaginatedList::create($recentlyAdded)
+                ->setPageLength(5);
         }
 
         if ($type == 'updated') {
