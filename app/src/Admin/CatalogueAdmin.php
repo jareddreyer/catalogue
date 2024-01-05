@@ -1,16 +1,24 @@
 <?php
 
+namespace App\Catalogue\Admin;
+
+use App\Catalogue\Extensions\CatalogueCsvBulkLoader;
+use App\Catalogue\Models\Catalogue;
+use SilverStripe\Admin\ModelAdmin;
+
 class CatalogueAdmin extends ModelAdmin
 {
-    private static $managed_models = [
-        'Catalogue'
+
+    private static array $managed_models = [
+        Catalogue::class,
     ];
 
-    private static $menu_title = 'Catalogue admin';
+    private static string $menu_title = 'Catalogue admin';
 
-    private static $model_importers = [
-        'Catalogue' => 'CatalogueCsvBulkLoader',
+    private static array $model_importers = [
+        Catalogue::class => CatalogueCsvBulkLoader::class,
     ];
 
-    private static $url_segment = 'catalogue';
+    private static string $url_segment = 'catalogue';
+
 }

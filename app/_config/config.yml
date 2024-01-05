@@ -1,11 +1,14 @@
 ---
 Name: Catalogue
-After: 'framework/*','cms/*'
 ---
-SSViewer:
-  theme: 'default'
-Catalogue:
-  postersAssetsFolderName: '/posters/'
-  jsonAssetsFolderName: '/posters/json-metadata/'
+# YAML configuration for SilverStripe
+# See http://doc.silverstripe.org/framework/en/topics/configuration
+# Caution: Indentation through two spaces, not tabs
+SilverStripe\View\SSViewer:
+  themes:
+    - '$public'
+    - 'app'
+    - '$default'
+
 GDBackend:
   default_Quality: 80
