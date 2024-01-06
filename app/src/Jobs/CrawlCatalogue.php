@@ -2,8 +2,12 @@
 
 namespace App\Catalogue\Jobs;
 
+use App\Catalogue\Models\Catalogue;
+use SilverStripe\Assets\Image;
+use SilverStripe\ORM\ValidationException;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
+use Symbiote\QueuedJobs\Services\QueuedJobService;
 
 /**
  * An queued job which will pull out all the dataobjects in Catalogue::class and return the links
@@ -14,33 +18,31 @@ use Symbiote\QueuedJobs\Services\QueuedJob;
 class CrawlCatalogue extends AbstractQueuedJob implements QueuedJob
 {
 
-    public function setup(): void
-    {
-        $this->totalSteps = 1;
-    }
-
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return 'Crawl entire catalogue to begin downloading of posters and metadata.';
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function process(): void
     {
         $catalogue = Catalogue::get();
 
+        $queuedJobService = QueuedJobService::singleton();
+
         foreach ($catalogue as $page) {
             $this->addMessage('Queued job for page ' .$page->Title .' (#'. $page->ID .')');
-            $poster = DataObject::get_by_id(Image::class, $page->PosterID);
+            $poster = Image::get_by_id($page->PosterID);
 
-            if ($poster !== false) {
+            if ($poster !== null) {
                 continue;
             }
 
-            $unpublish = new CrawlMediaPage($page);
-            singleton('QueuedJobService')->queueJob($unpublish);
+            $job = new CrawlMediaPageJob();
+            $job->hydrate($page);
+            $queuedJobService->queueJob($job);
         }
 
         $this->addMessage(sprintf(
@@ -50,41 +52,6 @@ class CrawlCatalogue extends AbstractQueuedJob implements QueuedJob
 
         $this->currentStep = 1;
         $this->isComplete = true;
-    }
-
-    public function getSignature(): void
-    {
-        // TODO: Implement getSignature() method.
-    }
-
-    public function prepareForRestart(): void
-    {
-        // TODO: Implement prepareForRestart() method.
-    }
-
-    public function getJobType(): void
-    {
-        // TODO: Implement getJobType() method.
-    }
-
-    public function jobFinished(): void
-    {
-        // TODO: Implement jobFinished() method.
-    }
-
-    public function getJobData(): void
-    {
-        // TODO: Implement getJobData() method.
-    }
-
-    public function setJobData($totalSteps, $currentStep, $isComplete, $jobData, $messages): void
-    {
-        // TODO: Implement setJobData() method.
-    }
-
-    public function addMessage($message, $severity = 'INFO'): void
-    {
-        // TODO: Implement addMessage() method.
     }
 
 }
