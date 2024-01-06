@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Catalogue\Extensions;
+
+use SilverStripe\Dev\CsvBulkLoader;
+
 /**
  * Class CatalogueCsvBulkLoader
  *

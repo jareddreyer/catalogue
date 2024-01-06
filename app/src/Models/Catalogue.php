@@ -1,7 +1,24 @@
 <?php
 
+namespace App\Catalogue\Models;
+
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Image;
+use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+
 class Catalogue extends DataObject
 {
+
+    private static string $table_name = 'Catalogue';
+
+    private static string $singular_name = 'Catalogue Title Item';
+
+    private static string $plural_name = 'Catalogue Title Items';
+
+    private static string $description = 'Catalogue of media titles';
+
     private static $db = [
         'Title'      => 'Varchar(255)',
         'IMDBID'     => 'Varchar(20)',
@@ -16,17 +33,17 @@ class Catalogue extends DataObject
         'Quality'    => 'Varchar(5)'
     ];
 
-    private static $has_one = [
+    private static array $has_one = [
         'Metadata' => File::class,
         'Poster'   => Image::class,
         'Owner'    => Member::class
     ];
 
-    private static $has_many = [
+    private static array $has_many = [
         'Comments' => Comment::class
     ];
 
-    private static $summary_fields = [
+    private static array $summary_fields = [
         'ID',
         'Poster.CMSThumbnail' => 'Poster',
         'Title',
@@ -36,26 +53,10 @@ class Catalogue extends DataObject
         'LastEdited.Nice' => 'Last edited'
     ];
 
-    private static $searchable_fields = [
+    private static array $searchable_fields = [
         'Title',
         'Type'
     ];
-
-    public function canView($member = null) {
-        return Permission::check('CMS_ACCESS_MyAdmin', 'any', $member);
-    }
-
-    public function canEdit($member = null) {
-        return Permission::check('CMS_ACCESS_MyAdmin', 'any', $member);
-    }
-
-    public function canDelete($member = null) {
-        return Permission::check('CMS_ACCESS_MyAdmin', 'any', $member);
-    }
-
-    public function canCreate($member = null) {
-        return Permission::check('CMS_ACCESS_MyAdmin', 'any', $member);
-    }
 
     public function validate()
     {
@@ -83,12 +84,9 @@ class Catalogue extends DataObject
 
         $comments = $fields->dataFieldByName('Comment');
 
-        if($comments) {
-            $comments->getConfig()->addComponent(new GridFieldDeleteAction());
-        }
+        $comments?->getConfig()->addComponent(new GridFieldDeleteAction());
 
         return $fields;
-
     }
 
 }
