@@ -1448,39 +1448,34 @@
         },
         {
             "name": "league/csv",
-            "version": "9.14.0",
+            "version": "9.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/csv.git",
-                "reference": "34bf0df7340b60824b9449b5c526fcc3325070d5"
+                "reference": "9d2e0265c5d90f5dd601bc65ff717e05cec19b47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/csv/zipball/34bf0df7340b60824b9449b5c526fcc3325070d5",
-                "reference": "34bf0df7340b60824b9449b5c526fcc3325070d5",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/9d2e0265c5d90f5dd601bc65ff717e05cec19b47",
+                "reference": "9d2e0265c5d90f5dd601bc65ff717e05cec19b47",
                 "shasum": ""
             },
             "require": {
-                "ext-filter": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": "^8.1.2"
+                "php": "^7.4 || ^8.0"
             },
             "require-dev": {
-                "doctrine/collections": "^2.1.4",
+                "ext-curl": "*",
                 "ext-dom": "*",
-                "ext-xdebug": "*",
-                "friendsofphp/php-cs-fixer": "^v3.22.0",
-                "phpbench/phpbench": "^1.2.15",
-                "phpstan/phpstan": "^1.10.50",
-                "phpstan/phpstan-deprecation-rules": "^1.1.4",
-                "phpstan/phpstan-phpunit": "^1.3.15",
-                "phpstan/phpstan-strict-rules": "^1.5.2",
-                "phpunit/phpunit": "^10.5.3",
-                "symfony/var-dumper": "^6.4.0"
+                "friendsofphp/php-cs-fixer": "^v3.4.0",
+                "phpstan/phpstan": "^1.3.0",
+                "phpstan/phpstan-phpunit": "^1.0.0",
+                "phpstan/phpstan-strict-rules": "^1.1.0",
+                "phpunit/phpunit": "^9.5.11"
             },
             "suggest": {
-                "ext-dom": "Required to use the XMLConverter and the HTMLConverter classes",
+                "ext-dom": "Required to use the XMLConverter and or the HTMLConverter classes",
                 "ext-iconv": "Needed to ease transcoding CSV using iconv stream filters"
             },
             "type": "library",
@@ -1533,7 +1528,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-29T07:34:53+00:00"
+            "time": "2022-01-04T00:13:07+00:00"
         },
         {
             "name": "league/flysystem",
@@ -3466,16 +3461,16 @@
         },
         {
             "name": "silverstripe/framework",
-            "version": "4.13.37",
+            "version": "4.13.39",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silverstripe/silverstripe-framework.git",
-                "reference": "6698e5accd11c17adcd519056ee13ae8a7b48a26"
+                "reference": "6fe377e69de4727ee2e594e12a4d314134b328ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silverstripe/silverstripe-framework/zipball/6698e5accd11c17adcd519056ee13ae8a7b48a26",
-                "reference": "6698e5accd11c17adcd519056ee13ae8a7b48a26",
+                "url": "https://api.github.com/repos/silverstripe/silverstripe-framework/zipball/6fe377e69de4727ee2e594e12a4d314134b328ad",
+                "reference": "6fe377e69de4727ee2e594e12a4d314134b328ad",
                 "shasum": ""
             },
             "require": {
@@ -3592,22 +3587,22 @@
             ],
             "support": {
                 "issues": "https://github.com/silverstripe/silverstripe-framework/issues",
-                "source": "https://github.com/silverstripe/silverstripe-framework/tree/4.13.37"
+                "source": "https://github.com/silverstripe/silverstripe-framework/tree/4.13.39"
             },
-            "time": "2023-12-04T20:05:16+00:00"
+            "time": "2024-01-22T22:46:28+00:00"
         },
         {
             "name": "silverstripe/graphql",
-            "version": "4.3.6",
+            "version": "4.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silverstripe/silverstripe-graphql.git",
-                "reference": "d67758748dbc0a68df23f1a8dfc931fd7befac15"
+                "reference": "2aabfb0fd7456e6ef0d70a5a6b5587d8fda813e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silverstripe/silverstripe-graphql/zipball/d67758748dbc0a68df23f1a8dfc931fd7befac15",
-                "reference": "d67758748dbc0a68df23f1a8dfc931fd7befac15",
+                "url": "https://api.github.com/repos/silverstripe/silverstripe-graphql/zipball/2aabfb0fd7456e6ef0d70a5a6b5587d8fda813e6",
+                "reference": "2aabfb0fd7456e6ef0d70a5a6b5587d8fda813e6",
                 "shasum": ""
             },
             "require": {
@@ -3651,9 +3646,9 @@
             "description": "GraphQL server for SilverStripe models and other data",
             "support": {
                 "issues": "https://github.com/silverstripe/silverstripe-graphql/issues",
-                "source": "https://github.com/silverstripe/silverstripe-graphql/tree/4.3.6"
+                "source": "https://github.com/silverstripe/silverstripe-graphql/tree/4.3.7"
             },
-            "time": "2023-11-27T23:19:19+00:00"
+            "time": "2024-01-22T23:19:50+00:00"
         },
         {
             "name": "silverstripe/mimevalidator",
