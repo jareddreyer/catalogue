@@ -24,7 +24,7 @@ $(function()
 							var array = data.Error ? [] : $.map(data.Search, function(m) {
 								return {
 									label: m.Title + " (" + m.Year + ")" + " [" + m.Type + "]",
-									id: m.imdbID,
+									ImdbID: m.imdbID,
 									poster: m.Poster,
 									title: m.Title,
 									year: m.Year
@@ -48,11 +48,18 @@ $(function()
 				select: function(event, ui) {
 					// prevent autocomplete from updating the textbox
 					event.preventDefault();
-					$('#Form_Form_IMDBID').val(ui.item.id); //add imdb ID to field
+					const catalogueID = $('#Form_Form_ID').val()
+					$('#Form_Form_ImdbID').val(ui.item.ImdbID); //add imdb ID to field
+					$('#Form_Form_PosterURL').val(ui.item.poster); //add poster URL to field
 					$('#Form_Form_Year').val(ui.item.year); //add year of release to field
-					const filename = ui.item.title.replace(/[^a-zA-Z0-9-_\.]/gi, ''); //clean up the title so its local filename safe
-					(ui.item.poster != 'N/A') ?	getPosterThumb(ui.item.poster, ui.item.title, filename, ui.item.year, ui.item.id) : $('.poster').html('<img src="_resources/themes/app/images/blank.png">'); //get the poster as  base64 curl request and display it
-					imdblookup(ui.item.id); //get all metadata from imdb
+
+					//clean up the title so its local filename safe
+					const filename = ui.item.title.replace(/[^a-zA-Z0-9-_.]/gi, '');
+					(ui.item.poster !== 'N/A')
+						?	getPosterThumb(catalogueID, ui.item.poster, ui.item.title, filename, ui.item.year, ui.item.ImdbID)
+						: $('.poster').html('<img src="/_resources/themes/app/images/blank.png" alt="${ui.item.title}">');
+
+					imdblookup(ui.item.ImdbID); //get all metadata from imdb
 				}
 			});
 
@@ -99,14 +106,14 @@ $(function()
 		populateComments();
 });
 
-function getPosterThumb (poster, title, filename, year, IMDBID)
+function getPosterThumb (id, poster, title, filename, year, ImdbID)
 {
 	const posterlink = $("#Form_Form").data('posterlink');
 
 	$.ajax({
 		type: "GET",
 		url: posterlink,
-		data: {poster: poster, title: title, filename: filename, year: year, IMDBID: IMDBID},
+		data: {ID: id, Poster: poster, Title: title, Filename: filename, Year: year, ImdbID: ImdbID},
 
 		beforeSend: function() {
 			posterContainer.show();
@@ -116,7 +123,6 @@ function getPosterThumb (poster, title, filename, year, IMDBID)
 		{
 			console.log('success');
 			$('.poster').html(data);
-			console.log('we are here')
 			console.log(posterContainer.find('img[data-posterid]').data('posterid'))
 			$('#Form_Form_PosterID').val(posterContainer.find('img[data-posterid]').data('posterid'));
 		},

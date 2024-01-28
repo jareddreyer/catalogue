@@ -1,0 +1,10 @@
+---
+Name: app_extensions
+---
+
+SilverStripe\AssetAdmin\Forms\FolderFormFactory:
+  extensions:
+    - App\Catalogue\Extensions\FolderFormFactory
+
+SilverStripe\AssetAdmin\Forms\FileFormFactory:
+  show_history: true

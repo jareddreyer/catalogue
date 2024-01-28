@@ -6,14 +6,12 @@ use App\Catalogue\PageTypes\FilmsPage;
 use App\Catalogue\PageTypes\MaintenanceFormPage;
 use App\Catalogue\PageTypes\ProfilePage;
 use App\Catalogue\PageTypes\TelevisionPage;
-use SilverStripe\Assets\Folder;
+use App\Catalogue\Traits\CatalogueTrait;
 use SilverStripe\Assets\Image;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Control\HTTPResponse;
-use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Environment;
 use SilverStripe\Core\Manifest\ModuleResourceLoader;
 use SilverStripe\Forms\FieldList;
@@ -29,7 +27,6 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\PaginatedList;
 use SilverStripe\ORM\Queries\SQLSelect;
-use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 use SilverStripe\View\ArrayData;
@@ -38,6 +35,8 @@ use SilverStripe\View\ThemeResourceLoader;
 
 class PageController extends ContentController
 {
+
+    use CatalogueTrait;
 
     /**
      * @todo this need typing correctly is it a member object or member ID integer?
@@ -58,12 +57,10 @@ class PageController extends ContentController
     private static array $allowed_actions = [
         'getComments',
         'poster',
-        'fetchPosterImage',
     ];
 
     private static array $url_handlers = [
         'comments/$ID' => 'getComments',
-        'poster/$poster' => 'fetchPosterImage',
     ];
 
     protected function init()
@@ -321,69 +318,8 @@ class PageController extends ContentController
         return ($poster === null) ? false : $poster;
     }
 
-    /**
-     * Allows saving of imdb posters to local storage
-     *
-     * @param $cataloguePosterID - ID of PosterID from Catalogue::class
-     * @param $src - base64 of Poster image data (from IMDBApi)
-     * @param $filename - what the image dataobject filename and local filename will be
-     * @param $title - Name and Title of media (from data sources)
-     * @throws ValidationException
-     */
-    public function createPosterImage(
-        $cataloguePosterID = null,
-        $src = null,
-        $filename = null,
-        $title = null,
-    ): bool|Image
-    {;
-        // create asset folder path
-        $postersFolder = Folder::find_or_make($this->postersFolderName);
-
-        try {
-            $imageSrc = file_get_contents($src);
-        } catch (Throwable $exception) {
-            user_error('we had trouble saving posters to ' . $postersFolder);
-            return false;
-        }
-
-        // Publish our new poster
-        $poster = Image::create();
-        $poster->Title = $title;
-        $poster->ParentID = $postersFolder->ID;
-        $filename = Controller::join_links($postersFolder->Title, $filename);
-        $poster->setFromString($imageSrc, $filename);
-        $poster->write();
-        $poster->publishSingle();
-
-        // Update the catalogue record to now use a DataObject relationship ID if Catalogue record exists.
-        if ($cataloguePosterID) {
-            $catalogue = Catalogue::get_by_id($cataloguePosterID);
-            $catalogue->update([
-                'ID' => $cataloguePosterID,
-                'PosterID' => $poster->ID,
-            ])->write();
-        }
-
-        return $poster;
-    }
-
-    /**
-     * Returns poster image object for the template view by ID.
-     */
-    public function getPosterImageByID(int $id = null): DataObject|string
-    {
-        if ($id) {
-            return Image::get_by_id($id);
-        }
-
-        // Found nothing so returning blank.
-        return ModuleResourceLoader::resourceURL('themes/app/images/blank.png');
-    }
-
     public function getPosterImageByCatalogueSlug(): DataObject|string
     {
-
         $this->slug = $this->getCatalogueSlug();
 
         if ($this->slug !== 0) {
@@ -403,21 +339,6 @@ class PageController extends ContentController
         $request = Controller::curr()->getRequest();
 
         return $request->params()['ID'] ?? 0;
-    }
-
-    /**
-     * returns a safe title (removes characters unallowed in filenames)
-     *
-     * @param $title - name of media
-     * @param $IMDBID - static IMDBID value
-     * @param $fileType - image or text
-     */
-    public function cleanFilename(string $title, string $IMDBID, string $fileType): string
-    {
-        $sanitized = preg_replace('/[^a-zA-Z0-9-_\.]/', '', $title);
-        $filetype = $fileType === 'image' ? '.jpg' : '.txt';
-
-        return $sanitized .'-'. $IMDBID . $filetype;
     }
 
     /**
@@ -614,9 +535,7 @@ class PageController extends ContentController
     /**
      * Returns single comment record for use in an ajax request.
      *
-     * @todo needs fixing
-     * @param int $commentID
-     * @return false|string|void
+     * @todo needs fixing on returns.
      */
     public function getComment(int $commentID): string|null
     {
@@ -689,75 +608,6 @@ class PageController extends ContentController
 
         // no ajax request so return 404 not found
         return $this->httpError(404, 'Not Found');
-    }
-
-    /**
-     * Saves poster image from IMDB to assets folder determined by config settings.
-     * example:
-     *  `$url='http://ia.media-imdb.com/images/M/MV5BMjI5OTYzNjI0Ml5BMl5BanBnXkFtZTcwMzM1NDA1OQ@@._V1_SX300.jpg';`.
-     *
-     * Makes a request to get the poster and save it to local flysystem
-     * before insert gives preview to user.
-     *
-     * @throws ValidationException|HTTPResponse_Exception
-     */
-    public function fetchPosterImage(HTTPRequest $request): string|Image|HTTPResponse
-    {
-        $posterData = $request->getVars();
-
-        // No params were found so presume it is invalid.
-        if (!$posterData) {
-            return $this->httpError(400, 'Request was invalid.');
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $posterData['poster']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        // Prepare our Poster Image file for insertion to filesystem and DB.
-        $result = base64_encode($result);
-        $src = 'data: content-type: image/jpeg;base64,'.$result;
-        $title = $posterData['title'] . ' ('. $posterData['year'] . ')';
-        $posterFilename = $this->cleanFilename($posterData['title'], $posterData['IMDBID'], 'image');
-
-        // Check we already have it saved
-        // @todo lets put a timeout on the poster in case IMDB updates any imagery.
-        if ($this->getPosterImageByFilename($posterFilename)) {
-            $posterImage = $this->getPosterImageByFilename($posterFilename);
-        } else {
-            $posterImage = $this->createPosterImage($this->slug ?? false, $src, $posterFilename, $title);
-        }
-
-        // Check if this an ajax request and return back a string.
-        if ($request->isAjax()) {
-            return
-                '<img data-posterid="' . $posterImage->ID . '" ' .
-                'src="' . $posterImage->ScaleWidth(250)->getAbsoluteURL(). '" ' .
-                'alt="' . $posterImage->Title . '">';
-        }
-
-        return $posterImage;
-    }
-
-    /**
-     * Build a request for our fetch because we may not have a metadata file,
-     * and we need an imdb ID for our identifier on our files and since,
-     * we only have identifier when we have a new title added to the catalogue or,
-     * the user has fetched a profile of the title.
-     *
-     * @param string[] $requestData
-     */
-    public function buildPosterRequest(array $requestData): HTTPRequest
-    {
-        $link = Controller::join_links($this->getMaintenanceFormPageLink(), 'Poster');
-
-        return new HTTPRequest(
-            'GET',
-            $link,
-            $requestData
-        );
     }
 
 }

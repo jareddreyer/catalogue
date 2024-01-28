@@ -13,3 +13,5 @@ _graphql/
 /public/_resources/
 /public/assets/
 silverstripe.log
+*.DS_Store
+.phpunit.result.cache

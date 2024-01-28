@@ -68,13 +68,6 @@ class Page extends SiteTree
             $aboutusPage->delete();
             DB::alteration_message("Deleting 'about us' & 'contact us' pages", 'deleted');
         }
-
-        //set up assets so its nice and clean
-        $posters = Folder::find_or_make(Config::inst()->get('Catalogue', 'postersAssetsFolderName'));
-        $posters->publishRecursive();
-
-        $metadata = Folder::find_or_make(Config::inst()->get('Catalogue', 'jsonAssetsFolderName'));
-        $metadata->publishSingle();
     }
 
 }
