@@ -12,9 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
-use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Config\Configurable;
@@ -37,7 +35,7 @@ class ApiService
     private string $trailersToken;
 
     /**
-     * Note: Entire URI is the endpoint and uses params for searches.
+     * Note: the omdb api uses entire URI as the endpoint and uses params for searches.
      *
      * Endpoint domains for:
      * @link https://www.omdbapi.com Metadata API
@@ -45,10 +43,23 @@ class ApiService
      * @link https://img.omdbapi.com Poster images API
      * @var string[]
      */
-    private static array $api_endpoints = [
+    private static array $api_base_uri = [
         'trailers' => 'https://api.themoviedb.org/3/',
         'metadata' => 'https://www.omdbapi.com/',
         'posters' => 'https://img.omdbapi.com/',
+    ];
+
+    /**
+     * Endpoints for themoviedb.org
+     *
+     * @link https://api.themoviedb.org trailers API
+     * @var string[]
+     */
+    private static array $tmdb_api_endpoints = [
+        'find' => 'find',
+        'movie' => 'movie',
+        'tv' => 'tv',
+        'videos' => 'videos',
     ];
 
     /**
@@ -84,7 +95,7 @@ class ApiService
     public function getMetadata(array $query): stdClass|null
     {
         $params = $this->generateQuery($query);
-        $uri = sprintf('%s?apikey=%s&%s', self::$api_endpoints['metadata'], $this->metadataToken, $params);
+        $uri = sprintf('%s?apikey=%s&%s', self::$api_base_uri['metadata'], $this->metadataToken, $params);
 
         // Initialize $error for use in error logging.
         $error = null;
@@ -129,7 +140,7 @@ class ApiService
                 $exception,
                 [
                     'request' => [
-                        'api_url' => self::$api_endpoints['metadata'],
+                        'api_url' => self::$api_base_uri['metadata'],
                         'endpoint' => $params,
                     ],
                     'response' => $result ?? '',
@@ -165,6 +176,94 @@ class ApiService
 
             return null;
         }
+    }
+
+    /**
+     * Look up {@link self::$api_base_uri['trailers']} to get their internal
+     * title identifier for further use, i.e. get this titles' video trailers.
+     *
+     * @throws NotFoundExceptionInterface
+     */
+    public function getTmdbID(string $id, array $query): stdClass|null
+    {
+        $params = $this->generateQuery($query);
+
+        $uri = sprintf(
+            '%s%s/%s?%s&api_key=%s',
+            self::$api_base_uri['trailers'],
+            self::$tmdb_api_endpoints['find'],
+            $id,
+            $params,
+            $this->trailersToken
+        );
+
+        // get ID from tmddb.org
+        try {
+            // Request to OMDB Api
+            $response = $this->guzzle->get($uri);
+
+            // Decode the response
+            $result = $this->decodeResponse($response);
+        } catch (Throwable $exception) {
+            // Log any exceptions
+            static::log_error(
+                $exception,
+                [
+                    'request' => [
+                        'api_url' => self::$api_base_uri['trailers'],
+                        'endpoint' => $params,
+                    ],
+                    'response' => $result ?? '',
+                ]
+            );
+
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * returns data for trailers from themoviedb.org
+     * @todo needs a service and tidying up
+     */
+    public function getTrailers(string $id, string $type, array $query): stdClass|null
+    {
+        $params = $this->generateQuery($query);
+        $uri = sprintf(
+            '%s%s/%s/%s?api_key=%s&%s',
+            self::$api_base_uri['trailers'],
+            $type === 'movie' ? self::$tmdb_api_endpoints['movie'] : self::$tmdb_api_endpoints['tv'],
+            $id,
+            self::$tmdb_api_endpoints['videos'],
+            $this->trailersToken,
+            $params,
+        );
+
+        // now get trailers from id
+        try {
+            // Request to tmdb Api
+            $response = $this->guzzle->get($uri);
+
+            // Decode the response
+            $result = $this->decodeResponse($response);
+        } catch (Throwable $exception) {
+            // Log any exceptions
+            static::log_error(
+                $exception,
+                [
+                    'request' => [
+                        'api_url' => self::$api_base_uri['metadata'],
+                        'endpoint' => $params,
+                    ],
+                    'response' => $result ?? '',
+                ]
+            );
+
+            return null;
+        }
+
+        return $result;
     }
 
     /**

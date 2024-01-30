@@ -102,9 +102,9 @@ trait CatalogueTrait
     /**
      * Returns poster image object for the template view by ID.
      */
-    public function getPosterImageByID($id = null): DataObject|string
+    public function getPosterImageByID($id = null): DataObject|string|null
     {
-        if (!$this->getCatalogueSlug()) {
+        if (!$id || !Image::get_by_id($id)) {
             // Found nothing so returning blank.
             return ModuleResourceLoader::resourceURL('themes/app/images/blank.png');
         }

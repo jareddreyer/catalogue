@@ -3,9 +3,6 @@
 namespace App\Catalogue\Jobs;
 
 use App\Catalogue\Models\Catalogue;
-use Exception;
-use SilverStripe\Assets\Image;
-use SilverStripe\ORM\FieldType\DBDate;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ValidationException;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
@@ -79,7 +76,6 @@ class CrawlCatalogueJob extends AbstractQueuedJob implements QueuedJob
         $query = $catalogue->limit($chunkSize);
 
         while ($chunk = $query) {
-
             foreach ($chunk as $item) {
                 yield $item;
             }

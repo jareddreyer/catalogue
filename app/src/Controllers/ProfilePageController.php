@@ -16,7 +16,6 @@ use SilverStripe\ORM\ValidationException;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\ViewableData_Customised;
 use stdClass;
-use Throwable;
 
 class ProfilePageController extends PageController
 {
@@ -28,18 +27,9 @@ class ProfilePageController extends PageController
     ];
 
     /**
-     * @todo move to service
-     * @var string[]
-     */
-    private static array $api_base_uri = [
-      'tmdb' => 'https://api.themoviedb.org/3/',
-      'omdb' => 'https://www.omdbapi.com/',
-    ];
-
-    /**
      * main call to build profile of title
-     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
      *
+     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
      * @todo tidy up how profile => $record is set
      * @todo needs tidying up for early exists
      */
@@ -96,9 +86,12 @@ class ProfilePageController extends PageController
             $arraySeasons = explode(',', $seasons);
 
             foreach ($arraySeasons as $season) {
-                $link = '<a href="http://www.imdb.com/title/' . $title->IMDBID .
-                    '/episodes?season=' . $season . '">' . $season .
-                    '</a>';
+                $link = sprintf(
+                    '<a href="https://www.imdb.com/title/%s/episodes?season=%s">%s</a>',
+                    $title->ImdbID,
+                    $season,
+                    $season
+                );
                 $seassonsArrayList->push(ArrayData::create(['seasons' => $link]));
             }
         }
@@ -111,8 +104,8 @@ class ProfilePageController extends PageController
      */
     public function relatedTitles(): DataList|bool
     {
-        //get title
-        $video = Catalogue::get()->byID($this->slug);
+        // Get title
+        $video = Catalogue::get_by_id($this->getCatalogueSlug());
 
         if ($video->Collection !== null) {
             return Catalogue::get()
@@ -130,9 +123,8 @@ class ProfilePageController extends PageController
      * relatedTitles(), so does not need to be included twice.
      *
      * @todo needs refactoring, too heavy on the if statements
-     * @see \ProfilePage_Controller::relatedTitles()
-     * @see \Page_Controller::convertAndCleanList()
-     * @return mixed
+     * @see ProfilePage_Controller::relatedTitles()
+     * @see Page_Controller::convertAndCleanList()
      */
     public function seeAlsoTitles(): ?DataList
     {
@@ -166,14 +158,6 @@ class ProfilePageController extends PageController
     }
 
     /**
-     * .
-     *
-     * @return ArrayList
-     * @throws ValidationException
-     * @throws HTTPResponse_Exception
-     */
-
-    /**
      * Creates metadata file from the OMDB API.
      * This function will also create relationships and save a local file
      *
@@ -191,7 +175,7 @@ class ProfilePageController extends PageController
 
         $result = ArrayList::create();
 
-        if ($catalogueItem->Metadata()->exists()){
+        if ($catalogueItem->Metadata()->exists()) {
             $data = json_decode($catalogueItem->Metadata->getString());
             $result->push(ArrayData::create($this->jsonDataToArray($data)));
 
@@ -228,7 +212,7 @@ class ProfilePageController extends PageController
             $this->httpError('404', Constants::CATALOGUE_ID_DOES_NOT_EXIST);
         }
 
-        if ($catalogueItem->Poster()->exists()){
+        if ($catalogueItem->Poster()->exists()) {
             return $catalogueItem->Poster;
         }
 
@@ -244,7 +228,6 @@ class ProfilePageController extends PageController
      * We need to return the IMDBAPI result as an arraylist for the template.
      *
      * @todo refactor into a foreach loop so don't have specify all field names
-     * @param string[] $data - api result
      */
     public function jsonDataToArray(stdClass $data): ?array
     {
@@ -285,55 +268,45 @@ class ProfilePageController extends PageController
     }
 
     /**
-     * returns data for trailers from themoviedb.org
-     * @todo needs a service and tidying up
+     * Returns data for trailers from themoviedb.org
      */
     public function getTrailers(): ArrayList|null
     {
         //get video title and IMDBID values from Catalogue DB
-        $imdbMetadata = Catalogue::get_by_id($this->slug);
+        $catalogueItem = Catalogue::get_by_id($this->getCatalogueSlug());
 
-        if ($imdbMetadata->IMDBID === null) {
+        if ($catalogueItem->ImdbID === null) {
             return null;
         }
 
-        //set type because tmdb uses 'tv' instead of 'series'
-        $type = $imdbMetadata->Type === 'series' ? 'tv' : $imdbMetadata->Type;
+        $service = new ApiService();
+        $params = [
+            'external_source' => 'imdb_id',
+        ];
 
-        $tmdbAPIKey = 'api_key=' . self::$TMDBAPIKey;
+        // Check type because tmdb uses 'tv' instead of 'series'
+        $type = $catalogueItem->Type === 'series' ? 'tv' : $catalogueItem->Type;
 
-        // get ID from tmddb.org
-        try {
-            $apiURL = self::$api_base_uri['tmdb'] . 'find/' .$imdbMetadata->IMDBID .
-                '?' . $tmdbAPIKey . '&external_source=imdb_id';
+        // Get entire response
+        $movieData = $service->getTmdbID($catalogueItem->ImdbID, $params);
+        $tmdbID = $movieData->{$type . '_results'}[0]->{'id'};
 
-            $json = file_get_contents($apiURL);
-            $data = json_decode($json);
-        } catch (Throwable $e) {
-            user_error('There was an issue connecting to the omdb API: ' . $e);
+        // Call the trailers endpoint
+        $trailersData = $service->getTrailers($tmdbID, $type, []);
+
+        // Extracts keys of elements in $trailersData->results where the 'type' value is 'Trailer'.
+        $trailerKeysArray = array_keys(array_column($trailersData->{'results'}, 'type'), 'Trailer');
+
+        // Begin output for view/template
+        $trailersArray = ArrayList::create();
+
+        foreach ($trailerKeysArray as $value) {
+            $trailersArray->push(
+                ArrayData::create((array)$trailersData->{'results'}[$value])
+            );
         }
 
-        // now get trailers from id
-        try {
-            $id = $data->{$type . '_results'}[0]->{'id'};
-
-            $apiURL = self::$api_base_uri['tmdb'] . $type . '/' .$id . '/videos?' . $tmdbAPIKey;
-            $json = file_get_contents($apiURL);
-            $data = json_decode($json);
-
-            $trailerKeysArray = array_keys(array_column($data->{'results'}, 'type'), 'Trailer');
-            $trailersArray = ArrayList::create();
-
-            foreach ($trailerKeysArray as $value) {
-                $trailersArray->push(ArrayData::create((array)$data->{'results'}[$value]));
-            }
-
-            return $trailersArray;
-        } catch (Throwable $e) {
-            user_error('There was an issue connecting to the tmdb API: ' . $e);
-        }
-
-        return null;
+        return $trailersArray;
     }
 
 }

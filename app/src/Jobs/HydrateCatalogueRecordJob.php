@@ -15,6 +15,7 @@ use Symbiote\QueuedJobs\Services\QueuedJob;
 
 /**
  * An queued job which will curl page::link() to download all the posters and metadata to local records.
+ *
  * @todo Needs updating to use service.
  * @author Jared Dreyer <jaredkeithdreyer@gmail.com>
  */
@@ -79,8 +80,8 @@ class HydrateCatalogueRecordJob extends AbstractQueuedJob implements QueuedJob
         $record->hydratePosterFromResponse($response, $posterImageSrc);
         $this->addMessage('Poster image has been created.');
 
-        $this->addMessage('Catalogue record ' . '(#'.$record->ID .') is updated.');
-        $this->addMessage($record->Title . ' can be viewed at ' . $link );
+        $this->addMessage('Catalogue record ' . '(#'.$record->ID . ') is updated.');
+        $this->addMessage($record->Title . ' can be viewed at ' . $link);
 
         $this->currentStep = 1;
         $this->isComplete = true;

@@ -4,9 +4,7 @@ use App\Catalogue\PageTypes\FilmsPage;
 use App\Catalogue\PageTypes\MaintenanceFormPage;
 use App\Catalogue\PageTypes\ProfilePage;
 use App\Catalogue\PageTypes\TelevisionPage;
-use SilverStripe\Assets\Folder;
 use SilverStripe\CMS\Model\SiteTree;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DB;
 
 class Page extends SiteTree

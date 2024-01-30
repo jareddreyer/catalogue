@@ -14,7 +14,7 @@ class FolderTypeWithFolderTitleFieldResolver extends FolderTypeResolver
      * We basically do this because graphql is incredibly complex to override or inject a new
      * field without first creating new types and then creating a new resolver.
      */
-    public static function resolveFolderTitle($object): string|null
+    public static function resolveFolderTitle(mixed $object): string|null
     {
         return $object->FolderTitle ?? $object->Name;
     }

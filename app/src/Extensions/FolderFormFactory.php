@@ -2,7 +2,6 @@
 
 namespace App\Catalogue\Extensions;
 
-
 use SilverStripe\AssetAdmin\Controller\AssetAdmin;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
@@ -10,7 +9,8 @@ use SilverStripe\ORM\DataExtension;
 
 class FolderFormFactory extends DataExtension
 {
-    public function updateFormFields(FieldList $fields, ?AssetAdmin $controller, ?string $formName, ?array $context)
+
+    public function updateFormFields(FieldList $fields, ?AssetAdmin $controller, ?string $formName, ?array $context): void
     {
         // Get data object from the context parameter
         $folder = $context['Record'] ?? null;

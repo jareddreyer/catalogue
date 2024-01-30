@@ -30,12 +30,12 @@ class FilmsPageController extends PageController
         return $this->films();
     }
 
-    public function films()
+    public function films(): ViewableData_Customised
     {
         // main SQL call
         $media = Catalogue::get()->filter([
             'Type' => 'movie',
-            'OwnerID' => $this->slug,
+            'OwnerID' => $this->getCatalogueSlug(),
         ])->sort('Title', 'ASC');
 
         $result = ArrayList::create();
