@@ -90,7 +90,7 @@ class ApiService
      * request => ?i=The Dark Knight.
      *
      * @param string[] $query - endpoint and params.
-     * @throws NotFoundExceptionInterface
+     * @throws NotFoundExceptionInterface|RuntimeException
      */
     public function getMetadata(array $query): stdClass|null
     {
@@ -307,7 +307,6 @@ class ApiService
      * These errors can be handled accordingly in the frontend (JS) by fetch mechanisms.
      *
      * @param Throwable $e
-     * @return mixed
      * @throws HTTPResponse_Exception
      */
     public function createHTTPErrorFromException(Throwable $e): HTTPResponse_Exception|null
