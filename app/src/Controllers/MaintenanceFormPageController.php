@@ -2,10 +2,14 @@
 
 namespace App\Catalogue\PageTypes;
 
+use App\Catalogue\Api\Constants\Constants;
+use App\Catalogue\ApiServices\ApiService;
 use App\Catalogue\Models\Catalogue;
 use PageController;
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -28,9 +32,12 @@ class MaintenanceFormPageController extends PageController
         'Form',
         'edit',
         'getKeywords',
+        'fetchPosterImage',
     ];
 
-    private static array $url_handlers = [];
+    private static array $url_handlers = [
+        'poster/$poster' => 'fetchPosterImage',
+    ];
 
     //set up types of sources for movies
     private static array $moviesSourceArray = [
@@ -170,9 +177,10 @@ class MaintenanceFormPageController extends PageController
             )->setEmptyString('Select quality'),
             HiddenField::create('OwnerID', '', $this->member),
             HiddenField::create('Comments'),
-            HiddenField::create('IMDBID'),
+            HiddenField::create('ImdbID'),
             HiddenField::create('Year'),
             HiddenField::create('PosterID'),
+            HiddenField::create('PosterURL'),
             HiddenField::create('ID', 'ID')->setValue($this->slug)
         );
 
@@ -250,6 +258,43 @@ class MaintenanceFormPageController extends PageController
         }
 
         return null;
+    }
+
+    /**
+     * Saves poster image from IMDB to assets folder determined by config settings.
+     * example:
+     *  `$url='http://ia.media-imdb.com/images/M/MV5BMjI5OTYzNjI0Ml5BMl5BanBnXkFtZTcwMzM1NDA1OQ@@._V1_SX300.jpg';`.
+     *
+     * Makes a request to get the poster and save it to local flysystem
+     * before insert gives preview to user.
+     *
+     */
+    public function fetchPosterImage(HTTPRequest $request): string|Image|HTTPResponse
+    {
+        $posterData = $request->getVars();
+
+        // No params were found so presume it is invalid.
+        if (!$posterData) {
+            $this->httpError(400, Constants::DEFAULT_HTTP_BAD_REQUEST_MESSAGE);
+        }
+
+        $catalogueItem = Catalogue::get_by_id($posterData['ID']);
+
+        // Grab our service build a request and then call OMDB Api.
+        $service = new ApiService();
+        $posterImageSrc = $service->getPosterImage($posterData['Poster']);
+
+        $catalogueItem->hydratePosterFromResponse((object)$posterData, $posterImageSrc);
+
+        // Check if this an ajax request and return back a string.
+        if ($request->isAjax()) {
+            return
+                '<img data-posterid="' . $catalogueItem->Poster()->ID . '" ' .
+                'src="' . $catalogueItem->Poster()->ScaleWidth(250)->getAbsoluteURL(). '" ' .
+                'alt="' . $catalogueItem->Poster()->Title . '">';
+        }
+
+        return $catalogueItem->Poster;
     }
 
 }

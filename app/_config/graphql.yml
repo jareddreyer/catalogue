@@ -1,0 +1,9 @@
+---
+Name: app-catalogue-graphql-custom-schema
+After: '#asset-admin-graphql'
+---
+SilverStripe\GraphQL\Schema\Schema:
+  schemas:
+    admin:
+      src:
+        - app/_graphql

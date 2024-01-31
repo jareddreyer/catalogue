@@ -1,0 +1,30 @@
+---
+Name: app_dev
+Only:
+  environment: dev
+---
+# Logging to a file
+SilverStripe\Core\Injector\Injector:
+  Psr\Log\LoggerInterface:
+    calls:
+      LogFileHandler: [ pushHandler, [ '%$LogFileHandler' ] ]
+  LogFileHandler:
+    class: Monolog\Handler\StreamHandler
+    constructor:
+      - "../silverstripe.log"
+      - "info"
+
+---
+After: '#httpconfig-dev'
+---
+# Override default behaviour of disabled http caching headers in dev
+SilverStripe\Control\Middleware\HTTPCacheControlMiddleware:
+  defaultState: 'disabled'
+  defaultForcingLevel: 0
+
+---
+After: '#debugbar'
+---
+LeKoala\DebugBar\DebugBar:
+  enabled_in_admin: false
+  check_local_ip: false

@@ -10,7 +10,14 @@ class CatalogueAdmin extends ModelAdmin
 {
 
     private static array $managed_models = [
-        Catalogue::class,
+        'catalogue-complete' => [
+            'dataClass' => Catalogue::class,
+            'title' => 'Catalogue',
+        ],
+        'catalogue-incomplete' => [
+            'dataClass' => Catalogue::class,
+            'title' => 'Incomplete records',
+        ],
     ];
 
     private static string $menu_title = 'Catalogue admin';
@@ -20,5 +27,22 @@ class CatalogueAdmin extends ModelAdmin
     ];
 
     private static string $url_segment = 'catalogue';
+
+    public function getList()
+    {
+        $list = parent::getList();
+
+        // Only show Catalogue items that are marked as incomplete in the 'Incomplete records' tab
+        if ($this->modelTab === 'catalogue-incomplete') {
+            $list = $list->filter('MarkAsIncomplete', true);
+        }
+
+        // Only show Catalogue items that are NOT marked as incomplete in the 'Catalogue' tab
+        if ($this->modelTab === 'catalogue-complete') {
+            $list = $list->filter('MarkAsIncomplete', false);
+        }
+
+        return $list;
+    }
 
 }

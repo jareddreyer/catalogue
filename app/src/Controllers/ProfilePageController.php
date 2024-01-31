@@ -2,13 +2,13 @@
 
 namespace App\Catalogue\PageTypes;
 
+use App\Catalogue\Api\Constants\Constants;
+use App\Catalogue\ApiServices\ApiService;
 use App\Catalogue\Models\Catalogue;
 use PageController;
-use SilverStripe\Assets\File;
-use SilverStripe\Assets\Folder;
-use SilverStripe\Control\Controller;
+use Psr\Container\NotFoundExceptionInterface;
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPResponse_Exception;
-use SilverStripe\Dev\Debug;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\FieldType\DBHTMLText;
@@ -16,7 +16,6 @@ use SilverStripe\ORM\ValidationException;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\ViewableData_Customised;
 use stdClass;
-use Throwable;
 
 class ProfilePageController extends PageController
 {
@@ -28,27 +27,27 @@ class ProfilePageController extends PageController
     ];
 
     /**
-     * @todo move to service
-     * @var string[]
-     */
-    private static array $api_base_uri = [
-      'tmdb' => 'https://api.themoviedb.org/3/',
-      'omdb' => 'https://www.omdbapi.com/',
-    ];
-
-    /**
      * main call to build profile of title
+     *
+     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
      * @todo tidy up how profile => $record is set
      * @todo needs tidying up for early exists
      */
     public function profile(): DBHTMLText|ViewableData_Customised|null
     {
         // get db record
-        $title = Catalogue::get()->byID($this->slug);
+        $title = Catalogue::get_by_id($this->getCatalogueSlug());
 
         if (!$title) {
-            return null;
+            $this->httpError('404', Constants::CATALOGUE_ID_DOES_NOT_EXIST);
         }
+
+        // Get our metadata first before returning the catalogue DBO
+        // This will generate our poster image.
+        $metadata = $this->getMetadata();
+
+        // Reload Catalogue DBO.
+        $title = Catalogue::get_by_id($this->getCatalogueSlug());
 
         foreach ($title as $record) {
             $record->genres = $this->getFieldFiltersList($record->Genre, 'badge filters');
@@ -57,6 +56,7 @@ class ProfilePageController extends PageController
 
         $data = [
             'profile' => $record,
+            'metadata' => $metadata,
             'trailers' => $this->getTrailers(),
         ];
 
@@ -86,9 +86,12 @@ class ProfilePageController extends PageController
             $arraySeasons = explode(',', $seasons);
 
             foreach ($arraySeasons as $season) {
-                $link = '<a href="http://www.imdb.com/title/' . $title->IMDBID .
-                    '/episodes?season=' . $season . '">' . $season .
-                    '</a>';
+                $link = sprintf(
+                    '<a href="https://www.imdb.com/title/%s/episodes?season=%s">%s</a>',
+                    $title->ImdbID,
+                    $season,
+                    $season
+                );
                 $seassonsArrayList->push(ArrayData::create(['seasons' => $link]));
             }
         }
@@ -101,8 +104,8 @@ class ProfilePageController extends PageController
      */
     public function relatedTitles(): DataList|bool
     {
-        //get title
-        $video = Catalogue::get()->byID($this->slug);
+        // Get title
+        $video = Catalogue::get_by_id($this->getCatalogueSlug());
 
         if ($video->Collection !== null) {
             return Catalogue::get()
@@ -120,9 +123,8 @@ class ProfilePageController extends PageController
      * relatedTitles(), so does not need to be included twice.
      *
      * @todo needs refactoring, too heavy on the if statements
-     * @see \ProfilePage_Controller::relatedTitles()
-     * @see \Page_Controller::convertAndCleanList()
-     * @return mixed
+     * @see ProfilePage_Controller::relatedTitles()
+     * @see Page_Controller::convertAndCleanList()
      */
     public function seeAlsoTitles(): ?DataList
     {
@@ -156,209 +158,100 @@ class ProfilePageController extends PageController
     }
 
     /**
-     * saves and gets metadata from OMDBAPI.
-     * This function will also create relationships and save a local file.
+     * Creates metadata file from the OMDB API.
+     * This function will also create relationships and save a local file
      *
-     * @return ArrayList
-     * @throws ValidationException
-     * @throws HTTPResponse_Exception
+     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
      */
     public function getMetadata(): ArrayList|stdClass|null
     {
         // Get the video title from the Catalogue model.
-        $catalogueItem = Catalogue::get_by_id($this->slug);
+        $catalogueItem = Catalogue::get_by_id($this->getCatalogueSlug());
 
         // Early exit if this ID does not exist
         if (!$catalogueItem) {
-            return null;
+            $this->httpError('404', Constants::CATALOGUE_ID_DOES_NOT_EXIST);
         }
 
         $result = ArrayList::create();
 
-        // We have a catalogue item and now check we have a metadata file.
-        if ($this->checkMetadataExists()) {
-            // Get JSON data from local server
-            $record = File::get_by_id($catalogueItem->MetadataID);
-            $data = json_decode($record->getString());
-
-            // Returning to the view so ArrayList everything
-            $metadataArrayList = ArrayList::create();
-            $metadataArrayList->push(ArrayData::create($this->jsonDataToArray($data)));
-
-            // Build a HTTPRequest for fetching poster imagery.
-            $posterRequestData = [
-                'poster' => $data->Poster,
-                'title' => $data->Title,
-                'year'=> $data->Year,
-                'IMDBID' => $data->imdbID,
-            ];
-            $request = $this->buildPosterRequest($posterRequestData);
-            /**
-             * We do not need to return here because this method only redundantly
-             * fetches the poster if it does not exist.
-             * Thus, we just fetch the poster.
-             * @see PageController::getPosterImageByID()
-             */
-            $this->fetchPosterImage($request);
-
-            return $metadataArrayList;
-        }
-
-        // We have no metadata file proceed to fetching.
-        $metadataFilePath = Controller::join_links($this->postersFolderName, $this->metadataFolderName);
-
-        // {@see urlencoded} fields only allowed to web api
-        $titleEncoded = urlencode($catalogueItem->Title);
-
-        // Construct the API call
-        // @todo make api calls static parameters
-        $url = self::$api_base_uri['omdb'] . '?apikey=' . self::$OMDBAPIKey;
-
-        // @todo when moving to service we can use parameters to tidy these better
-        if ($catalogueItem->IMDBID === null) {
-            $url .= '&t=' . $titleEncoded . '&type=' . $catalogueItem->Type . '&plot=full';
-
-            if ($catalogueItem->Year !== null) {
-                $url .= '&y=' . $catalogueItem->Year;
-            }
-        } else {
-            $url .= '&i=' . $catalogueItem->IMDBID . '&plot=full';
-        }
-
-        //now create json file of api data
-        try {
-            $json = file_get_contents($url);
-        } catch (Throwable $e) {
-            user_error('There was an issue connecting to the omdb API: ' . $e);
-        }
-
-        $data = json_decode($json);
-
-        // Check if the API returned us a correct response.
-        if ($data->{'Response'} === 'False') {
-
-            $title = match ($data->Error) {
-                'Incorrect IMDb ID.' => [
-                    'error' => 'IMDB ID does not exist, you must have entered it directly to the database',
-                    'errorType' => 'danger',
-                ],
-                'Invalid API key!' => [
-                    'error' => 'Could not connect to omdbapi.com api, requires authorization key.',
-                    'errorType' => 'danger',
-                ],
-                'Movie not found!' => [
-                    'error' => 'Could not find this title, you must have entered it incorrectly into the database.',
-                    'errorType' => 'danger',
-                ],
-                default => [
-                    'error' => 'Something went wrong.',
-                    'errorType' => 'danger',
-                ],
-            };
-
-            // @todo return http error?
-            $result->push(ArrayData::create($title));
-
-        }
-        else {
-            // create asset folder path
-            $parentID = Folder::find_or_make($metadataFilePath);
-
-            // Sanitize for disallowed filename characters
-            $cleanMetadataFilename = $this->cleanFilename($catalogueItem->Title, $data->imdbID, 'txt');
-            $metadataFileName = Controller::join_links($metadataFilePath, $cleanMetadataFilename);
-
-            // save IMDB metadata local server
-            // creating dataobject this needs refactoring in SS4 to use assetsFileStore class
-            $metadata = File::create();
-            $metadata->setFromString(json_encode($data), $metadataFileName);
-            $metadata->update([
-                'Name' => $metadataFileName,
-                'Title' => $catalogueItem->Title . ' (' . $data->{'Year'} . ')',
-                'ParentID' => $parentID->ID,
-            ]);
-            $metadata->publishSingle();
-
-            // update the relation
-            $updateCatalog = Catalogue::get()->byID($this->slug);
-            $updateCatalog->update([
-                'ID' => $catalogueItem->ID,
-                'IMDBID' => $data->{'imdbID'},
-                'Year' => $data->{'Year'},
-                'Genre' => $data->{'Genre'},
-                'MetadataID' => $metadata->ID,
-            ])->write();
-
-            // Build a HTTPRequest for fetching poster imagery.
-            if ($data->{'Poster'} !== 'N/A') {
-                $posterRequestData = [
-                    'poster' => $data->Poster,
-                    'title' => $data->Title,
-                    'year'=> $data->Year,
-                    'IMDBID' => $data->imdbID,
-                ];
-                $request = $this->buildPosterRequest($posterRequestData);
-                /**
-                 * We do not need to return here because this method only redundantly
-                 * fetches the poster if it does not exist.
-                 * Thus, we just fetch the poster.
-                 * @see PageController::getPosterImageByID()
-                 */
-                $this->fetchPosterImage($request);
-            }
-
+        if ($catalogueItem->Metadata()->exists()) {
+            $data = json_decode($catalogueItem->Metadata->getString());
             $result->push(ArrayData::create($this->jsonDataToArray($data)));
+
+            return $result;
         }
+
+        // Grab our service build a request and then call the OMDB Api.
+        $service = new ApiService();
+        $query = $service::buildMetadataQueryParams($catalogueItem);
+        $data = $service->getMetadata($query);
+
+        // Hydrate our catalogue record and build assets.
+        $catalogueItem->hydrateMetadataFromResponse($data);
+
+        // Push result into array list
+        $result->push(ArrayData::create($this->jsonDataToArray($data)));
+
+        // Update the Poster at same time so it does not need to be done separately.
+        $this->getPoster($data);
 
         return $result;
     }
 
-    public function checkMetadataExists(): bool
+    /**
+     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
+     */
+    public function getPoster(stdClass $metadata): Image|stdClass|null
     {
-        $catalogueItem = Catalogue::get()->setQueriedColumns(['MetadataID'])->byID($this->slug);
+        // Get the video title from the Catalogue model.
+        $catalogueItem = Catalogue::get_by_id($this->getCatalogueSlug());
 
-        return !($catalogueItem->MetadataID === 0);
+        // Early exit if this ID does not exist
+        if (!$catalogueItem) {
+            $this->httpError('404', Constants::CATALOGUE_ID_DOES_NOT_EXIST);
+        }
+
+        if ($catalogueItem->Poster()->exists()) {
+            return $catalogueItem->Poster;
+        }
+
+        // Grab our service build a request and then call OMDB Api.
+        $service = new ApiService();
+        $posterImageSrc = $service->getPosterImage($catalogueItem->PosterURL);
+        $catalogueItem->hydratePosterFromResponse($metadata, $posterImageSrc);
+
+        return $catalogueItem->Poster;
     }
 
     /**
      * We need to return the IMDBAPI result as an arraylist for the template.
      *
      * @todo refactor into a foreach loop so don't have specify all field names
-     * @param string[] $data - api result
      */
     public function jsonDataToArray(stdClass $data): ?array
     {
-        if ($data === []) {
-            return [];
-        }
-
-        $title = [
-            'Title' => $data->Title,
-            'Year' => $data->Year,
-            'Rated' => $data->Rated,
-            'Released' => $data->Released,
-            'Runtime' => $data->Runtime,
-            'Genre' => $data->Genre,
-            'Director' => $data->Director,
-            'Writer' => $data->Writer,
-            'Actors' => $data->Actors,
-            'Plot' => $data->Plot,
-            'Language' => $data->Language,
-            'Country' => $data->Country,
-            'Awards' => $data->Awards,
-            'Poster' => $data->Poster,
-            'Ratings' => $data->Ratings,
-            'Metascore' => $data->Metascore,
-            'imdbRating' => $data->imdbRating,
-            'imdbVotes' => $data->imdbVotes,
-            'imdbID' => $data->imdbID,
+        return [
+            'Title' => $data->Title ?? '',
+            'Year' => $data->Year ?? '',
+            'Rated' => $data->Rated ?? '',
+            'Released' => $data->Released ?? '',
+            'Runtime' => $data->Runtime ?? '',
+            'Genre' => $data->Genre ?? '',
+            'Director' => $data->Director ?? '',
+            'Writer' => $data->Writer ?? '',
+            'Actors' => $data->Actors ?? '',
+            'Plot' => $data->Plot ?? '',
+            'Language' => $data->Language ?? '',
+            'Country' => $data->Country ?? '',
+            'Awards' => $data->Awards ?? '',
+            'Poster' => $data->Poster ?? '',
+            'Ratings' => $data->Ratings ?? '',
+            'Metascore' => $data->Metascore ?? '',
+            'imdbRating' => $data->imdbRating ?? '',
+            'imdbVotes' => $data->imdbVotes ?? '',
+            'imdbID' => $data->imdbID ?? '',
         ];
-
-        $rating = explode('/', current($data->{'Ratings'})->{'Value'});
-        // first rating (if available) is always the IMDB.com ratings, otherwise this will take whatever rating is available.
-        $title['Rating'] = $rating[0];
-
-        return $title;
     }
 
     /**
@@ -375,55 +268,45 @@ class ProfilePageController extends PageController
     }
 
     /**
-     * returns data for trailers from themoviedb.org
-     * @todo needs a service and tidying up
+     * Returns data for trailers from themoviedb.org
      */
     public function getTrailers(): ArrayList|null
     {
         //get video title and IMDBID values from Catalogue DB
-        $imdbMetadata = Catalogue::get_by_id($this->slug);
+        $catalogueItem = Catalogue::get_by_id($this->getCatalogueSlug());
 
-        if ($imdbMetadata->IMDBID === null) {
+        if ($catalogueItem->ImdbID === null) {
             return null;
         }
 
-        //set type because tmdb uses 'tv' instead of 'series'
-        $type = $imdbMetadata->Type === 'series' ? 'tv' : $imdbMetadata->Type;
+        $service = new ApiService();
+        $params = [
+            'external_source' => 'imdb_id',
+        ];
 
-        $tmdbAPIKey = 'api_key=' . self::$TMDBAPIKey;
+        // Check type because tmdb uses 'tv' instead of 'series'
+        $type = $catalogueItem->Type === 'series' ? 'tv' : $catalogueItem->Type;
 
-        // get ID from tmddb.org
-        try {
-            $apiURL = self::$api_base_uri['tmdb'] . 'find/' .$imdbMetadata->IMDBID .
-                '?' . $tmdbAPIKey . '&external_source=imdb_id';
+        // Get entire response
+        $movieData = $service->getTmdbID($catalogueItem->ImdbID, $params);
+        $tmdbID = $movieData->{$type . '_results'}[0]->{'id'};
 
-            $json = file_get_contents($apiURL);
-            $data = json_decode($json);
-        } catch (Throwable $e) {
-            user_error('There was an issue connecting to the omdb API: ' . $e);
+        // Call the trailers endpoint
+        $trailersData = $service->getTrailers($tmdbID, $type, []);
+
+        // Extracts keys of elements in $trailersData->results where the 'type' value is 'Trailer'.
+        $trailerKeysArray = array_keys(array_column($trailersData->{'results'}, 'type'), 'Trailer');
+
+        // Begin output for view/template
+        $trailersArray = ArrayList::create();
+
+        foreach ($trailerKeysArray as $value) {
+            $trailersArray->push(
+                ArrayData::create((array)$trailersData->{'results'}[$value])
+            );
         }
 
-        // now get trailers from id
-        try {
-            $id = $data->{$type . '_results'}[0]->{'id'};
-
-            $apiURL = self::$api_base_uri['tmdb'] . $type . '/' .$id . '/videos?' . $tmdbAPIKey;
-            $json = file_get_contents($apiURL);
-            $data = json_decode($json);
-
-            $trailerKeysArray = array_keys(array_column($data->{'results'}, 'type'), 'Trailer');
-            $trailersArray = ArrayList::create();
-
-            foreach ($trailerKeysArray as $value) {
-                $trailersArray->push(ArrayData::create((array)$data->{'results'}[$value]));
-            }
-
-            return $trailersArray;
-        } catch (Throwable $e) {
-            user_error('There was an issue connecting to the tmdb API: ' . $e);
-        }
-
-        return null;
+        return $trailersArray;
     }
 
 }

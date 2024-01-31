@@ -11,7 +11,7 @@
                                     $Top.getPosterImageByID($PosterID).ScaleHeight(220)
                                 <% else %>
                                     <img
-                                            src="$Top.getPosterImageByID"
+                                            src="$Top.getPosterImageByID(null)"
                                             alt="Browse {$Title} (Updated {$LastEdited.Ago})"
                                             class="loader"
                                     >
@@ -37,7 +37,7 @@
                                     $Top.getPosterImageByID($PosterID).ScaleHeight(220)
                                 <% else %>
                                     <img
-                                            src="{$Top.getPosterImageByID}"
+                                            src="{$Top.getPosterImageByID(null)}"
                                             alt="Browse {$Title} (Updated {$LastEdited.Ago})"
                                             class="loader"
                                     >

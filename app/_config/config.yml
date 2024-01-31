@@ -10,5 +10,7 @@ SilverStripe\View\SSViewer:
     - 'app'
     - '$default'
 
-GDBackend:
-  default_Quality: 80
+# Adds a new title field that we can query GraphQL with.
+SilverStripe\Assets\File:
+  db:
+    FolderTitle: 'Varchar(255)'

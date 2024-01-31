@@ -4,7 +4,6 @@ namespace App\Catalogue\PageTypes;
 
 use App\Catalogue\Models\Catalogue;
 use PageController;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ViewableData_Customised;
 
@@ -31,12 +30,12 @@ class TelevisionPageController extends PageController
         return $this->television();
     }
 
-    public function television()
+    public function television(): ViewableData_Customised
     {
         // main SQL call
         $media = Catalogue::get()->filter([
             'Type' => 'series',
-            'OwnerID' => $this->slug,
+            'OwnerID' => $this->getCatalogueSlug(),
         ])->sort('Title', 'ASC');
 
         $result = ArrayList::create();
