@@ -5,8 +5,10 @@ namespace App\Catalogue\PageTypes;
 use App\Catalogue\Api\Constants\Constants;
 use App\Catalogue\ApiServices\ApiService;
 use App\Catalogue\Models\Catalogue;
+use Exception;
 use PageController;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\ORM\ArrayList;
@@ -161,9 +163,9 @@ class ProfilePageController extends PageController
      * Creates metadata file from the OMDB API.
      * This function will also create relationships and save a local file
      *
-     * @throws HTTPResponse_Exception|NotFoundExceptionInterface|ValidationException
+     * @throws NotFoundExceptionInterface|ValidationException|HTTPResponse_Exception
      */
-    public function getMetadata(): ArrayList|stdClass|null
+    public function getMetadata(): ArrayList|stdClass|HTTPResponse_Exception|null
     {
         // Get the video title from the Catalogue model.
         $catalogueItem = Catalogue::get_by_id($this->getCatalogueSlug());
@@ -184,8 +186,16 @@ class ProfilePageController extends PageController
 
         // Grab our service build a request and then call the OMDB Api.
         $service = new ApiService();
-        $query = $service::buildMetadataQueryParams($catalogueItem);
-        $data = $service->getMetadata($query);
+        try {
+            $query = $service::buildMetadataQueryParams($catalogueItem);
+            $data = $service->getMetadata($query);
+
+            if ($data === null) {
+                throw new RuntimeException(Constants::CATALOGUE_ID_DOES_NOT_EXIST, '404');
+            }
+        } catch (Exception $e) {
+            return $service->createHTTPErrorFromException($e);
+        }
 
         // Hydrate our catalogue record and build assets.
         $catalogueItem->hydrateMetadataFromResponse($data);
