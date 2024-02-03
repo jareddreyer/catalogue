@@ -1,0 +1,7 @@
+Folder:
+  interfaces: [FileInterface]
+  fields:
+    folderTitle:
+      type: String
+      description: "Custom description for FolderTitle field"
+      resolver: [ 'App\Catalogue\GraphQL\Resolvers\FolderTypeWithFolderTitleFieldResolver', 'resolveFolderTitle']
