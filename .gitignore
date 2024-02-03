@@ -9,7 +9,7 @@ _ss_environment.php
 docker-compose.yml
 .env
 .graphql-generated/
-_graphql/
+public/_graphql/
 /public/_resources/
 /public/assets/
 silverstripe.log
