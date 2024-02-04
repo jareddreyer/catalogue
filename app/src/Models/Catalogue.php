@@ -91,7 +91,7 @@ class Catalogue extends DataObject
             ->exclude('ID', $this->ID)
             ->first()
         ) {
-            $result->error($media->Title . ' (' . $media->Year .') has already been inserted to the catalogue.');
+            $result->addError($media->Title . ' (' . $media->Year .') has already been inserted to the catalogue.');
         }
 
         return $result;
