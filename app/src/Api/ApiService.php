@@ -156,10 +156,19 @@ class ApiService
 
     /**
      * Allows saving of imdb posters to local storage
-     * @throws NotFoundExceptionInterface|HTTPResponse_Exception
+     * @throws NotFoundExceptionInterface
      */
     public function getPosterImage(string $uri): StreamInterface|null
     {
+        if ($uri === 'N/A') {
+            static::log_error(
+                new RuntimeException('No poster available', '404'),
+                ['request' => $uri]
+            );
+
+            return null;
+        }
+
         try {
             $response = $this->guzzle->get($uri);
 
@@ -388,7 +397,7 @@ class ApiService
     {
         // Default look up via title search
         $query = [
-            't' =>  urlencode($record->Title),
+            't' =>  $record->Title,
             'type' => $record->Type,
             'plot' => $plot,
         ];
