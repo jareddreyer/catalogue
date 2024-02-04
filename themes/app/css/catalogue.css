@@ -35,6 +35,8 @@ footer {
 .list-media__item {
     clear: both;
     margin-bottom: 1rem;
+    border-radius: 20px;
+    overflow: hidden;
 }
 
 .list-media__item a {
@@ -47,6 +49,8 @@ footer {
 
 .list-media__poster--wrapper:hover .list-media__metadata {
     opacity: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
 }
 
 .list-media__metadata {
